@@ -1,0 +1,76 @@
+import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+// 1. Interface for User Document
+export interface IUser extends Document {
+  username: string;
+  email: string;
+  password?: string; // Optional because it might not be present after hashing or for social logins
+  riskProfile?: mongoose.Types.ObjectId; // Reference to RiskProfile
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+// 2. Define the User Schema
+const UserSchema: Schema = new Schema({
+  username: {
+    type: String,
+    required: [true, 'Username is required'],
+    unique: true,
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters long'],
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [/.+@.+\..+/, 'Please enter a valid email address'], // Basic email regex
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: [6, 'Password must be at least 6 characters long'],
+    select: false, // Don't return password by default in queries
+  },
+  riskProfile: {
+    type: Schema.Types.ObjectId,
+    ref: 'RiskProfile', // Reference to the RiskProfile model
+    default: null,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+}, {
+  timestamps: true, // Automatically add createdAt and updatedAt timestamps
+});
+
+// 3. Pre-save hook to hash password before saving
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password!, salt);
+  next();
+});
+
+// 4. Method to compare password
+UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  // 'this.password' needs to be explicitly selected in the query for this to work
+  // e.g., User.findOne({ email }).select('+password')
+  return bcrypt.compare(candidatePassword, this.password || '');
+};
+
+// 5. Create and Export the Model
+const User = mongoose.model<IUser>('User', UserSchema);
+
+export default User;
+

@@ -1,0 +1,83 @@
+{
+  "name": "beginnerinvestorhub-tools",
+  "version": "1.0.0",
+  "description": "Beginner Investor Hub - Investment tools and risk assessment platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm --filter web lint",
+    "lint:fix": "pnpm --filter web lint --fix",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
+    "type-check": "pnpm --filter web type-check",
+    "test": "pnpm --filter web test",
+    "test:watch": "pnpm --filter web test:watch",
+    "clean": "pnpm --filter web clean && rm -rf node_modules",
+    "backend:dev": "pnpm --filter backend-api dev",
+    "backend:build": "pnpm --filter backend-api build",
+    "backend:start": "pnpm --filter backend-api start",
+    "services:market-data": "cd services/market-data-ingestion && python src/main.py",
+    "services:risk-engine": "cd services/risk-calculation-engine && python src/api.py",
+    "services:ai-nudge": "cd services/ai-behavioral-nudge-engine && python src/api.py",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "install:all": "pnpm install && pnpm --filter web install && pnpm --filter backend-api install",
+    "dev:all": "concurrently \"pnpm dev\" \"pnpm backend:dev\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/beginnerinvestorhub-tools.git"
+  },
+  "keywords": [
+    "investment",
+    "risk-assessment",
+    "portfolio",
+    "simulation",
+    "fintech",
+    "beginner-investing",
+    "financial-tools"
+  ],
+  "author": "Kevin RIngler <beginnerinvestorhub@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/beginnerinvestorhub-tools/issues"
+  },
+  "homepage": "https://github.com/yourusername/beginnerinvestorhub-tools#readme"
+}

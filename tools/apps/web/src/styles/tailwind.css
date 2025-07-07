@@ -1,0 +1,56 @@
+/* apps/web/src/styles/tailwind.css */
+
+/* These are the Tailwind CSS directives */
+/* They are processed by Tailwind CSS to generate all your utility classes */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  You can add your own custom global CSS styles here.
+  These styles will be processed by PostCSS and can use Tailwind's @apply directive
+  to compose new utility classes from existing ones.
+
+  For example, defining custom CSS variables for colors if not directly in tailwind.config.ts
+  or global styles for specific HTML elements.
+*/
+
+/* Example of defining CSS variables for colors (if not done in tailwind.config.ts) */
+:root {
+  --background: 0 0% 100%; /* White */
+  --foreground: 222.2 84% 4.9%; /* Dark blue/black */
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%; /* A shade of blue */
+  --primary-foreground: 210 20% 98%; /* Off-white */
+  --secondary: 210 40% 96.1%; /* Light gray */
+  --secondary-foreground: 222.2 47.4% 11.2%; /* Darker gray */
+  --muted: 210 40% 96.1%; /* Another light gray */
+  --muted-foreground: 215.4 16.3% 46.9%; /* Gray */
+  --accent: 210 40% 96.1%; /* Light gray for accents */
+  --accent-foreground: 222.2 47.4% 11.2%; /* Darker gray for accents */
+  --destructive: 0 84.2% 60.2%; /* Red */
+  --destructive-foreground: 210 20% 98%; /* Off-white */
+  --border: 214.3 31.6% 91.4%; /* Light gray border */
+  --input: 214.3 31.6% 91.4%; /* Light gray input border */
+  --ring: 221.2 83.2% 53.3%; /* Ring color */
+  --radius: 0.5rem; /* Border radius */
+}
+
+/* Example of applying a global style that might be common for a body or html tag */
+html, body {
+  @apply h-full bg-background text-foreground; /* Apply Tailwind classes to body */
+}
+
+/* You might want to define custom base styles for elements */
+h1 {
+  @apply text-4xl font-extrabold tracking-tight lg:text-5xl;
+}
+
+h2 {
+  @apply text-3xl font-semibold tracking-tight;
+}
+
+/* Add any other global styles here */
+
+

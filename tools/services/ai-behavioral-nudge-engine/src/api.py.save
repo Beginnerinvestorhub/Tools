@@ -1,0 +1,19 @@
+# services/ai-behavioral-nudge-engine/src/api.py
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uvicorn
+from typing import List, Dict, Any, Optional
+
+from .config import config
+from .data_collector import data_collector
+from .bias_detector import bias_detector
+from .nudge_generator import nudge_generator
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="AI Behavioral Nudge Engine",
+    description="API for collecting user data, detecting financial biases, and generating behavioral nudges.",
+    version="1.0.0"
+)
+
+# --- Pydantic Models for Re 

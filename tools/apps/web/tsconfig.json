@@ -1,0 +1,41 @@
+// /data/data/com.termux/files/home/beginnerinvestorhub/tools/apps/web/tsconfig.json
+
+{
+  "compilerOptions": {
+    "target": "es5",                    // Compile to ES5 for broader browser compatibility
+    "lib": ["dom", "dom.iterable", "esnext"], // Libraries available for compilation
+    "allowJs": true,                   // Allow JavaScript files to be compiled
+    "skipLibCheck": true,              // Skip type checking of declaration files
+    "strict": true,                    // Enable all strict type-checking options
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistent casing for file names
+    "noEmit": true,                    // Do not emit output (Next.js handles emitting)
+    "esModuleInterop": true,           // Allow default imports from modules with no default export
+    "module": "esnext",                // Specify module code generation
+    "moduleResolution": "node",        // Resolve modules using Node.js style
+    "resolveJsonModule": true,         // Allow importing .json files
+    "isolatedModules": true,           // Ensure each file can be safely transpiled without relying on other files
+    "jsx": "preserve",                 // Keep JSX as is for Next.js to handle
+    ""
+    "incremental": true,               // Enable incremental compilation for faster rebuilds
+
+    // Path aliases for easier imports (important for monorepos or deep structures)
+    // Adjust these based on your project structure and shared packages
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["../../packages/shared/*"], // Example for a shared package
+      "@api-types/*": ["../../packages/api-types/src/*"] // Example for your shared API types
+    }
+  },
+  "include": [
+    "next-env.d.ts", // Next.js specific type declarations
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",     // Include JavaScript files
+    "**/*.jsx"
+    // Add other file types if you have them, e.g., "**/*.mjs"
+  ],
+  "exclude": [
+    "node_modules" // Exclude node_modules from compilation
+  ]
+}
+

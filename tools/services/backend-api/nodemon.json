@@ -1,0 +1,15 @@
+{
+  "watch": ["src"],
+  "ext": "ts,js,json",
+  "exec": "ts-node src/server.ts",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "events": {
+    "start": "echo Backend API started...",
+    "restart": "echo Backend API restarting...",
+    "crash": "echo Backend API crashed! Restarting..."
+  },
+  "delay": "1500"
+}
+
