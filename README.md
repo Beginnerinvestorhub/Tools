@@ -26,21 +26,119 @@ pnpm dev
 
 ## 📁 Project Structure
 
-```
-Tools/
+beginnerinvestorhub/tools
+├── .env.example
+├── .gitignore
+├── package.json
+├── pnpm-workspace.yaml
+├── README.md
 ├── apps/
-│   └── web/                    # Next.js web application
+│   └── web/
+│       ├── public/
+│       │   └── favicon.ico
+│       └── src/
+│           ├── app/
+│           │   ├── (tools)/
+│           │   │   ├── risk-assessment/
+│           │   │   │   ├── page.tsx
+│           │   │   │   ├── loading.tsx
+│           │   │   │   └── error.tsx
+│           │   │   └── portfolio-simulation/
+│           │   │       ├── page.tsx
+│           │   │       ├── loading.tsx
+│           │   │       └── error.tsx
+│           │   ├── api/
+│           │   │   └── auth/
+│           │   │       └── [...nextauth].ts
+│           │   ├── layout.tsx
+│           │   ├── page.tsx
+│           │   └── globals.css
+│           ├── components/
+│           │   ├── ui/
+│           │   │   ├── button.tsx
+│           │   │   └── card.tsx
+│           │   └── common/
+│           │       ├── Navigation.tsx
+│           │       └── Footer.tsx
+│           ├── hooks/
+│           │   └── useRiskAssessment.ts
+│           ├── lib/
+│           │   └── utils.ts
+│           ├── styles/
+│           │   └── tailwind.css
+│           └── types/
+│               └── index.d.ts
+│       ├── next.config.js
+│       ├── package.json
+│       ├── postcss.config.js
+│       ├── tailwind.config.ts
+│       └── tsconfig.json
 ├── packages/
-│   ├── api-types/              # Shared TypeScript types
-│   ├── ui/                     # Shared UI components
-│   └── utils/                  # Shared utility functions
+│   ├── api-types/
+│   │   └── src/
+│   │       └── index.ts
+│   │   └── package.json
+│   ├── ui/
+│   │   └── src/
+│   │       └── index.ts
+│   │   └── package.json
+│   └── utils/
+│       └── src/
+│           └── formatters.ts
+│       └── package.json
 ├── services/
-│   ├── backend-api/            # Node.js/Express API server
-│   ├── market-data-ingestion/  # Python data fetching service
-│   ├── risk-calculation-engine/ # Python risk analysis engine
-│   └── ai-behavioral-nudge-engine/ # AI-powered behavioral analysis
-└── ...
-```
+│   ├── backend-api/
+│   │   ├── src/
+│   │   │   ├── controllers/
+│   │   │   │   ├── authController.ts
+│   │   │   │   ├── riskAssessmentController.ts
+│   │   │   │   └── simulationController.ts
+│   │   │   ├── models/
+│   │   │   │   ├── userModel.ts
+│   │   │   │   ├── riskProfileModel.ts
+│   │   │   │   ├── simulationModel.ts
+│   │   │   │   └── marketDataModel.ts
+│   │   │   ├── routes/
+│   │   │   │   ├── authRoutes.ts
+│   │   │   │   ├── riskAssessmentRoutes.ts
+│   │   │   │   └── simulationRoutes.ts
+│   │   │   ├── services/
+│   │   │   │   ├── authService.ts
+│   │   │   │   ├── riskEngineService.ts
+│   │   │   │   └── dbService.ts
+│   │   │   ├── app.ts
+│   │   │   └── server.ts
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── nodemon.json
+│   ├── market-data-ingestion/
+│   │   ├── src/
+│   │   │   ├── data_fetcher.py
+│   │   │   ├── data_processor.py
+│   │   │   ├── db_loader.py
+│   │   │   ├── main.py
+│   │   │   └── config.py
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   └── risk-calculation-engine/
+│       ├── src/
+│       │   ├── risk_assessment_engine.py
+│       │   ├── portfolio_simulator.py
+│       │   ├── correlations.py
+│       │   ├── api.py
+│       │   └── config.py
+│       ├── requirements.txt
+│       └── Dockerfile
+│   └── ai-behavioral-nudge-engine/
+│       ├── src/
+│       │   ├── data_collector.py
+│       │   ├── bias_detector.py
+│       │   ├── nudge_generator.py
+│       │   ├── api.py
+│       │   └── config.py
+│       ├── requirements.txt
+│       └── Dockerfile
+
 
 ## 🛠️ Technologies
 
