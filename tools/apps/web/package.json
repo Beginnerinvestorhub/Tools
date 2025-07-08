@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "react": "^18",
-    "react-dom": "^18",
+    "react-dom": "^19",
     "next": "^14.2.3",
     "firebase": "^10.12.2", // Firebase Client SDK for frontend authentication
     "@beginnerinvestorhub/api-types": "workspace:^", // Link to your shared API types package
