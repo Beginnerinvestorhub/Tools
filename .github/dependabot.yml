@@ -1,11 +1,31 @@
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"             # Change if your Python requirements file is in a subfolder
+  # Main monorepo package.json (pnpm/npm/yarn)
+  - package-ecosystem: "npm"
+    directory: "/tools/"
     schedule:
       interval: "weekly"
 
+  # Web app package.json
   - package-ecosystem: "npm"
-    directory: "/"             # Change if your package.json is in a subfolder
+    directory: "/tools/apps/web/"
+    schedule:
+      interval: "weekly"
+
+  # Shared API types package.json (track if/when you add dependencies)
+  - package-ecosystem: "npm"
+    directory: "/tools/packages/api-types/"
+    schedule:
+      interval: "weekly"
+
+  # AI Behavioral Nudge Engine Python requirements
+  - package-ecosystem: "pip"
+    directory: "/tools/services/ai-behavioral-nudge-engine/"
+    schedule:
+      interval: "weekly"
+
+  # Market Data Ingestion Python requirements
+  - package-ecosystem: "pip"
+    directory: "/tools/services/market-data-ingestion/"
     schedule:
       interval: "weekly"
