@@ -12,6 +12,6 @@ scikit-learn==1.5.0
 # pytorch==2.x.x # Uncomment and specify version if using PyTorch
 
 # Other utilities
-python-dotenv==1.0.1 # For loading .env files if needed
+python-dotenv==1.1.1 # For loading .env files if needed
 # Add any other libraries your src/*.py files depend on
 
