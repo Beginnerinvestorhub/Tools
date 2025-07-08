@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"             # Change if your Python requirements file is in a subfolder
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"
+    directory: "/"             # Change if your package.json is in a subfolder
+    schedule:
+      interval: "weekly"
