@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        language: [ 'python', 'javascript', 'typescript', 'powershell', 'shell' ]
+        language: [ 'python', 'javascript', 'typescript','CSS', 'SQL']
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
