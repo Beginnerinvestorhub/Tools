@@ -16,7 +16,7 @@ alembic==1.16.3
 psycopg2-binary==2.9.9
 
 # Redis for caching
-redis==5.0.1
+redis==6.2.0
 
 # Environment Variables
 python-dotenv==1.0.0
