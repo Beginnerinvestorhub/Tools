@@ -13,17 +13,17 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^19",
+    "react-dom": "^19",
     "next": "^14.2.3",
-    "firebase": "^10.12.2", // Firebase Client SDK for frontend authentication
+    "firebase": "^11.10.0", // Firebase Client SDK for frontend authentication
     "@beginnerinvestorhub/api-types": "workspace:^", // Link to your shared API types package
     "@beginnerinvestorhub/shared-ui": "workspace:^" // Example: If you have a shared UI library
     // Add other dependencies as you need them (e.g., axios, react-query, formik, yup)
   },
   "devDependencies": {
     "typescript": "^5",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "postcss": "^8",
@@ -31,7 +31,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "prettier": "^3.2.5", // For code formatting
-    "prettier-plugin-tailwindcss": "^0.5.14" // Prettier plugin for Tailwind CSS sorting
+    "prettier-plugin-tailwindcss": "^0.6.13" // Prettier plugin for Tailwind CSS sorting
   }
 }
 

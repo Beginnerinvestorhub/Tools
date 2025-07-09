@@ -1,10 +1,10 @@
 # Web Framework and Server
-fastapi==0.111.0
-uvicorn==0.30.1
+fastapi==0.116.0
+uvicorn==0.35.0
 
 # Data handling and processing
 pandas==2.2.2
-numpy==1.26.4
+numpy==2.0.2
 
 # Machine Learning / AI libraries (adjust based on your actual needs)
 scikit-learn==1.5.0
@@ -12,6 +12,6 @@ scikit-learn==1.5.0
 # pytorch==2.x.x # Uncomment and specify version if using PyTorch
 
 # Other utilities
-python-dotenv==1.0.1 # For loading .env files if needed
+python-dotenv==1.1.1 # For loading .env files if needed
 # Add any other libraries your src/*.py files depend on
 
