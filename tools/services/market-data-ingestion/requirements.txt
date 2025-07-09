@@ -32,7 +32,7 @@ celery-beat==2.4.0
 loguru==0.7.2
 
 # API Client Libraries
-yfinance==0.2.18
+yfinance==0.2.65
 alpha-vantage==3.0.0
 polygon-api-client==1.12.5
 
