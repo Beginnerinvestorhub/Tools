@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as authService from '../services/authService';
 import { ApiError } from '../../../../packages/api-types/src'; // Adjust path if needed
+import logger from '../utils/logger';
 
 /**
  * Handles user registration.
@@ -13,11 +14,14 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     try {
         const { username, email, password } = req.body;
         if (!username || !email || !password) {
+            logger.warn('Registration failed: Missing required fields', { username, email });
             throw new ApiError(400, 'All fields are required for registration.');
         }
         const newUser = await authService.registerUser(username, email, password);
+        logger.info('User registered successfully', { userId: newUser.id, email: newUser.email });
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {
+        logger.error('Registration error', { error });
         next(error);
     }
 };
@@ -39,15 +43,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         // using Firebase Client SDK, and then the ID token is sent.
         // The `authenticateToken` middleware *must* have run before this controller.
         const userId = (req as any).user?.id; // Firebase UID attached by authenticateToken middleware
-
-        if (!userId) {
-            // This should ideally be caught by authenticateToken middleware before reaching here.
-            throw new ApiError(401, 'Authentication required: Firebase ID Token missing or invalid.');
-        }
-
-        const user = await authService.loginUser(userId); // Fetch user profile using UID
+        // userId presence is now enforced by requireUserId middleware on the route
+        const user = await authService.loginUser(userId);
+        logger.info('User login successful', { userId });
         res.status(200).json({ message: 'Login successful', user });
     } catch (error) {
+        logger.error('Login error', { error });
         next(error);
     }
 };

@@ -1,4 +1,5 @@
 // User Types
+export * from './simulationTypes';
 export interface User {
   id: string;
   email: string;
