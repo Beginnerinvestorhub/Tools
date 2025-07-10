@@ -1,0 +1,42 @@
+# Dependency directories
+node_modules/
+.pnpm/
+.pnp/
+.cache/
+
+# Build output
+dist/
+build/
+.next/
+out/
+.temp/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS junk
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Local dev
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

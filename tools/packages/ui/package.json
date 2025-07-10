@@ -1,0 +1,37 @@
+{
+  "name": "@beginnerinvestorhub/ui",
+  "version": "1.0.0",
+  "description": "UI component library for Beginner Investor Hub.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc --declaration --emitDeclarationOnly false --outDir dist",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "typescript",
+    "ui",
+    "components",
+    "shared",
+    "beginnerinvestorhub"
+  ],
+  "author": "Kevin RIngler <beginnerinvestorhub@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beginnerinvestorhub/beginnerinvestorhub-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beginnerinvestorhub/beginnerinvestorhub-tools/issues"
+  },
+  "homepage": "https://github.com/beginnerinvestorhub/beginnerinvestorhub-tools#readme",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.17",
+    "rimraf": "^5.0.0"
+  }
+}

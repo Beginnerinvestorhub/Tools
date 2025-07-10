@@ -1,1 +1,37 @@
-[?2004h[?1049h[22;0;0t[1;28r(B[m[4l[?7h[39;49m[?1h=[?1h=[?25l[39;49m(B[m[H[2J[26;23H(B[0;7m[ New File ](B[m[?12l[?25h[28;1H[?1049l[23;0;0t[?1l>[?2004l
+{
+  "name": "@beginnerinvestorhub/api-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript API types for Beginner Investor Hub.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc --declaration --emitDeclarationOnly false --outDir dist",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "api",
+    "shared",
+    "beginnerinvestorhub"
+  ],
+  "author": "Kevin RIngler <beginnerinvestorhub@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/beginnerinvestorhub-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/beginnerinvestorhub-tools/issues"
+  },
+  "homepage": "https://github.com/yourusername/beginnerinvestorhub-tools#readme",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.17",
+    "rimraf": "^5.0.0"
+  }
+}
