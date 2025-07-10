@@ -5,11 +5,17 @@ import bcrypt from 'bcryptjs';
 export interface IUser extends Document {
   username: string;
   email: string;
-  password?: string; // Optional because it might not be present after hashing or for social logins
-  riskProfile?: mongoose.Types.ObjectId; // Reference to RiskProfile
+  password?: string;
+  riskProfile?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
+  educationProgress?: {
+    module: string;
+    completed: boolean;
+    score?: number;
+  }[];
+  lastQuestionnaire?: Record<string, any>;
 }
 
 // 2. Define the User Schema
@@ -40,6 +46,20 @@ const UserSchema: Schema = new Schema({
     ref: 'RiskProfile', // Reference to the RiskProfile model
     default: null,
   },
+  educationProgress: {
+    type: [
+      {
+        module: { type: String, required: true },
+        completed: { type: Boolean, default: false },
+        score: { type: Number }
+      }
+    ],
+    default: []
+  },
+  lastQuestionnaire: {
+    type: Object,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -49,7 +69,7 @@ const UserSchema: Schema = new Schema({
     default: Date.now,
   },
 }, {
-  timestamps: true, // Automatically add createdAt and updatedAt timestamps
+  timestamps: true
 });
 
 // 3. Pre-save hook to hash password before saving

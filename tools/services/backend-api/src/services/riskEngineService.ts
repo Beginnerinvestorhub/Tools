@@ -2,16 +2,8 @@
 
 import { ApiError } from '../../../../packages/api-types/src';
 import * as dbService from './dbService'; // To save/retrieve risk profiles and simulations
-import {
-    RiskAssessmentRequest,
-    RiskProfile,
-    PortfolioSimulationRequest,
-    PortfolioSimulationResult,
-    SuggestedPortfolio,
-    AssetAllocation,
-    SimulationDataPoint // Assuming this type exists in api-types
-} from '../../../../packages/api-types/src';
-import axios from 'axios'; // For making HTTP requests to Python microservices
+import axios from 'axios';
+import { PortfolioSimulationRequest, PortfolioSimulationResult } from '../../../../packages/api-types/src/simulationTypes';
 
 // Configuration for the Python Risk Calculation Engine
 const RISK_CALC_ENGINE_URL = process.env.RISK_CALC_ENGINE_URL || 'http://localhost:5001'; // Default to a local port
@@ -23,29 +15,23 @@ const RISK_CALC_ENGINE_URL = process.env.RISK_CALC_ENGINE_URL || 'http://localho
  * @returns The calculated and saved risk profile.
  * @throws ApiError if calculation fails or database operation fails.
  */
-export const processRiskAssessment = async (userId: string, assessmentRequest: RiskAssessmentRequest): Promise<RiskProfile> => {
+export const processRiskAssessment = async (userId: string, assessmentRequest: any): Promise<any> => {
     try {
-        // 1. Send assessment answers to the Python Risk Calculation Engine
         const response = await axios.post(`${RISK_CALC_ENGINE_URL}/assess-risk`, {
-            userId: userId, // Pass userId for context in the risk engine if needed
+            userId: userId,
             answers: assessmentRequest.answers,
         });
-
-        const { score, level, recommendations } = response.data; // Expected response from Python service
-
-        // 2. Create or update the risk profile in your database
-        const riskProfileData: Partial<RiskProfile> = {
-            userId,
-            score,
-            level,
-            // You might store recommendations or other detailed results here
+        const { score, level, recommendations } = response.data;
+        const riskProfileData = {
+            user: userId,
+            riskScore: score,
+            riskLevel: level,
             recommendations: recommendations || [],
+            answers: assessmentRequest.answers,
         };
         const savedRiskProfile = await dbService.createOrUpdateRiskProfile(userId, riskProfileData);
-
         return savedRiskProfile;
     } catch (error: any) {
-        console.error('Error processing risk assessment:', error.message);
         if (axios.isAxiosError(error) && error.response) {
             throw new ApiError(error.response.status, `Risk calculation engine error: ${error.response.data.message || error.message}`);
         }
@@ -153,7 +139,7 @@ export const getSimulationDetails = async (userId: string, simulationId: string)
  * @returns A suggested portfolio allocation.
  * @throws ApiError if risk profile not found or allocation fails.
  */
-export const getSuggestedPortfolio = async (userId: string): Promise<SuggestedPortfolio> => {
+export const getSuggestedPortfolio = async (userId: string): Promise<any> => {
     // 1. Get the user's risk profile
     const riskProfile = await dbService.getRiskProfileByUserId(userId);
 

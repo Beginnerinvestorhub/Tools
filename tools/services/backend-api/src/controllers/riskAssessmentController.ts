@@ -3,8 +3,8 @@
 import { Request, Response, NextFunction } from 'express';
 import * as riskEngineService from '../services/riskEngineService';
 import { ApiError } from '../../../../packages/api-types/src'; // Adjust path if needed
-import { RiskAssessmentRequest, RiskProfile } from '../../../../packages/api-types/src';
 import logger from '../utils/logger';
+import { riskAssessmentRequestSchema } from '../validation/riskAssessmentValidation';
 
 /**
  * Handles the creation or update of a user's risk assessment.
@@ -12,21 +12,18 @@ import logger from '../utils/logger';
  * @param res The Express response object.
  * @param next The Express next middleware function.
  */
+
 export const submitRiskAssessment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const assessmentRequest: RiskAssessmentRequest = req.body;
-        const userId = (req as any).user?.id; // userId is now enforced by requireUserId middleware
-
-        if (!assessmentRequest.answers || !Array.isArray(assessmentRequest.answers) || assessmentRequest.answers.length === 0) {
-            logger.warn('Risk assessment submission failed: No answers provided', { userId });
-            throw new ApiError(400, 'Risk assessment answers are required.');
+        const parseResult = riskAssessmentRequestSchema.safeParse(req.body);
+        if (!parseResult.success) {
+            return res.status(400).json({ message: 'Invalid risk assessment submission', errors: parseResult.error.flatten() });
         }
-
-        const riskProfile: RiskProfile = await riskEngineService.processRiskAssessment(userId, assessmentRequest);
-        logger.info('Risk assessment submitted successfully', { userId });
+        const assessmentRequest = parseResult.data;
+        const userId = (req as any).user?.id;
+        const riskProfile: any = await riskEngineService.processRiskAssessment(userId, assessmentRequest);
         res.status(200).json({ message: 'Risk assessment submitted successfully', riskProfile });
     } catch (error) {
-        logger.error('Risk assessment submission error', { error });
         next(error);
     }
 };

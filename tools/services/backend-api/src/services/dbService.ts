@@ -1,9 +1,9 @@
 
 import * as admin from 'firebase-admin';
-import { User } from '../models/userModel';
-import { RiskProfile } from '../models/riskProfileModel';
-import { Simulation } from '../models/simulationModel';
-import { MarketData } from '../models/marketDataModel'; // Adjust as needed for market data storage
+import { IUser } from '../models/userModel';
+import { IRiskProfile } from '../models/riskProfileModel';
+import { ISimulation } from '../models/simulationModel';
+import { IMarketData } from '../models/marketDataModel';
 
 // Load environment variables (ensure dotenv.config() is called in app.ts or server.ts before this is imported)
 // In a production setup, Firebase credentials might be automatically loaded by the environment (e.g., Google Cloud Functions)
@@ -125,33 +125,28 @@ export const findUserById = async (id: string): Promise<User | null> => {
 // --- Risk Profile Model Operations (using Firestore) ---
 
 export const createOrUpdateRiskProfile = async (userId: string, data: Partial<RiskProfile>): Promise<RiskProfile> => {
-    const riskProfileRef = db.collection('riskProfiles').doc(userId); // Use userId as doc ID for 1-to-1 mapping
-    const now = admin.firestore.FieldValue.serverTimestamp();
-
-    const riskProfileData: Partial<RiskProfile> = {
+    const riskProfileRef = db.collection('riskProfiles').doc(userId);
+    const riskProfileData = {
         ...data,
-        userId, // Ensure userId is always part of the data
-        updatedAt: now as any,
+        user: userId,
+        recommendations: data.recommendations || [],
+        answers: data.answers || {},
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
-
-    // If creating, add createdAt. Firestore's set with merge:true handles existing documents.
-    const docSnapshot = await riskProfileRef.get();
-    if (!docSnapshot.exists) {
-        riskProfileData.createdAt = now as any;
-    }
-
     await riskProfileRef.set(riskProfileData, { merge: true });
-
-    const updatedDoc = await riskProfileRef.get();
-    return { id: updatedDoc.id, ...(updatedDoc.data() as Omit<RiskProfile, 'id'>) } as RiskProfile;
+    const doc = await riskProfileRef.get();
+    return doc.data() as RiskProfile;
 };
 
 export const getRiskProfileByUserId = async (userId: string): Promise<RiskProfile | null> => {
     const doc = await db.collection('riskProfiles').doc(userId).get();
-    if (doc.exists) {
-        return { id: doc.id, ...(doc.data() as Omit<RiskProfile, 'id'>) } as RiskProfile;
-    }
-    return null;
+    if (!doc.exists) return null;
+    const data = doc.data() as RiskProfile;
+    return {
+        ...data,
+        recommendations: data.recommendations || [],
+        answers: data.answers || {}
+    };
 };
 
 // --- Simulation Model Operations (using Firestore) ---

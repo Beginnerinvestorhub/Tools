@@ -2,13 +2,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // 1. Interface for RiskProfile Document
 export interface IRiskProfile extends Document {
-  user: mongoose.Types.ObjectId; // Reference to the User who owns this profile
+  user: mongoose.Types.ObjectId;
   riskScore: number;
   riskLevel: 'Conservative' | 'Moderate' | 'Aggressive';
   investmentHorizon: 'Short-term' | 'Mid-term' | 'Long-term';
   liquidityNeeds: 'Low' | 'Medium' | 'High';
-  // You can add more fields based on your risk assessment questionnaire
-  // e.g., financialGoals: string; currentInvestments: string;
+  recommendations: string[];
+  answers: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +42,14 @@ const RiskProfileSchema: Schema = new Schema({
     enum: ['Low', 'Medium', 'High'],
     required: true,
   },
+  recommendations: {
+    type: [String],
+    default: []
+  },
+  answers: {
+    type: Object,
+    default: {}
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -54,7 +62,6 @@ const RiskProfileSchema: Schema = new Schema({
   timestamps: true,
 });
 
-// 3. Create and Export the Model
 const RiskProfile = mongoose.model<IRiskProfile>('RiskProfile', RiskProfileSchema);
 
 export default RiskProfile;
