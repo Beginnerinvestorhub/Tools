@@ -1,12 +1,11 @@
-// Simulation types for risk engine endpoints
+export type PortfolioAsset =
+  | { symbol: string; allocationType: 'percent'; allocation: number }
+  | { symbol: string; allocationType: 'absolute'; allocation: number };
 
 export interface PortfolioSimulationRequest {
   initialInvestment: number;
-  assets: {
-    symbol: string;
-    allocation: number; // percent or absolute value
-  }[];
-  simulationPeriod: number; // in years
+  assets: PortfolioAsset[];
+  simulationPeriod: number;
 }
 
 export interface PortfolioSimulationResult {
@@ -16,7 +15,6 @@ export interface PortfolioSimulationResult {
   details?: any;
 }
 
-// Common API error class for backend
 export class ApiError extends Error {
   statusCode: number;
   constructor(statusCode: number, message: string) {
