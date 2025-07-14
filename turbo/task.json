@@ -1,0 +1,30 @@
+{
+    "$schema": "https://turborepo.org/schema/tasks.json",
+    "tasks": [
+      {
+        "name": "build",
+        "cache": true,
+        "output": ["dist/**", "build/**"],
+        "persistent": false,
+        "dependsOn": ["^build"]
+      },
+      {
+        "name": "dev",
+        "cache": false,
+        "persistent": true
+      },
+      {
+        "name": "lint",
+        "cache": false
+      },
+      {
+        "name": "test",
+        "cache": true
+      },
+      {
+        "name": "type-check",
+        "cache": true
+      }
+    ]
+  }
+  

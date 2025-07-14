@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from .portfolio_simulator import PortfolioSimulator # Import the simulator we just created
+from .risk_assessment_engine import RiskAssessmentEngine, RiskFactors
 import numpy as np # Used for potential numpy array to list conversion
 
 app = FastAPI(
@@ -72,4 +73,45 @@ async def simulate_portfolio(input_data: SimulationInput):
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 # Additional endpoints could be added, e.g., for backtesting or more complex scenario analysis.
+
+class RiskAssessmentInput(BaseModel):
+    income: float
+    expenses: float
+    assets: float
+    liabilities: float
+    credit_score: int
+    investment_experience: int
+    risk_tolerance: int
+    market_volatility: float
+    industry_risk: float
+    economic_outlook: float
+    age: int
+    dependents: int
+    gender: str
+    is_immigrant: bool
+    is_retired: bool
+    employment_status: str
+    education_level: str
+    marital_status: str
+    region: str
+
+class RiskAssessmentOutput(BaseModel):
+    risk_score: float
+    risk_label: str
+    recommended_allocation: dict
+
+risk_engine = RiskAssessmentEngine()
+
+@app.post("/assess-risk", response_model=RiskAssessmentOutput, summary="Assess risk profile and recommend allocation")
+async def assess_risk(input_data: RiskAssessmentInput):
+    try:
+        factors = RiskFactors(**input_data.dict())
+        result = risk_engine.assess_risk(factors)
+        return RiskAssessmentOutput(
+            risk_score=result['risk_score'],
+            risk_label=result['risk_label'],
+            recommended_allocation=result['recommended_allocation']
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 

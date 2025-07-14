@@ -1,0 +1,90 @@
+{
+  "name": "beginnerinvestorhub-tools",
+  "version": "1.0.0",
+  "description": "Beginner Investor Hub - Investment tools and risk assessment platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "packages/*",
+    "services/*"
+  ],
+  "packageManager": "pnpm@8.15.5",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
+    "build": "concurrently \"pnpm --filter frontend build\" \"pnpm --filter backend build\"",
+    "start": "concurrently \"pnpm --filter frontend start\" \"pnpm --filter backend start\"",
+    "lint": "concurrently \"pnpm --filter frontend lint\" \"pnpm --filter backend lint\"",
+    "lint:fix": "concurrently \"pnpm --filter frontend lint --fix\" \"pnpm --filter backend lint --fix\"",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
+    "type-check": "concurrently \"pnpm --filter frontend type-check\" \"pnpm --filter backend type-check\"",
+    "test": "concurrently \"pnpm --filter frontend test\" \"pnpm --filter backend test\"",
+    "test:watch": "concurrently \"pnpm --filter frontend test:watch\" \"pnpm --filter backend test:watch\"",
+    "clean": "pnpm --filter frontend clean && pnpm --filter backend clean && rm -rf node_modules",
+    "backend:dev": "pnpm --filter backend dev",
+    "backend:build": "pnpm --filter backend build",
+    "backend:start": "pnpm --filter backend start",
+    "services:market-data": "cd services/market-data-ingestion && python src/main.py",
+    "services:risk-engine": "cd services/risk-calculation-engine && python src/api.py",
+    "services:ai-nudge": "cd services/ai-behavioral-nudge-engine && python src/api.py",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "install:all": "pnpm install && pnpm --filter frontend install && pnpm --filter backend install",
+    "dev:all": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^20.11.17",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "turbo": "^2.5.4",
+    "typescript": "^5.3.3"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/beginnerinvestorhub-tools.git"
+  },
+  "keywords": [
+    "investment",
+    "risk-assessment",
+    "portfolio",
+    "simulation",
+    "fintech",
+    "beginner-investing",
+    "financial-tools"
+  ],
+  "author": "Kevin Ringler <beginnerinvestorhub@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/beginnerinvestorhub-tools/issues"
+  },
+  "homepage": "https://github.com/yourusername/beginnerinvestorhub-tools#readme",
+  "dependencies": {
+    "morgan": "^1.10.0"
+  }
+}

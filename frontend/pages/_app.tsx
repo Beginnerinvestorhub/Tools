@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import ReactGA from 'react-ga4';
 import { Helmet } from 'react-helmet';
 import NudgeChatWidget from '../components/NudgeChatWidget';
+import NavBar from '../components/NavBar';
 
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
@@ -35,6 +36,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:site_name" content="Investment Tools Hub" />
         <link rel="icon" href="/favicon.ico" />
       </Helmet>
+      <NavBar />
       <Component {...pageProps} />
       <NudgeChatWidget />
     </>
