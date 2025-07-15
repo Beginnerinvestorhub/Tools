@@ -15,7 +15,7 @@
   "dependencies": {
     "react": "^19",
     "react-dom": "^19",
-    "next": "^14.2.3",
+    "next": "^15.4.1",
     "firebase": "^11.10.0", 
     "@beginnerinvestorhub/api-types": "workspace:^"
     
