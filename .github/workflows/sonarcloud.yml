@@ -1,0 +1,44 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Set up Python (adjust version if needed)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # (Optional) Run tests for coverage
+      - name: Run tests
+        run: |
+          pytest --cov=.
+
+      # SonarCloud scan
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ e58754b2e4c76be739aaed1a9e62096b19845a18}}
+          SONAR_PROJECT_KEY:  imtheonlyboss
+          SONAR_ORGANIZATION: beginnerinvestorhub
