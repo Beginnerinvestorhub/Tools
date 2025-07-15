@@ -46,7 +46,15 @@ router.post('/login', authenticateToken, authController.login);
 
 // ... (logout and getCurrentUser routes remain the same, relying on authenticateToken) ...
 router.post('/logout', authenticateToken, authController.logout);
-router.get('/me', authenticateToken, authController.getCurrentUser);
+import rateLimit from 'express-rate-limit';
+
+const meRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: { error: 'Too many requests, please try again later.' },
+});
+
+router.get('/me', meRateLimiter, authenticateToken, authController.getCurrentUser);
 
 export default router;
 
