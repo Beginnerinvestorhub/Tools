@@ -1,5 +1,5 @@
 # Web Framework and Server
-fastapi==0.116.0
+fastapi==0.116.1
 uvicorn==0.35.0
 
 # Data handling and processing
