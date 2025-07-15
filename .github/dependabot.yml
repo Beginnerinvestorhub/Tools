@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/tools/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -19,11 +19,11 @@ updates:
     rebase-strategy: "auto"
     versioning-strategy: "increase"
 
-  # Web app package.json
+  # Web app package.json (Next.js frontend)
   - package-ecosystem: "npm"
     directory: "/tools/apps/web/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -42,7 +42,26 @@ updates:
   - package-ecosystem: "npm"
     directory: "/tools/packages/api-types/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    assignees:
+      - "Beginnerinvestorhub"
+    reviewers:
+      - "Beginnerinvestorhub"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    rebase-strategy: "auto"
+    versioning-strategy: "increase"
+
+  # Backend API Node.js/TypeScript Express app
+  - package-ecosystem: "npm"
+    directory: "/tools/services/backend-api/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -80,7 +99,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/tools/services/market-data-ingestion/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -99,17 +118,6 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "security"
-    assignees:
-      - "Beginnerinvestorhub"
-    reviewers:
-      - "Beginnerinvestorhub"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-    rebase-strategy: "auto"
-    versioning-strategy: "increase"
+      interval: "daily"
+    open-pull-requests-limit
+
