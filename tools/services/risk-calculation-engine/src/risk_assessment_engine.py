@@ -3,7 +3,7 @@ import logging
 import time
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, field
-import numpy as np
+
 import pandas as pd
 import requests
 from sklearn.linear_model import LinearRegression
