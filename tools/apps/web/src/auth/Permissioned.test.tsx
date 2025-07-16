@@ -5,7 +5,7 @@ import { PermissionsProvider } from './PermissionsContext';
 import { Role } from './roles';
 
 function renderWithRole(role: Role | null, children: React.ReactNode) {
-  const user = role ? { id: '1', name: 'Test', role } : null;
+
   return render(
     <PermissionsProvider>
       <Permissioned allowed={[Role.Admin, Role.User]}>{children}</Permissioned>

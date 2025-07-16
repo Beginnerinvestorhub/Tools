@@ -16,6 +16,8 @@ export default function NudgeChatWidget() {
       const res = await axios.post('/api/nudge', { message: input });
       setMessages(msgs => [...msgs, { from: 'bot', text: res.data.nudge }]);
     } catch (err) {
+      // Log unexpected errors for debugging
+      console.error('NudgeChatWidget sendMessage error:', err);
       setMessages(msgs => [...msgs, { from: 'bot', text: 'Sorry, something went wrong.' }]);
     } finally {
       setLoading(false);

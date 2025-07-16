@@ -14,8 +14,14 @@ export function requireAuth(roles: string[] = []) {
         return res.status(403).json({ error: 'Forbidden' });
       }
       next();
-    } catch (e) {
-      return res.status(401).json({ error: 'Invalid token' });
+    } catch (e: any) {
+      // Only handle JWT errors here. Log unexpected errors for debugging.
+      if (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+      // Log unexpected errors and rethrow for global error handler
+      console.error('Unexpected error in requireAuth:', e);
+      throw e;
     }
   };
 }

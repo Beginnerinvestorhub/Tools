@@ -29,6 +29,8 @@ export default function MarketDataWidget({ alphaVantageKey, iexCloudKey, symbol,
         setIexData(iex);
         setCoinData(coin);
       } catch (err: any) {
+        // Log unexpected errors for debugging
+        console.error('MarketDataWidget fetch error:', err);
         setError('Failed to fetch market data.');
       } finally {
         setLoading(false);

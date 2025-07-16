@@ -18,6 +18,8 @@ export default function StripeCheckoutButton({ priceId }: { priceId: string }) {
         alert('Could not start checkout.');
       }
     } catch (err) {
+      // Log unexpected errors for debugging
+      console.error('StripeCheckoutButton handleCheckout error:', err);
       alert('Checkout failed.');
     }
   };

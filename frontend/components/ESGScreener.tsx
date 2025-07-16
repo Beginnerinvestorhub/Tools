@@ -8,14 +8,12 @@ type ESGData = { name: string; sector: string; esg: number; flagged: boolean; ma
 
 export default function ESGScreener() {
   const [data, setData] = useState<ESGData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
   const [sector, setSector] = useState('');
   const [threshold, setThreshold] = useState(0);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+
     fetch('/api/esg-proxy')
       .then(async (res) => {
         if (!res.ok) throw new Error((await res.json()).error || 'Failed to fetch ESG data');
@@ -23,7 +21,7 @@ export default function ESGScreener() {
       })
       .then((apiData) => setData(apiData.stocks || []))
       .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      // .finally(() => setLoading(false));
   }, []);
 
   const sectors = Array.from(new Set(data.map((d) => d.sector)));
