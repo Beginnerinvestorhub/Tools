@@ -1,9 +1,8 @@
 
 import * as admin from 'firebase-admin';
-import { IUser } from '../models/userModel';
+
 import { IRiskProfile } from '../models/riskProfileModel';
-import { ISimulation } from '../models/simulationModel';
-import { IMarketData } from '../models/marketDataModel';
+
 
 // Load environment variables (ensure dotenv.config() is called in app.ts or server.ts before this is imported)
 // In a production setup, Firebase credentials might be automatically loaded by the environment (e.g., Google Cloud Functions)

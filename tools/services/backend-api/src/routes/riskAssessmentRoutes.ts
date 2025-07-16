@@ -3,8 +3,17 @@
 import { Router } from 'express';
 import * as riskAssessmentController from '../controllers/riskAssessmentController';
 import { authenticateToken } from '../middleware/authMiddleware'; // Assuming you'll create this middleware
+import RateLimit from 'express-rate-limit';
 
 const router = Router();
+
+// Define rate-limiting middleware: max 100 requests per 15 minutes
+const rateLimiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // maximum 100 requests per windowMs
+    standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+    legacyHeaders: false, // Disable `X-RateLimit-*` headers
+});
 
 /**
  * @swagger
@@ -40,7 +49,7 @@ const router = Router();
  * 500:
  * description: Internal server error
  */
-router.post('/', authenticateToken, riskAssessmentController.submitRiskAssessment);
+router.post('/', rateLimiter, authenticateToken, riskAssessmentController.submitRiskAssessment);
 
 /**
  * @swagger
@@ -64,7 +73,7 @@ router.post('/', authenticateToken, riskAssessmentController.submitRiskAssessmen
  * 500:
  * description: Internal server error
  */
-router.get('/', authenticateToken, riskAssessmentController.getRiskProfile);
+router.get('/', rateLimiter, authenticateToken, riskAssessmentController.getRiskProfile);
 
 /**
  * @swagger
@@ -88,7 +97,7 @@ router.get('/', authenticateToken, riskAssessmentController.getRiskProfile);
  * 500:
  * description: Internal server error
  */
-router.get('/suggest-portfolio', authenticateToken, riskAssessmentController.suggestPortfolio);
+router.get('/suggest-portfolio', rateLimiter, authenticateToken, riskAssessmentController.suggestPortfolio);
 
 export default router;
 

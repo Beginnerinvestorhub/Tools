@@ -7,8 +7,8 @@ export interface User {
   firstName: string;
   lastName: string;
   avatar?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // Changed to string
+  updatedAt: string; // Changed to string
 }
 
 export interface CreateUserRequest {
@@ -52,9 +52,9 @@ export interface Investment {
   quantity: number;
   purchasePrice: number;
   currentPrice: number;
-  purchaseDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  purchaseDate: string; // Changed to string
+  createdAt: string; // Changed to string
+  updatedAt: string; // Changed to string
 }
 
 export enum InvestmentType {
@@ -71,7 +71,7 @@ export interface CreateInvestmentRequest {
   type: InvestmentType;
   quantity: number;
   purchasePrice: number;
-  purchaseDate: Date;
+  purchaseDate: string; // Changed to string
 }
 
 export interface UpdateInvestmentRequest {
@@ -90,8 +90,8 @@ export interface Portfolio {
   totalValue: number;
   totalGainLoss: number;
   totalGainLossPercentage: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // Changed to string
+  updatedAt: string; // Changed to string
 }
 
 export interface CreatePortfolioRequest {
@@ -113,7 +113,7 @@ export interface MarketData {
   changePercent: number;
   volume: number;
   marketCap?: number;
-  lastUpdated: Date;
+  lastUpdated: string; // Changed to string
 }
 
 export interface StockQuote {
@@ -126,7 +126,7 @@ export interface StockQuote {
   open: number;
   previousClose: number;
   volume: number;
-  timestamp: Date;
+  timestamp: string; // Changed to string
 }
 
 // Educational Content Types
@@ -138,8 +138,8 @@ export interface Article {
   author: string;
   category: ArticleCategory;
   tags: string[];
-  publishedAt: Date;
-  updatedAt: Date;
+  publishedAt: string; // Changed to string
+  updatedAt: string; // Changed to string
   readTime: number;
   difficulty: DifficultyLevel;
 }
@@ -190,8 +190,8 @@ export interface Watchlist {
   userId: string;
   name: string;
   symbols: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // Changed to string
+  updatedAt: string; // Changed to string
 }
 
 export interface CreateWatchlistRequest {
@@ -216,8 +216,8 @@ export interface Transaction {
   price: number;
   totalAmount: number;
   fees?: number;
-  date: Date;
-  createdAt: Date;
+  date: string; // Changed to string
+  createdAt: string; // Changed to string
 }
 
 export enum TransactionType {
@@ -234,7 +234,7 @@ export interface CreateTransactionRequest {
   quantity: number;
   price: number;
   fees?: number;
-  date: Date;
+  date: string; // Changed to string
 }
 
 // Search Types
