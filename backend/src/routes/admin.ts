@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../utils/requireAuth';
 import { requireRole } from '../middleware/roleAuth';
+import rateLimit from 'express-rate-limit';
 
 export const adminRouter = Router();
 
@@ -16,8 +17,14 @@ adminRouter.get('/', requireAuth(['admin']), requireRole(['admin']), (req, res) 
   res.json({ data: 'admin dashboard' });
 });
 
+// Rate limiter for /api/admin/users
+const usersRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+
 // GET /api/admin/users - list all users
-adminRouter.get('/users', requireAuth(['admin']), requireRole(['admin']), (req, res) => {
+adminRouter.get('/users', usersRateLimiter, requireAuth(['admin']), requireRole(['admin']), (req, res) => {
   res.json({ users });
 });
 
