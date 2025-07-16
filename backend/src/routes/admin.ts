@@ -1,8 +1,17 @@
 import { Router } from 'express';
 import { requireAuth } from '../utils/requireAuth';
 import { requireRole } from '../middleware/roleAuth';
+import rateLimit from 'express-rate-limit';
 
 export const adminRouter = Router();
+
+// Apply rate limiting to admin routes
+const adminRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' },
+});
+adminRouter.use(adminRateLimiter);
 
 // In-memory users for demo; replace with DB in production
 const users: any[] = [
