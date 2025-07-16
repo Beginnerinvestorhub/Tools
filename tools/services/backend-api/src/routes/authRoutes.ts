@@ -45,7 +45,13 @@ router.post('/register', authController.register);
 router.post('/login', authenticateToken, authController.login);
 
 // ... (logout and getCurrentUser routes remain the same, relying on authenticateToken) ...
-router.post('/logout', authenticateToken, authController.logout);
+const logoutRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 50, // limit each IP to 50 requests per windowMs for logout
+    message: { error: 'Too many logout requests, please try again later.' },
+});
+
+router.post('/logout', logoutRateLimiter, authenticateToken, authController.logout);
 import rateLimit from 'express-rate-limit';
 
 const meRateLimiter = rateLimit({
