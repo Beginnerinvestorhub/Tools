@@ -1,6 +1,6 @@
 
 import * as admin from 'firebase-admin';
-import { IUser } from '../models/userModel';
+
 import { IRiskProfile } from '../models/riskProfileModel';
 import { ISimulation } from '../models/simulationModel';
 import { IMarketData } from '../models/marketDataModel';
