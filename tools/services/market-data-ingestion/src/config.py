@@ -146,7 +146,7 @@ class Settings(BaseSettings):
         return v
     
     @validator("celery_accept_content")
-    def validate_celery_accept_content(cls, v):
+    def validate_celery_accept_content(self, v):
         if isinstance(v, str):
             return [c.strip() for c in v.split(",")]
         return v
