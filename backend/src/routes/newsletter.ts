@@ -11,7 +11,8 @@ router.post('/', async (req, res) => {
 
   // TODO: Integrate with real newsletter provider (Mailchimp, ConvertKit, etc.)
   // For now, just log and simulate success
-  console.log('Newsletter signup:', email);
+  const sanitizedEmail = email.replace(/[\n\r]/g, '');
+  console.log('Newsletter signup:', sanitizedEmail);
   return res.json({ success: true });
 });
 
