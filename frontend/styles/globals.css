@@ -19,17 +19,40 @@ html, body {
   background: linear-gradient(135deg, var(--color-moonlight-blue-light), var(--color-quike-silver-light));
   color: var(--color-moonlight-blue-dark);
   min-height: 100vh;
+  scroll-behavior: smooth;
 }
 
+/* Layout Wrappers */
+.page-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Links */
 a {
   color: var(--color-accent);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-a:hover {
+a:hover,
+a:focus-visible {
   text-decoration: underline;
+  color: var(--color-moonlight-blue);
+  outline-offset: 2px;
+  outline: 3px solid var(--color-accent);
+  outline-radius: 4px;
 }
 
+/* Buttons and .btn class */
 button, .btn {
   background: var(--color-moonlight-blue);
   color: var(--color-quike-silver);
@@ -38,13 +61,24 @@ button, .btn {
   padding: 0.6em 1.4em;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(37, 62, 91, 0.3);
 }
 
 button:hover, .btn:hover {
   background: var(--color-moonlight-blue-dark);
+  box-shadow: 0 4px 12px rgba(22, 34, 51, 0.5);
 }
 
+button:focus-visible, .btn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+/* Inputs, selects, textareas */
 input, select, textarea {
   border: 1px solid var(--color-quike-silver-dark);
   border-radius: 6px;
@@ -52,19 +86,50 @@ input, select, textarea {
   background: var(--color-quike-silver-light);
   color: var(--color-moonlight-blue-dark);
   margin-bottom: 1em;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 4px var(--color-accent);
+  outline: none;
+}
+
+/* Typography spacing (targeted instead of universal) */
+input, select, textarea, p, h1, h2, h3, h4, h5, h6 {
+  padding: 0.5em;
+  border: 1px solid var(--color-quike-silver-dark);
+  margin: 0.5em 0;
+}
+
+/* Footer */
 footer {
   background: var(--color-moonlight-blue-dark);
   color: var(--color-quike-silver-light);
   padding: 1em;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   background: var(--color-quike-silver-light);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-moonlight-blue-dark);
   border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-moonlight-blue);
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-moonlight-blue-dark) var(--color-quike-silver-light);
 }

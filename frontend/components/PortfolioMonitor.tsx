@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line, Pie } from 'react-chartjs-2';
-import { Chart, LineElement, PointElement, LinearScale, CategoryScale, ArcElement, Tooltip, Legend } from 'chart.js';
+import {
+  Chart,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 Chart.register(LineElement, PointElement, LinearScale, CategoryScale, ArcElement, Tooltip, Legend);
 
@@ -31,9 +40,13 @@ export default function PortfolioMonitor() {
       .finally(() => setLoading(false));
   }, []);
 
-export default function PortfolioMonitor() {
-  const [showAsset, setShowAsset] = useState<string | null>(null);
-  const [alertSensitivity, setAlertSensitivity] = useState(5);
+  if (loading) {
+    return <div className="text-center py-12">Loading portfolio data...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-600 py-12">Error: {error}</div>;
+  }
 
   const pieData = {
     labels: portfolio.map((a) => a.name),
@@ -60,35 +73,61 @@ export default function PortfolioMonitor() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-2xl">
-      <div className="mb-8">
-        <h3 className="font-semibold mb-2">Portfolio Allocation</h3>
+    <div className="bg-white rounded-xl shadow-md p-6 md:p-10 w-full max-w-3xl">
+      <div className="mb-10">
+        <h3 className="text-xl font-semibold text-indigo-800 mb-4">Portfolio Allocation</h3>
         <Pie data={pieData} options={{ plugins: { legend: { position: 'bottom' } } }} />
       </div>
-      <div className="mb-8">
-        <h3 className="font-semibold mb-2">Performance Over Time</h3>
-        <Line data={lineData} options={{ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }} />
+
+      <div className="mb-10">
+        <h3 className="text-xl font-semibold text-indigo-800 mb-4">Performance Over Time</h3>
+        <Line
+          data={lineData}
+          options={{
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } },
+          }}
+        />
       </div>
-      <div className="mb-8 flex flex-col md:flex-row gap-4 items-center">
-        <div>
+
+      <div className="mb-10 flex flex-col md:flex-row gap-6">
+        <div className="flex-1">
           <label className="block text-sm font-semibold mb-1">Asset Toggle</label>
-          <select className="input" value={showAsset || ''} onChange={e => setShowAsset(e.target.value || null)}>
+          <select
+            className="w-full border border-gray-300 rounded-md p-2"
+            value={showAsset || ''}
+            onChange={(e) => setShowAsset(e.target.value || null)}
+          >
             <option value="">All</option>
-            {portfolio.map(a => (
-              <option key={a.name} value={a.name}>{a.name}</option>
+            {portfolio.map((a) => (
+              <option key={a.name} value={a.name}>
+                {a.name}
+              </option>
             ))}
           </select>
         </div>
-        <div>
+
+        <div className="flex-1">
           <label className="block text-sm font-semibold mb-1">Alert Sensitivity</label>
-          <input type="range" min="1" max="10" value={alertSensitivity} onChange={e => setAlertSensitivity(Number(e.target.value))} className="w-full" />
-          <span className="ml-2">{alertSensitivity}</span>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={alertSensitivity}
+            onChange={(e) => setAlertSensitivity(Number(e.target.value))}
+            className="w-full"
+          />
+          <div className="text-sm text-gray-600 mt-1">Level: {alertSensitivity}</div>
         </div>
       </div>
+
       <div>
-        <h3 className="font-semibold mb-2">Asset Details</h3>
+        <h3 className="text-xl font-semibold text-indigo-800 mb-2">Asset Details</h3>
         {showAsset ? (
-          <div className="text-indigo-700 font-bold">{showAsset}: ${portfolio.find(a => a.name === showAsset)?.value?.toLocaleString() || 'N/A'}</div>
+          <div className="text-indigo-700 font-bold">
+            {showAsset}: $
+            {portfolio.find((a) => a.name === showAsset)?.value?.toLocaleString() || 'N/A'}
+          </div>
         ) : (
           <div className="text-gray-700">Select an asset to view details.</div>
         )}

@@ -9,9 +9,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
+import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-theme(spacing.16)-theme(spacing.16))] py-12 px-4 sm:px-6 lg:px-8 text-center">
+    <ResponsiveContainer>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-theme(spacing.16)-theme(spacing.16))] py-12 px-4 sm:px-6 lg:px-8 text-center">
       {/* Calculate min-height to account for Navigation and Footer if they have fixed heights */}
       <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
         Beginner Investor Hub
@@ -62,7 +65,8 @@ export default function HomePage() {
           </p>
         </Card>
       </div>
-    </div>
+      </div>
+    </ResponsiveContainer>
   );
 }
 
