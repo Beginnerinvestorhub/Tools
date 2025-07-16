@@ -2,7 +2,6 @@
 import * as admin from 'firebase-admin';
 
 import { IRiskProfile } from '../models/riskProfileModel';
-import { ISimulation } from '../models/simulationModel';
 
 
 // Load environment variables (ensure dotenv.config() is called in app.ts or server.ts before this is imported)
