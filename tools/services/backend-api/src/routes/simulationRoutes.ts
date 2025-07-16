@@ -1,6 +1,7 @@
 // beginnerinvestorhub/tools/services/backend-api/src/routes/simulationRoutes.ts
 
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import * as simulationController from '../controllers/simulationController';
 import { authenticateToken } from '../middleware/authMiddleware'; // Assuming you'll create this middleware
 
@@ -58,7 +59,14 @@ router.post('/run', authenticateToken, simulationController.runPortfolioSimulati
  * 500:
  * description: Internal server error
  */
-router.get('/history', authenticateToken, simulationController.getHistoricalSimulations);
+// Define rate limiter: maximum of 100 requests per 15 minutes
+const rateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+router.get('/history', authenticateToken, rateLimiter, simulationController.getHistoricalSimulations);
 
 /**
  * @swagger
