@@ -3,8 +3,19 @@
 import { Router } from 'express';
 import * as simulationController from '../controllers/simulationController';
 import { authenticateToken } from '../middleware/authMiddleware'; // Assuming you'll create this middleware
+import rateLimit from 'express-rate-limit';
 
 const router = Router();
+
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (15 minutes)
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+// Apply the rate limiter to all routes in this router
+router.use(limiter);
 
 /**
  * @swagger
