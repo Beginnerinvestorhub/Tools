@@ -3,8 +3,16 @@
 import { Router } from 'express';
 import * as simulationController from '../controllers/simulationController';
 import { authenticateToken } from '../middleware/authMiddleware'; // Assuming you'll create this middleware
+import RateLimit from 'express-rate-limit';
 
 const router = Router();
+
+// Define rate limiter: maximum of 10 requests per minute
+const simulationRateLimiter = RateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 10, // max 10 requests per windowMs
+    message: "Too many simulation requests from this IP, please try again later."
+});
 
 /**
  * @swagger
@@ -15,26 +23,6 @@ const router = Router();
  * security:
  * - bearerAuth: []
  * requestBody:
- * required: true
- * content:
- * application/json:
- * schema:
- * $ref: '#/components/schemas/PortfolioSimulationRequest'
- * responses:
- * 200:
- * description: Portfolio simulation results
- * content:
- * application/json:
- * schema:
- * $ref: '#/components/schemas/PortfolioSimulationResult'
- * 400:
- * description: Bad request (e.g., invalid simulation parameters)
- * 401:
- * description: Unauthorized (e.g., missing or invalid token)
- * 500:
- * description: Internal server error
- */
-router.post('/run', authenticateToken, simulationController.runPortfolioSimulation);
 
 /**
  * @swagger
