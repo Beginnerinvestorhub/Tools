@@ -2,7 +2,7 @@
 
 // No longer need bcrypt here if Firebase Auth handles all password hashing
 // import * as bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken'; // Still needed if your backend issues its own JWTs for some reason, or for custom tokens
+
 import { ApiError } from '../../../../packages/api-types/src';
 import * as dbService from './dbService'; // Import dbService
 import { User } from '../models/userModel'; // Assuming your User model interface/type
