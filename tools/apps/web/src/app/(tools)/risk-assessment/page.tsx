@@ -96,7 +96,7 @@ async function RiskAssessmentContent() {
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
             Based on your answers, your current risk score indicates you are a{' '}
             <span className="font-semibold text-blue-600 dark:text-blue-400">
-              {sampleRiskScore > 70 ? 'Aggressive Investor' : 'Moderate Investor'}
+              Moderate Investor
             </span>.
           </p>
           <Button className="py-3 px-6 text-lg">
