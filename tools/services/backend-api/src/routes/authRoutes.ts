@@ -40,9 +40,14 @@ router.post('/register', authController.register);
  * security:
  * - bearerAuth: [] # Indicate that this endpoint expects a Bearer token (Firebase ID Token)
  */
-// Apply authenticateToken middleware to the login route as well
-// It will verify the ID token, and if valid, the controller just fetches the profile.
-router.post('/login', authenticateToken, authController.login);
+// Apply rate limiting and authenticateToken middleware to the login route
+const loginRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: { error: 'Too many login attempts, please try again later.' },
+});
+
+router.post('/login', loginRateLimiter, authenticateToken, authController.login);
 
 // ... (logout and getCurrentUser routes remain the same, relying on authenticateToken) ...
 router.post('/logout', authenticateToken, authController.logout);
