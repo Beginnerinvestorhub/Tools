@@ -28,7 +28,7 @@ async function PortfolioSimulationContent() {
     );
   }
 
-  const userId = session.user.id;
+  // The userId variable was removed as it was unused.
 
   // Placeholder data for demonstration
   const userHasExistingSimulations = false; // Check if user has previous simulations
