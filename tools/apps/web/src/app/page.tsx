@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import FeatureCard from '@/components/FeatureCard';
 import ValueProposition from '@/components/ValueProposition';
