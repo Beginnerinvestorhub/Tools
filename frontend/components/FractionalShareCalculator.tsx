@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
-import { Pie, Bar } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import React, { useState, Suspense, useEffect } from 'react';
 
-Chart.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+const Pie = React.lazy(() => import('react-chartjs-2').then(mod => ({ default: mod.Pie })));
+const Bar = React.lazy(() => import('react-chartjs-2').then(mod => ({ default: mod.Bar })));
+
+function useRegisterChartJS() {
+  useEffect(() => {
+    import('chart.js').then(({ Chart, ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale }) => {
+      Chart.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+    });
+  }, []);
+}
+
 
 const brokers = [
   { name: 'Broker A', fee: 0 },
@@ -10,12 +18,13 @@ const brokers = [
   { name: 'Broker C', fee: 4.95 },
 ];
 
-export default function FractionalShareCalculator() {
-  const [amount, setAmount] = useState('');
-  const [symbol, setSymbol] = useState('');
-  const [price, setPrice] = useState('');
-  const [selectedBroker, setSelectedBroker] = useState(brokers[0].name);
-  const [loadingPrice, setLoadingPrice] = useState(false);
+export default function FractionalShareCalculator(): JSX.Element {
+  useRegisterChartJS();
+  const [amount, setAmount] = useState<string>('');
+  const [symbol, setSymbol] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
+  const [selectedBroker, setSelectedBroker] = useState<string>(brokers[0].name);
+  const [loadingPrice, setLoadingPrice] = useState<boolean>(false);
   const [priceError, setPriceError] = useState<string | null>(null);
 
   const fetchPrice = async (sym: string) => {
@@ -113,11 +122,15 @@ export default function FractionalShareCalculator() {
       </form>
       <div className="mb-6">
         <h3 className="font-semibold mb-2">Fractional Shares by Broker</h3>
-        <Pie data={pieData} options={{ plugins: { legend: { position: 'bottom' } } }} />
+        <Suspense fallback={<div>Loading chart...</div>}>
+  <Pie data={pieData} options={{ plugins: { legend: { position: 'bottom' } } }} />
+</Suspense>
       </div>
       <div className="mb-6">
         <h3 className="font-semibold mb-2">Broker Fee Comparison</h3>
-        <Bar data={barData} options={{ plugins: { legend: { display: false } } }} />
+        <Suspense fallback={<div>Loading chart...</div>}>
+  <Bar data={barData} options={{ plugins: { legend: { display: false } } }} />
+</Suspense>
       </div>
       <div className="text-center mt-4">
         <span className="text-lg font-bold text-indigo-700">

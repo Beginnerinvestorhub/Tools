@@ -1,14 +1,22 @@
-import React from 'react';
-import { Pie } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import React, { Suspense, useEffect } from 'react';
 
-Chart.register(ArcElement, Tooltip, Legend);
+const Pie = React.lazy(() => import('react-chartjs-2').then(mod => ({ default: mod.Pie })));
+
+export function useRegisterChartJS() {
+  useEffect(() => {
+    import('chart.js').then(({ Chart, ArcElement, Tooltip, Legend }) => {
+      Chart.register(ArcElement, Tooltip, Legend);
+    });
+  }, []);
+}
+
 
 interface RiskAllocationPieChartProps {
   allocation: Record<string, number>;
 }
 
 export default function RiskAllocationPieChart({ allocation }: RiskAllocationPieChartProps) {
+  useRegisterChartJS();
   const data = {
     labels: Object.keys(allocation),
     datasets: [
@@ -29,7 +37,9 @@ export default function RiskAllocationPieChart({ allocation }: RiskAllocationPie
 
   return (
     <div className="mb-6">
-      <Pie data={data} options={{ plugins: { legend: { position: 'bottom' } } }} />
+      <Suspense fallback={<div>Loading chart...</div>}>
+        <Pie data={data} options={{ plugins: { legend: { position: 'bottom' } } }} />
+      </Suspense>
     </div>
   );
 }

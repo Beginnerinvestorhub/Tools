@@ -17,7 +17,6 @@ export default function Home() {
   return (
     <Layout>
       <Head>
-        <title>BeginnerInvestorHub.com</title>
         <meta name="description" content="All-in-one investment tools, analytics, and insights." />
         <meta property="og:title" content="BeginnerInvestorHub.com" />
         <meta property="og:description" content="All-in-one investment tools, analytics, and insights." />
@@ -29,12 +28,9 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center flex-1 px-4 text-center max-w-4xl mx-auto py-12">
-        <h1 className="text-5xl md:text-7xl font-extrabold text-indigo-800 mb-6">
-          Investing starts with understanding.
+        <h1 className="text-xl md:text-2xl text-indigo-600 mb-8 font-bold">
+          Beginner Investor Hub
         </h1>
-        <p className="text-xl md:text-2xl text-indigo-600 mb-8">
-          Learn the principles of personal finance with hands-on tools and guidance.
-        </p>
         <div className="flex flex-row gap-4 mb-8 justify-center">
           <Link href="/dashboard">
             <button className="px-6 py-3 bg-indigo-700 text-white rounded-lg font-semibold hover:bg-indigo-800">
@@ -51,22 +47,22 @@ export default function Home() {
         {/* Features */}
         <section className="w-full max-w-4xl flex flex-wrap justify-center gap-6 my-12">
           <FeatureCard
-            icon={<AcademicCapIcon className="w-10 h-10 text-indigo-600" />}
+            icon={<AcademicCapIcon />}
             title="Personal Risk Assessment"
             description="Understand your risk tolerance and get personalized investment suggestions."
           />
           <FeatureCard
-            icon={<ScaleIcon className="w-10 h-10 text-indigo-600" />}
+            icon={<ScaleIcon />}
             title="Fractional Share Calculator"
             description="See how you can invest any amount, no matter how small, in top companies."
           />
           <FeatureCard
-            icon={<ChartBarIcon className="w-10 h-10 text-indigo-600" />}
+            icon={<ChartBarIcon />}
             title="Portfolio Monitoring Dashboard"
             description="Track your investments, performance, and diversification in one place."
           />
           <FeatureCard
-            icon={<GlobeAltIcon className="w-10 h-10 text-indigo-600" />}
+            icon={<GlobeAltIcon />}
             title="ESG/SRI Screening Tool"
             description="Align your investments with your values using ESG and SRI filters."
           />

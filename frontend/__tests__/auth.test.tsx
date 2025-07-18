@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import AuthForm from '../components/AuthForm';
+import AuthForm from '../components/components/components/AuthForm';
 
 jest.mock('../lib/firebase', () => ({
   auth: { signInWithEmailAndPassword: jest.fn(), createUserWithEmailAndPassword: jest.fn() },

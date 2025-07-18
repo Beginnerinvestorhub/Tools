@@ -1,19 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Bubble } from 'react-chartjs-2';
-import { Chart, BubbleController, PointElement, LinearScale, Tooltip, Legend } from 'chart.js';
+import React, { useState, useEffect, Suspense } from 'react';
 
-Chart.register(BubbleController, PointElement, LinearScale, Tooltip, Legend);
+const Bubble = React.lazy(() => import('react-chartjs-2').then(mod => ({ default: mod.Bubble })));
+
+function useRegisterChartJS() {
+  useEffect(() => {
+    import('chart.js').then(({ Chart, BubbleController, PointElement, LinearScale, Tooltip, Legend }) => {
+      Chart.register(BubbleController, PointElement, LinearScale, Tooltip, Legend);
+    });
+  }, []);
+}
+
 
 type ESGData = { name: string; sector: string; esg: number; flagged: boolean; marketCap: number };
 
-export default function ESGScreener() {
+export default function ESGScreener(): JSX.Element {
+  useRegisterChartJS();
   const [data, setData] = useState<ESGData[]>([]);
-
-  const [sector, setSector] = useState('');
-  const [threshold, setThreshold] = useState(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sector, setSector] = useState<string>('');
+  const [threshold, setThreshold] = useState<number>(0);
 
   useEffect(() => {
-
+    setLoading(true);
+    setError(null);
     fetch('/api/esg-proxy')
       .then(async (res) => {
         if (!res.ok) throw new Error((await res.json()).error || 'Failed to fetch ESG data');
@@ -21,7 +31,7 @@ export default function ESGScreener() {
       })
       .then((apiData) => setData(apiData.stocks || []))
       .catch((err) => setError(err.message))
-      // .finally(() => setLoading(false));
+      .finally(() => setLoading(false));
   }, []);
 
   const sectors = Array.from(new Set(data.map((d) => d.sector)));
@@ -40,6 +50,12 @@ export default function ESGScreener() {
     })),
   };
 
+  if (loading) {
+    return <div className="text-center py-12">Loading ESG data...</div>;
+  }
+  if (error) {
+    return <div className="text-center text-red-600 py-12">Error: {error}</div>;
+  }
   return (
     <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-2xl">
       <form className="flex flex-wrap gap-4 mb-8 items-end">
@@ -70,10 +86,15 @@ export default function ESGScreener() {
       </form>
       <div className="mb-6">
         <h3 className="font-semibold mb-2">ESG Score Bubble Chart</h3>
-        <Bubble data={bubbleData} options={{
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ESG ${ctx.raw.y}` } } },
-          scales: { x: { title: { display: true, text: 'Market Cap ($B)' } }, y: { title: { display: true, text: 'ESG Score' }, min: 0, max: 100 } }
-        }} />
+        <Suspense fallback={<div>Loading chart...</div>}>
+          <Bubble data={bubbleData} options={{
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => {
+  const raw = ctx.raw as { x: number; y: number; r: number };
+  return `${ctx.dataset.label}: ESG ${raw.y}`;
+} } } },
+            scales: { x: { title: { display: true, text: 'Market Cap ($B)' } }, y: { title: { display: true, text: 'ESG Score' }, min: 0, max: 100 } }
+          }} />
+        </Suspense>
       </div>
       <div>
         <h3 className="font-semibold mb-2">Red Flags</h3>
