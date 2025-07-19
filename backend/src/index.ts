@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 
 // Load environment variables from backend/.env
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -25,6 +26,21 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : '*';
 
 app.use(cors({ origin: allowedOrigins }));
+
+// Middleware: Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: {
+    error: 'Too many requests from this IP, please try again later.',
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply rate limiting to all API routes
+app.use('/api/', limiter);
+
 app.use(express.json());
 
 // API Routes
@@ -51,7 +67,8 @@ app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 if (require.main === module) {
   const port = process.env.PORT || 4000;
   app.listen(port, () => {
-    console.log(`✅ Backend API running at http://localhost:${port}`);
+    const host = process.env.NODE_ENV === 'production' ? process.env.BACKEND_HOST || 'production' : 'localhost';
+    console.log(`✅ Backend API running at http://${host}:${port}`);
   });
 
   if (process.env.NODE_ENV !== 'production') {

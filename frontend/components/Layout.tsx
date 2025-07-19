@@ -16,6 +16,7 @@ export default function Layout({ children }: LayoutProps) {
           <div>&copy; {new Date().getFullYear()} BeginnerInvestorHub.com</div>
           <nav className="flex gap-4">
             <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
             <a href="/dashboard">Dashboard</a>
             <a href="/signup">Sign Up</a>
           </nav>

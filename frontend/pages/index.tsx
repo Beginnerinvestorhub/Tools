@@ -45,7 +45,9 @@ export default function Home() {
         </div>
 
         {/* Features */}
-        <section className="w-full max-w-4xl flex flex-wrap justify-center gap-6 my-12">
+        <section className="w-full max-w-6xl my-12">
+          <h2 className="text-2xl font-bold text-indigo-800 mb-8 text-center">Our Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
           <FeatureCard
             icon={<AcademicCapIcon />}
             title="Personal Risk Assessment"
@@ -66,6 +68,7 @@ export default function Home() {
             title="ESG/SRI Screening Tool"
             description="Align your investments with your values using ESG and SRI filters."
           />
+          </div>
         </section>
 
         {/* Why It Matters */}

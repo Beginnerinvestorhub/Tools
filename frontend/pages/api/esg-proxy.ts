@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     // Replace with your backend ESG endpoint URL
-    const backendUrl = process.env.ESG_API_URL || 'http://localhost:5000/api/esg';
+    const backendUrl = process.env.ESG_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL + '/api/esg' || 'http://localhost:5000/api/esg';
     const backendRes = await fetch(backendUrl, {
       method: 'GET',
       headers: {

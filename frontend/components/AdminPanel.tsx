@@ -20,7 +20,7 @@ export default function AdminPanel() {
     if (!user) return;
     setLoading(true);
     user.getIdToken().then(token => {
-      axios.get('http://localhost:4000/api/admin/users', {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => setUsers(res.data.users))
@@ -34,7 +34,7 @@ export default function AdminPanel() {
     try {
       if (!user) throw new Error('No authenticated user');
       const token = await user.getIdToken();
-      await axios.post('http://localhost:4000/api/admin/role', { uid, role: newRole }, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/role`, { uid, role: newRole }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(users => users.map(u => u.uid === uid ? { ...u, role: newRole } : u));

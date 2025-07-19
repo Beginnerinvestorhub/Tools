@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import AuthForm from '../components/components/components/AuthForm';
+import AuthForm from '../components/AuthForm';
 
 export default function SignupPage() {
   return (

@@ -1,5 +1,5 @@
-import Navbar from '../../components/NavBar'
-import AuthForm from '../../components/AuthForm'
+import Navbar from '../components/NavBar'
+import AuthForm from '../components/AuthForm'
 
 export const metadata = {
   title: 'Login | Beginner Investor Hub',

@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     // Replace with your backend portfolio endpoint URL
-    const backendUrl = process.env.PORTFOLIO_API_URL || 'http://localhost:5000/api/portfolio';
+    const backendUrl = process.env.PORTFOLIO_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL + '/api/portfolio' || 'http://localhost:5000/api/portfolio';
     const backendRes = await fetch(backendUrl, {
       method: 'GET',
       headers: {

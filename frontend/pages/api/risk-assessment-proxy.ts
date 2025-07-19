@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     // Replace with your FastAPI backend URL
-    const backendUrl = process.env.RISK_ENGINE_URL || 'http://localhost:8000/assess-risk';
+    const backendUrl = process.env.RISK_ENGINE_URL || process.env.NEXT_PUBLIC_PYTHON_ENGINE_URL + '/assess-risk' || 'http://localhost:8000/assess-risk';
     const backendRes = await fetch(backendUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

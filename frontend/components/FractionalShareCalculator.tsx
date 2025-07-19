@@ -18,6 +18,14 @@ const brokers = [
   { name: 'Broker C', fee: 4.95 },
 ];
 
+/**
+ * FractionalShareCalculator is a component that allows users to calculate the number of fractional shares
+ * they can buy from various brokers based on an investment amount and stock price. It provides a form for 
+ * inputting the investment amount and stock symbol, fetches the stock price, and displays the results in 
+ * both a pie chart showing fractional shares by broker and a bar chart comparing broker fees. Users can 
+ * select a broker to see the specific number of shares they can purchase with the investment amount minus 
+ * the broker's fee.
+ */
 export default function FractionalShareCalculator(): JSX.Element {
   useRegisterChartJS();
   const [amount, setAmount] = useState<string>('');

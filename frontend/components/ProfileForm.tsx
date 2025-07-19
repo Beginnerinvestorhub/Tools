@@ -12,7 +12,7 @@ export default function ProfileForm() {
     if (!user) return;
     setLoading(true);
     user.getIdToken().then(token => {
-      axios.get('http://localhost:4000/api/profile', { headers: { Authorization: `Bearer ${token}` } })
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => setProfile(res.data))
         .catch(() => {})
         .finally(() => setLoading(false));
@@ -30,7 +30,7 @@ export default function ProfileForm() {
     setLoading(true);
     try {
       const token = await user.getIdToken();
-      await axios.post('http://localhost:4000/api/profile', profile, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, profile, { headers: { Authorization: `Bearer ${token}` } });
       setSaved(true);
     } catch {
       setSaved(false);

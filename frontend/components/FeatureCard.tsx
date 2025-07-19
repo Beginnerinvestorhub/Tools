@@ -10,7 +10,7 @@ interface FeatureCardProps {
 
 export default function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 w-full sm:w-72 flex flex-col items-center text-center hover:shadow-lg transition duration-200">
+    <div className="bg-white rounded-xl shadow-md p-6 w-full max-w-sm flex flex-col items-center text-center hover:shadow-lg transition duration-200">
       <div className="mb-4 bg-indigo-100 p-4 rounded-full flex items-center justify-center">
         {/*
           This div now consistently sizes the icon to w-8 h-8.
