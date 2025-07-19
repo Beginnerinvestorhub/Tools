@@ -49,7 +49,7 @@ export default function MarketDataWidget({ alphaVantageKey, iexCloudKey, symbol,
           <div>
             <h4 className="font-semibold text-indigo-700">Stock ({symbol})</h4>
             <div className="text-sm text-gray-700">
-              <div><b>Alpha Vantage:</b> {alphaData && alphaData['Time Series (Daily)'] ? Object.entries(alphaData['Time Series (Daily)'])[0][1]['4. close'] : 'N/A'}</div>
+              <div><b>Alpha Vantage:</b> {alphaData && alphaData['Time Series (Daily)'] ? (Object.entries(alphaData['Time Series (Daily)'])[0][1] as any)['4. close'] : 'N/A'}</div>
               <div><b>IEX Cloud:</b> {iexData && iexData.latestPrice ? `$${iexData.latestPrice}` : 'N/A'}</div>
             </div>
           </div>

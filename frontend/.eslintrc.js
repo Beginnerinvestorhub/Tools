@@ -1,7 +1,6 @@
 module.exports = {
   extends: [
-    'next/core-web-vitals',
-    'prettier'
+    'next/core-web-vitals'
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
