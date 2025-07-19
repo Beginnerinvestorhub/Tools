@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 
 const router = express.Router();
@@ -7,7 +7,7 @@ const router = express.Router();
 const profiles: Record<string, { name?: string; riskTolerance?: string; goals?: string }> = {};
 
 // GET /api/profile - get current user's profile
-router.get('/', requireAuth, (req, res) => {
+router.get('/', requireAuth, (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -27,7 +27,7 @@ router.get('/', requireAuth, (req, res) => {
    * @param {Request} req - The Express request object, containing user ID and profile data in the body.
    * @param {Response} res - The Express response object, used to send back the success status or error.
    */
-router.post('/', requireAuth, (req, res) => {
+router.post('/', requireAuth, (req: Request, res: Response) => {
   // Extracts the user's ID from the request object, assuming it's populated by authentication middleware.
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: 'Unauthorized' });
