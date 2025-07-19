@@ -49,7 +49,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {mode === 'login' ? 'Login' : 'Sign Up'}
       </button>
       {formError && <div>{formError}</div>}
-      {error && <div>{error}</div>}
+      {error && <div>{error.message}</div>}
     </form>
   );
 }
