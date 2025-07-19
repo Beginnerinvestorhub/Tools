@@ -39,6 +39,6 @@ jobs:
         with:
           projectBaseDir: .
         env:
-          SONAR_TOKEN: ${{ e58754b2e4c76be739aaed1a9e62096b19845a18}}
+          SONAR_TOKEN: ${{ github}}
           SONAR_PROJECT_KEY:  imtheonlyboss
           SONAR_ORGANIZATION: beginnerinvestorhub
