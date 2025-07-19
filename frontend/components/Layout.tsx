@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import NavBar from './NavBar';
 import NudgeChatWidget from './NudgeChatWidget';
 
@@ -15,10 +16,10 @@ export default function Layout({ children }: LayoutProps) {
         <footer className="w-full py-8 text-center text-indigo-400 text-sm flex flex-col items-center gap-2 border-t border-indigo-100 mt-8">
           <div>&copy; {new Date().getFullYear()} BeginnerInvestorHub.com</div>
           <nav className="flex gap-4">
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/signup">Sign Up</a>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/signup">Sign Up</Link>
           </nav>
           <div>Not investment advice. For educational purposes only.</div>
         </footer>

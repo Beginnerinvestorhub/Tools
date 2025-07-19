@@ -150,8 +150,8 @@ export default function RiskAssessmentForm({ onSubmit, loading, error }: RiskAss
           <select name="education_level" value={form.education_level} onChange={handleChange} className="input" required>
             <option value="">Education Level</option>
             <option value="high_school">High School</option>
-            <option value="bachelor">Bachelor's</option>
-            <option value="master">Master's</option>
+            <option value="bachelor">Bachelor&apos;s</option>
+            <option value="master">Master&apos;s</option>
             <option value="doctorate">Doctorate</option>
             <option value="other">Other</option>
           </select>

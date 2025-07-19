@@ -22,7 +22,7 @@ const PortfolioMonitor = React.memo(function PortfolioMonitor(): JSX.Element {
   const [alertSensitivity, setAlertSensitivity] = useState<number>(5);
 
   // Use the new useApi hook for cleaner API state management
-  const { data: portfolioData, loading, error, refetch } = useApiGet<{
+  const { data: portfolioData, loading, error } = useApiGet<{
     assets: PortfolioAsset[];
     history: PortfolioHistory[];
   }>('/api/portfolio-proxy');
@@ -30,15 +30,7 @@ const PortfolioMonitor = React.memo(function PortfolioMonitor(): JSX.Element {
   const portfolio = portfolioData?.assets || [];
   const history = portfolioData?.history || [];
 
-  if (loading) {
-    return <div className="text-center py-12">Loading portfolio data...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-600 py-12">Error: {error}</div>;
-  }
-
-  // Memoize chart data to prevent unnecessary recalculations
+  // Memoize chart data to prevent unnecessary recalculations - MUST be before early returns
   const pieData = useMemo(() => ({
     labels: portfolio.map((a) => a.name),
     datasets: [
@@ -72,6 +64,14 @@ const PortfolioMonitor = React.memo(function PortfolioMonitor(): JSX.Element {
     plugins: { legend: { display: false } },
     scales: { y: { beginAtZero: true } },
   }), []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading portfolio data...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-600 py-12">Error: {error}</div>;
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 md:p-10 w-full max-w-3xl">
