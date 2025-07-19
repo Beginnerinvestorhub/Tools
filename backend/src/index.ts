@@ -8,9 +8,9 @@ import rateLimit from 'express-rate-limit';
 // Load environment variables from backend/.env
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-// ✅ Fail fast if Stripe key is missing
+// ⚠️ Warn if Stripe key is missing (but don't crash)
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('❌ Missing STRIPE_SECRET_KEY in environment!');
+  console.warn('⚠️ STRIPE_SECRET_KEY not found - Stripe functionality will be disabled');
 }
 
 const app = express();
