@@ -33,7 +33,7 @@
     "docker:down": "docker-compose down",
     "install:all": "pnpm install && pnpm --filter frontend install && pnpm --filter backend install",
     "dev:all": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
-    "prepare": "husky install"
+    "prepare": "husky install || true"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.10",
