@@ -43,7 +43,8 @@ export default function RiskAssessmentForm({ onSubmit, loading, error }: RiskAss
   const [form, setForm] = useState<any>(initialState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setForm((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
