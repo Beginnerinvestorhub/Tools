@@ -12,8 +12,17 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-const analytics = typeof window !== "undefined" ? getAnalytics(app) : undefined;
-const auth = getAuth(app);
+// Only initialize Firebase if API key is available (prevents build-time errors)
+let app: any = null;
+let analytics: any = undefined;
+let auth: any = null;
+
+if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+  app = initializeApp(firebaseConfig);
+  analytics = typeof window !== "undefined" ? getAnalytics(app) : undefined;
+  auth = getAuth(app);
+} else {
+  console.warn('Firebase not initialized: Missing NEXT_PUBLIC_FIREBASE_API_KEY');
+}
 
 export { app, analytics, auth };
