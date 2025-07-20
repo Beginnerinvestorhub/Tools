@@ -1,16 +1,34 @@
 import Head from 'next/head';
 import { useAuth } from '../hooks/useAuth';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import MainAppEmbed from '../components/MainAppEmbed';
 import StripeCheckoutButton from '../components/StripeCheckoutButton';
 import MarketDataWidget from '../components/MarketDataWidget';
+import { useGamification } from '../hooks/useGamification';
+import UserStatsCard from '../components/gamification/UserStatsCard';
+import AchievementNotification from '../components/gamification/AchievementNotification';
+import { Badge, Achievement } from '../types/gamification';
 
 const STRIPE_PRICE_ID = 'price_12345';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [notification, setNotification] = useState<{
+    type: 'badge' | 'achievement' | 'points';
+    data: any;
+  } | null>(null);
+  
+  // Initialize gamification for authenticated user
+  const gamification = useGamification(user?.uid || '');
+  
+  // Track dashboard visit
+  useEffect(() => {
+    if (user && gamification.userProgress) {
+      gamification.trackEvent('DAILY_LOGIN');
+    }
+  }, [user, gamification.userProgress]);
 
   // Redirect unauthenticated users to login
   useEffect(() => {
@@ -39,6 +57,15 @@ export default function DashboardPage() {
           Welcome to your Dashboard
         </h1>
 
+        {/* Gamification Progress */}
+        {gamification.userProgress && !gamification.loading && (
+          <UserStatsCard 
+            userProgress={gamification.userProgress} 
+            compact={true}
+            className="mb-6"
+          />
+        )}
+
         {/* Embedded App */}
         <MainAppEmbed />
 
@@ -60,6 +87,16 @@ export default function DashboardPage() {
           <StripeCheckoutButton priceId={STRIPE_PRICE_ID} />
         </div>
       </main>
+      
+      {/* Achievement Notifications */}
+      {notification && (
+        <AchievementNotification
+          {...(notification.type === 'badge' ? { badge: notification.data } : {})}
+          {...(notification.type === 'achievement' ? { achievement: notification.data } : {})}
+          {...(notification.type === 'points' ? { points: notification.data } : {})}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }
