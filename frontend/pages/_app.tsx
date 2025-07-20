@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet';
 import NudgeChatWidget from '../components/NudgeChatWidget';
 import NavBar from '../components/NavBar';
 
+
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
 function MyApp({ Component, pageProps }: AppProps) {

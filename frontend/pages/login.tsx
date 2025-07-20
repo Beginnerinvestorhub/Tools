@@ -1,4 +1,3 @@
-import Navbar from '../components/NavBar'
 import AuthForm from '../components/AuthForm'
 
 export const metadata = {
@@ -9,7 +8,6 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex flex-1 items-center justify-center px-6 py-12 bg-gradient-to-br from-blue-50 to-indigo-100">
         <section className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg flex flex-col items-center">
           <h1 className="mb-6 text-3xl font-extrabold text-center text-indigo-800">
