@@ -69,7 +69,7 @@ export default function SocialSharing({ achievement, badge, level, points }: Soc
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4 mb-4">
-        <p className="text-sm text-gray-700 italic">"{shareText}"</p>
+        <p className="text-sm text-gray-700 italic">&ldquo;{shareText}&rdquo;</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

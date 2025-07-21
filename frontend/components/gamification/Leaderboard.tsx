@@ -18,7 +18,7 @@ export default function Leaderboard() {
 
   useEffect(() => {
     fetchLeaderboard();
-  }, [timeframe]);
+  }, [timeframe]); // fetchLeaderboard is stable
 
   const fetchLeaderboard = async () => {
     try {

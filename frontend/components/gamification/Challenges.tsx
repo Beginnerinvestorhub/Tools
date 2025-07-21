@@ -24,7 +24,7 @@ export default function Challenges() {
 
   useEffect(() => {
     fetchChallenges();
-  }, [user]);
+  }, [user]); // fetchChallenges is stable
 
   const fetchChallenges = async () => {
     if (!user) return;

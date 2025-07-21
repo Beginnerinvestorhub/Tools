@@ -8,7 +8,7 @@ import MarketDataWidget from '../components/MarketDataWidget';
 import { useGamificationAPI } from '../hooks/useGamificationAPI';
 import UserStatsCard from '../components/gamification/UserStatsCard';
 import AchievementNotification from '../components/gamification/AchievementNotification';
-import { Badge, Achievement } from '../types/gamification';
+// import { Badge, Achievement } from '../types/gamification'; // Unused for now
 
 const STRIPE_PRICE_ID = 'price_12345';
 
@@ -22,13 +22,13 @@ export default function DashboardPage() {
 
   const {
     userProgress,
-    badges,
-    achievements,
-    notifications,
+    // badges,
+    // achievements,
+    // notifications,
     isLoading: gamificationLoading,
     error: gamificationError,
     trackEvent,
-    dismissNotification,
+    // dismissNotification,
   } = useGamificationAPI(user?.uid || '');
 
   // Track daily login when component mounts

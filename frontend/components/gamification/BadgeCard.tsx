@@ -1,7 +1,7 @@
 // Badge card component for displaying individual badges
 
 import React from 'react';
-import { Badge, BadgeRarity } from '../../types/gamification';
+import { Badge } from '../../types/gamification';
 import { RARITY_COLORS } from '../../config/badges';
 
 interface BadgeCardProps {

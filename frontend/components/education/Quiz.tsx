@@ -25,11 +25,11 @@ const sampleQuestions: Question[] = [
 ];
 
 interface QuizProps {
-  lessonSlug: string;
+  lessonSlug?: string;
   onPass: () => void;
 }
 
-export default function Quiz({ lessonSlug, onPass }: QuizProps) {
+export default function Quiz({ onPass }: QuizProps) {
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
