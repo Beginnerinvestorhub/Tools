@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const withMDX = require('@next/mdx')({ extension: /\.mdx?$/ });
+
+const nextConfig = withMDX({
   reactStrictMode: true,
   images: {
     domains: ['your-cdn.com'],
@@ -10,6 +12,7 @@ const nextConfig = {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
     NUDGE_ENGINE_API_KEY: process.env.NUDGE_ENGINE_API_KEY,
   },
-};
+  pageExtensions: ['js','jsx','ts','tsx','md','mdx'],
+});
 
 module.exports = nextConfig;

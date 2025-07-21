@@ -58,6 +58,7 @@ import newsletterRouter from './routes/newsletter';
 import stripeRouter from './routes/stripe';
 import profileRouter from './routes/profile';
 import gamificationRouter from './routes/gamification';
+import { educationRouter } from './routes/education';
 
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
@@ -67,6 +68,7 @@ app.use('/api/newsletter', newsletterRouter);
 app.use('/api/stripe', stripeRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/gamification', gamificationRouter);
+app.use('/api/education', educationRouter);
 
 // Health Check
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));

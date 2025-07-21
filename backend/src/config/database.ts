@@ -32,16 +32,22 @@ export const initializeDatabase = async (): Promise<void> => {
   try {
     const client = await pool.connect();
     
-    // Read and execute schema file
+    // Read and execute gamification schema
     const fs = require('fs');
     const path = require('path');
-    const schemaPath = path.join(__dirname, '../../database/schema/gamification.sql');
-    
-    if (fs.existsSync(schemaPath)) {
-      const schema = fs.readFileSync(schemaPath, 'utf8');
+    const gamificationSchemaPath = path.join(__dirname, '../../database/schema/gamification.sql');
+    if (fs.existsSync(gamificationSchemaPath)) {
+      const schema = fs.readFileSync(gamificationSchemaPath, 'utf8');
       await client.query(schema);
-      console.log('✅ Database schema initialized');
     }
+
+    // Read and execute education schema
+    const educationSchemaPath = path.join(__dirname, '../../database/schema/education.sql');
+    if (fs.existsSync(educationSchemaPath)) {
+      const eduSchema = fs.readFileSync(educationSchemaPath, 'utf8');
+      await client.query(eduSchema);
+    }
+    console.log('✅ Database schemas initialized');
     
     // Read and execute seed data
     const seedPath = path.join(__dirname, '../../database/seeds/gamification_data.sql');

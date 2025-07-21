@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import ReactPlayer from 'react-player/lazy';
 import Quiz from './Quiz';
-import { Lesson } from '../../../content/education/modules';
+import axios from 'axios';
+import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 interface LessonPlayerProps {
-  lesson: Lesson;
-  onComplete: () => void;
+  videoUrl: string;
+  lessonSlug?: string;
+  onComplete?: () => void;
 }
 
 /**
@@ -13,26 +16,47 @@ interface LessonPlayerProps {
  * Once the user passes the quiz, calls onComplete so parent can
  * trigger backend event / award points.
  */
-export default function LessonPlayer({ lesson, onComplete }: LessonPlayerProps) {
+export default function LessonPlayer({ videoUrl, lessonSlug, onComplete }: LessonPlayerProps) {
+  const { user } = useAuth();
   const [quizUnlocked, setQuizUnlocked] = useState(false);
   const [passed, setPassed] = useState(false);
 
+  async function handleQuizPass() {
+    setPassed(true);
+    
+    if (user && lessonSlug) {
+      try {
+        await axios.post('/api/education/complete', {
+          userId: user.uid,
+          lessonSlug
+        });
+        toast.success('Lesson completed! +50 XP awarded!');
+      } catch (error) {
+        console.error('Failed to complete lesson:', error);
+        toast.error('Failed to save progress');
+      }
+    } else {
+      console.log('Quiz passed! Award 50 XP');
+    }
+    if (onComplete) onComplete();
+  }
+
   return (
     <div className="space-y-6">
-      {lesson.videoUrl && (
+      {videoUrl && (
         <div className="w-full aspect-video rounded-lg overflow-hidden shadow">
           <ReactPlayer
-            url={lesson.videoUrl}
-            width="100%"
-            height="100%"
+            url={videoUrl}
             controls
+            width="100%"
+            height="400px"
             onEnded={() => setQuizUnlocked(true)}
           />
         </div>
       )}
 
       {quizUnlocked && !passed && (
-        <Quiz lessonSlug={lesson.slug} onPass={() => { setPassed(true); onComplete(); }} />
+        <Quiz lessonSlug={lessonSlug || ''} onPass={handleQuizPass} />
       )}
 
       {passed && (
