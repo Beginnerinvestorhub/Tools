@@ -41,14 +41,15 @@ export function useGamification(userId: string): UseGamificationReturn {
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user, getIdToken } = useAuth();
+  const { user } = useAuth();
 
   // API base URL
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
 
   // Create axios instance with auth headers
   const createApiClient = useCallback(async () => {
-    const token = await getIdToken();
+    if (!user) return null;
+    const token = await user.getIdToken();
     return axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -56,7 +57,7 @@ export function useGamification(userId: string): UseGamificationReturn {
         'Content-Type': 'application/json',
       },
     });
-  }, [getIdToken, API_BASE_URL]);
+  }, [user, API_BASE_URL]);
 
   // Load data from backend API
   useEffect(() => {
@@ -70,6 +71,10 @@ export function useGamification(userId: string): UseGamificationReturn {
       setLoading(true);
       
       const apiClient = await createApiClient();
+      if (!apiClient) {
+        setError('Authentication required');
+        return;
+      }
       const response = await apiClient.get('/api/gamification/user-data');
       
       if (response.data?.data) {
@@ -115,7 +120,9 @@ export function useGamification(userId: string): UseGamificationReturn {
   const saveUserData = async (progress: UserProgress) => {
     try {
       const apiClient = await createApiClient();
-      await apiClient.post('/api/gamification/save-user-data', progress);
+      if (apiClient) {
+        await apiClient.post('/api/gamification/save-user-data', progress);
+      }
       
       // Keep localStorage as backup
       try {
@@ -381,7 +388,7 @@ export function useGamification(userId: string): UseGamificationReturn {
     };
     
     setUserProgress(updatedProgress);
-    await saveUserProgress(updatedProgress);
+    await saveUserData(updatedProgress);
 
     // Award points
     if (pointsToAward > 0) {
@@ -399,7 +406,7 @@ export function useGamification(userId: string): UseGamificationReturn {
       };
       
       setUserProgress(finalProgress);
-      await saveUserProgress(finalProgress);
+      await saveUserData(finalProgress);
       
       // Award achievement rewards
       if (achievement.reward.points > 0) {

@@ -61,7 +61,7 @@ export default function LessonPlayer({ videoUrl, lessonSlug, onComplete }: Lesso
 
       {passed && (
         <div className="p-4 bg-green-50 border border-green-200 rounded">
-          <p className="text-green-800 font-semibold">Great job! You passed the quiz and earned {lesson.points} XP.</p>
+          <p className="text-green-800 font-semibold">Great job! You passed the quiz and earned 50 XP.</p>
         </div>
       )}
     </div>

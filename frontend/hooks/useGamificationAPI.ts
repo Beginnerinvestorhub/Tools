@@ -69,7 +69,7 @@ interface UseGamificationReturn {
 }
 
 export const useGamificationAPI = (): UseGamificationReturn => {
-  const { user, getIdToken } = useAuth();
+  const { user } = useAuth();
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -86,7 +86,8 @@ export const useGamificationAPI = (): UseGamificationReturn => {
       throw new Error('User not authenticated');
     }
     
-    const token = await getIdToken();
+    if (!user) return;
+    const token = await user.getIdToken();
     return axios.create({
       baseURL: API_BASE_URL,
       headers: {
