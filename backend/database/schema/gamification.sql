@@ -151,6 +151,12 @@ CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_period ON leaderboard_entries
 CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_rank ON leaderboard_entries(rank);
 
 -- Triggers to update timestamps
+-- Drop existing triggers to avoid duplicate-object errors during repeated deployments
+DROP TRIGGER IF EXISTS update_user_progress_updated_at ON user_progress;
+DROP TRIGGER IF EXISTS update_user_stats_updated_at ON user_stats;
+DROP TRIGGER IF EXISTS update_leaderboard_entries_updated_at ON leaderboard_entries;
+
+-- Function to update the "updated_at" column
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -159,6 +165,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Re-create triggers
 CREATE TRIGGER update_user_progress_updated_at BEFORE UPDATE ON user_progress FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_user_stats_updated_at BEFORE UPDATE ON user_stats FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_leaderboard_entries_updated_at BEFORE UPDATE ON leaderboard_entries FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
