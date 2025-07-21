@@ -18,7 +18,7 @@ export default function FeatureCard({ icon, title, description }: FeatureCardPro
           you should NOT apply w-* h-* classes to the icon itself in the parent component (e.g., page.tsx).
           Just pass the icon, and let this wrapper manage its size.
         */}
-        <div className="w-8 h-8 text-indigo-700">{icon}</div>
+        <div className="w-6 h-6 text-indigo-700">{icon}</div>
       </div>
       <h3 className="text-lg font-semibold text-indigo-800 mb-2">{title}</h3>
       <p className="text-sm text-indigo-600">{description}</p>

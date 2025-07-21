@@ -52,13 +52,14 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
           <div className="flex-shrink-0">
-            <Link href="/" className="text-xl font-bold text-indigo-700">
-              BeginnerInvestorHub
+            <Link href="/" className="text-xl font-bold text-indigo-700" aria-label="Home">
+              {/* Logo placeholder */}
+              <span className="sr-only">Home</span>
             </Link>
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex gap-4">
+          <div className="hidden md:flex space-x-6">
             {navLinks.map(link => (
               <Link key={link.href} href={link.href}>
                 <span
