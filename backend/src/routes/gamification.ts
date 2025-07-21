@@ -1,17 +1,17 @@
 // Gamification API routes
 import express from 'express';
 import { GamificationService } from '../services/gamificationService';
-import { authenticateToken } from '../middleware/auth';
+import { requireAuth } from '../utils/requireAuth';
 
 const router = express.Router();
 
 // All routes require authentication
-router.use(authenticateToken);
+router.use(requireAuth());
 
 // GET /api/gamification/progress - Get user's complete gamification data
 router.get('/progress', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -31,7 +31,7 @@ router.get('/progress', async (req, res) => {
 // POST /api/gamification/track-event - Track a gamification event
 router.post('/track-event', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -60,7 +60,7 @@ router.post('/track-event', async (req, res) => {
 // POST /api/gamification/award-points - Award points to user
 router.post('/award-points', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -86,7 +86,7 @@ router.post('/award-points', async (req, res) => {
 // POST /api/gamification/unlock-badge - Unlock a badge for user
 router.post('/unlock-badge', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -116,7 +116,7 @@ router.post('/unlock-badge', async (req, res) => {
 // PUT /api/gamification/streak - Update user streak
 router.put('/streak', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -167,7 +167,7 @@ router.get('/leaderboard', async (req, res) => {
 // GET /api/gamification/badges - Get all available badges
 router.get('/badges', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -190,7 +190,7 @@ router.get('/badges', async (req, res) => {
 // GET /api/gamification/achievements - Get user achievements
 router.get('/achievements', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -213,7 +213,7 @@ router.get('/achievements', async (req, res) => {
 // GET /api/gamification/stats - Get user statistics
 router.get('/stats', async (req, res) => {
   try {
-    const userId = req.user?.uid;
+    const userId = (req as any).user?.uid || (req as any).user?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }

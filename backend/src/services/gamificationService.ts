@@ -97,7 +97,7 @@ export class GamificationService {
         ORDER BY b.category, b.rarity, b.name
       `, [userId]);
 
-      const badges: Badge[] = badgesResult.rows.map(row => ({
+      const badges: Badge[] = badgesResult.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         description: row.description,
@@ -118,7 +118,7 @@ export class GamificationService {
         ORDER BY a.name
       `, [userId]);
 
-      const achievements: Achievement[] = achievementsResult.rows.map(row => ({
+      const achievements: Achievement[] = achievementsResult.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         description: row.description,
