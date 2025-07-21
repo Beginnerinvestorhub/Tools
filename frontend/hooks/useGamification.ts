@@ -14,6 +14,8 @@ import {
   POINT_VALUES,
   ACHIEVEMENT_DEFINITIONS 
 } from '../config/badges';
+import { useAuth } from './useAuth';
+import axios from 'axios';
 
 interface UseGamificationReturn {
   userProgress: UserProgress | null;
@@ -39,23 +41,40 @@ export function useGamification(userId: string): UseGamificationReturn {
   const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, getIdToken } = useAuth();
 
-  // Initialize user progress
+  // API base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+
+  // Create axios instance with auth headers
+  const createApiClient = useCallback(async () => {
+    const token = await getIdToken();
+    return axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }, [getIdToken, API_BASE_URL]);
+
+  // Load data from backend API
   useEffect(() => {
-    if (userId) {
-      loadUserProgress();
+    if (user) {
+      loadUserData();
     }
-  }, [userId]);
+  }, [user]);
 
-  const loadUserProgress = async () => {
+  const loadUserData = async () => {
     try {
       setLoading(true);
       
-      // For now, use localStorage (in production, this would be an API call)
-      const stored = localStorage.getItem(`gamification_${userId}`);
+      const apiClient = await createApiClient();
+      const response = await apiClient.get('/api/gamification/user-data');
       
-      if (stored) {
-        const progress = JSON.parse(stored);
+      if (response.data?.data) {
+        const progress = response.data.data;
+        
         setUserProgress(progress);
       } else {
         // Initialize new user progress
@@ -83,7 +102,7 @@ export function useGamification(userId: string): UseGamificationReturn {
         };
         
         setUserProgress(initialProgress);
-        await saveUserProgress(initialProgress);
+        await saveUserData(initialProgress);
       }
     } catch (err) {
       setError('Failed to load user progress');
@@ -93,10 +112,17 @@ export function useGamification(userId: string): UseGamificationReturn {
     }
   };
 
-  const saveUserProgress = async (progress: UserProgress) => {
+  const saveUserData = async (progress: UserProgress) => {
     try {
-      // In production, this would be an API call
-      localStorage.setItem(`gamification_${userId}`, JSON.stringify(progress));
+      const apiClient = await createApiClient();
+      await apiClient.post('/api/gamification/save-user-data', progress);
+      
+      // Keep localStorage as backup
+      try {
+        localStorage.setItem(`gamification_${userId}`, JSON.stringify(progress));
+      } catch (error) {
+        console.error('Error saving user data to localStorage:', error);
+      }
     } catch (err) {
       console.error('Failed to save user progress:', err);
     }
@@ -146,7 +172,7 @@ export function useGamification(userId: string): UseGamificationReturn {
     };
 
     setUserProgress(updatedProgress);
-    await saveUserProgress(updatedProgress);
+    await saveUserData(updatedProgress);
 
     // Show notification
     showNotification('points', { points, reason, leveledUp, newLevel });
@@ -179,7 +205,7 @@ export function useGamification(userId: string): UseGamificationReturn {
     };
 
     setUserProgress(updatedProgress);
-    await saveUserProgress(updatedProgress);
+    await saveUserData(updatedProgress);
 
     // Show notification
     showNotification('badge', newBadge);
@@ -221,7 +247,7 @@ export function useGamification(userId: string): UseGamificationReturn {
     };
 
     setUserProgress(updatedProgress);
-    await saveUserProgress(updatedProgress);
+    await saveUserData(updatedProgress);
 
     // Check streak achievements
     await checkStreakAchievements(streakType, newStreak, updatedProgress);

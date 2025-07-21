@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import MainAppEmbed from '../components/MainAppEmbed';
 import StripeCheckoutButton from '../components/StripeCheckoutButton';
 import MarketDataWidget from '../components/MarketDataWidget';
-import { useGamification } from '../hooks/useGamification';
+import { useGamificationAPI } from '../hooks/useGamificationAPI';
 import UserStatsCard from '../components/gamification/UserStatsCard';
 import AchievementNotification from '../components/gamification/AchievementNotification';
 import { Badge, Achievement } from '../types/gamification';
@@ -19,16 +19,31 @@ export default function DashboardPage() {
     type: 'badge' | 'achievement' | 'points';
     data: any;
   } | null>(null);
-  
-  // Initialize gamification for authenticated user
-  const gamification = useGamification(user?.uid || '');
-  
-  // Track dashboard visit
+
+  const {
+    userProgress,
+    badges,
+    achievements,
+    notifications,
+    isLoading: gamificationLoading,
+    error: gamificationError,
+    trackEvent,
+    dismissNotification,
+  } = useGamificationAPI(user?.uid || '');
+
+  // Track daily login when component mounts
   useEffect(() => {
-    if (user && gamification.userProgress) {
-      gamification.trackEvent('DAILY_LOGIN');
+    if (user) {
+      trackEvent('DAILY_LOGIN');
     }
-  }, [user, gamification.userProgress]);
+  }, [user, trackEvent]);
+
+  // Show gamification error if any
+  useEffect(() => {
+    if (gamificationError) {
+      console.warn('Gamification error:', gamificationError);
+    }
+  }, [gamificationError]);
 
   // Redirect unauthenticated users to login
   useEffect(() => {
@@ -58,9 +73,9 @@ export default function DashboardPage() {
         </h1>
 
         {/* Gamification Progress */}
-        {gamification.userProgress && !gamification.loading && (
+        {userProgress && !gamificationLoading && (
           <UserStatsCard 
-            userProgress={gamification.userProgress} 
+            userProgress={userProgress} 
             compact={true}
             className="mb-6"
           />
