@@ -59,6 +59,8 @@ import stripeRouter from './routes/stripe';
 import profileRouter from './routes/profile';
 import gamificationRouter from './routes/gamification';
 import { educationRouter } from './routes/education';
+import { leaderboardRouter } from './routes/leaderboard';
+import { challengesRouter } from './routes/challenges';
 
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
@@ -69,6 +71,8 @@ app.use('/api/stripe', stripeRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/gamification', gamificationRouter);
 app.use('/api/education', educationRouter);
+app.use('/api/gamification/leaderboard', leaderboardRouter);
+app.use('/api/gamification/challenges', challengesRouter);
 
 // Health Check
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));

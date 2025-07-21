@@ -28,9 +28,11 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center flex-1 px-4 text-center max-w-4xl mx-auto py-12">
-        <h1 className="text-3xl md:text-5xl font-bold text-indigo-700 mb-6 text-center">
-          Beginner Investor Hub
-        </h1>
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 mb-6 shadow-lg">
+          <h1 className="text-3xl md:text-5xl font-bold text-indigo-700 text-center">
+            Beginner Investor Hub
+          </h1>
+        </div>
         <div className="flex flex-row gap-4 mb-8 justify-center">
           <Link href="/dashboard">
             <button className="px-6 py-3 bg-indigo-700 text-white rounded-lg font-semibold hover:bg-indigo-800">
@@ -46,7 +48,9 @@ export default function Home() {
 
         {/* Features */}
         <section className="w-full max-w-6xl my-12">
-          <h2 className="text-2xl font-semibold text-indigo-800 mb-8 text-center">Empowering Your Investment Journey</h2>
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 mb-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-indigo-800 text-center">Empowering Your Investment Journey</h2>
+        </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
           <FeatureCard
             icon={<AcademicCapIcon />}

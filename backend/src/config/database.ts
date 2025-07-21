@@ -47,6 +47,13 @@ export const initializeDatabase = async (): Promise<void> => {
       const eduSchema = fs.readFileSync(educationSchemaPath, 'utf8');
       await client.query(eduSchema);
     }
+
+    // Read and execute challenges schema
+    const challengesSchemaPath = path.join(__dirname, '../../database/schema/challenges.sql');
+    if (fs.existsSync(challengesSchemaPath)) {
+      const challengesSchema = fs.readFileSync(challengesSchemaPath, 'utf8');
+      await client.query(challengesSchema);
+    }
     console.log('✅ Database schemas initialized');
     
     // Read and execute seed data
