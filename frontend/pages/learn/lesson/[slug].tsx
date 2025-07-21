@@ -5,6 +5,8 @@ import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
 import LessonPlayer from '../../../components/education/LessonPlayer';
+import Quiz from '../../../components/education/Quiz';
+import GlossaryTooltip from '../../../components/education/GlossaryTooltip';
 import modules from '../../../content/education/modules';
 
 interface Props {
@@ -13,12 +15,17 @@ interface Props {
   slug: string;
 }
 
+const components = {
+  Quiz,
+  GlossaryTooltip,
+};
+
 export default function Lesson({ mdxSource, frontMatter, slug }: Props) {
   return (
     <div className="prose max-w-3xl mx-auto px-4 py-8">
       <h1>{frontMatter.title}</h1>
       <LessonPlayer videoUrl={frontMatter.videoUrl} lessonSlug={slug} />
-      <MDXRemote {...mdxSource} />
+      <MDXRemote {...mdxSource} components={components} />
     </div>
   );
 }
