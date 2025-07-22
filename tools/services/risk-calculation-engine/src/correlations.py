@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import yfinance as yf # Using yfinance for demonstration purposes to fetch example data
 

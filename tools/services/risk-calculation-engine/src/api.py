@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from .portfolio_simulator import PortfolioSimulator # Import the simulator we just created
 from .risk_assessment_engine import RiskAssessmentEngine, RiskFactors
-import numpy as np # Used for potential numpy array to list conversion
 
 app = FastAPI(
     title="Portfolio Simulation Engine",

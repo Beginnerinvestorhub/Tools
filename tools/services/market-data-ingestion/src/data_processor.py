@@ -10,13 +10,11 @@ from various sources including APIs, CSV files, and real-time feeds.
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import json
 import logging
 import asyncio
 from typing import Dict, List, Optional, Union, Any
 from dataclasses import dataclass, asdict
 from enum import Enum
-import re
 from decimal import Decimal, ROUND_HALF_UP
 
 # Configure logging
