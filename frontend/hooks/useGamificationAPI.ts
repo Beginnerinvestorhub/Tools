@@ -95,7 +95,7 @@ export const useGamificationAPI = (): UseGamificationReturn => {
         'Content-Type': 'application/json',
       },
     });
-  }, [user, getIdToken, API_BASE_URL]);
+  }, [user, API_BASE_URL]);
 
   // Load user gamification data from API
   const loadUserData = useCallback(async () => {
@@ -109,6 +109,10 @@ export const useGamificationAPI = (): UseGamificationReturn => {
       setError(null);
       
       const apiClient = await createApiClient();
+      if (!apiClient) {
+        setError('Authentication required');
+        return;
+      }
       const response = await apiClient.get('/api/gamification/progress');
       
       if (response.data) {
@@ -170,6 +174,7 @@ export const useGamificationAPI = (): UseGamificationReturn => {
 
     try {
       const apiClient = await createApiClient();
+      if (!apiClient) return;
       const response = await apiClient.post('/api/gamification/track-event', {
         eventType,
         eventData: eventData || {},
@@ -245,6 +250,7 @@ export const useGamificationAPI = (): UseGamificationReturn => {
 
     try {
       const apiClient = await createApiClient();
+      if (!apiClient) throw new Error('Failed to create API client');
       const response = await apiClient.post('/api/gamification/award-points', {
         points,
         reason,
@@ -291,6 +297,7 @@ export const useGamificationAPI = (): UseGamificationReturn => {
 
     try {
       const apiClient = await createApiClient();
+      if (!apiClient) return;
       const response = await apiClient.post('/api/gamification/unlock-badge', {
         badgeId,
       });
@@ -324,6 +331,7 @@ export const useGamificationAPI = (): UseGamificationReturn => {
 
     try {
       const apiClient = await createApiClient();
+      if (!apiClient) return;
       const response = await apiClient.put('/api/gamification/streak', {
         streakType,
       });
