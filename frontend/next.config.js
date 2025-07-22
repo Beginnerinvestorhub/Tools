@@ -1,8 +1,16 @@
 /** @type {import('next').NextConfig} */
 const withMDX = require('@next/mdx')({ extension: /\.mdx?$/ });
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
+
+// Optional bundle analyzer - only load if installed
+let withBundleAnalyzer;
+try {
+  withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+  });
+} catch (error) {
+  // Bundle analyzer not installed, use identity function
+  withBundleAnalyzer = (config) => config;
+}
 
 const nextConfig = withBundleAnalyzer(withMDX({
   reactStrictMode: true,
