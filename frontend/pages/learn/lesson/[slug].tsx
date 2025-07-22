@@ -39,7 +39,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = params?.slug as string;
-  const filePath = path.join(process.cwd(), 'frontend', 'content', 'education', `${slug}.mdx`);
+  const filePath = path.join(process.cwd(), 'content', 'education', `${slug}.mdx`);
   const source = fs.readFileSync(filePath, 'utf8');
   const { content, data } = matter(source);
   const mdxSource = await serialize(content, { scope: data });
