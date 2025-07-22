@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { User, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, AuthError, getIdTokenResult } from 'firebase/auth';
+import { User, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, AuthError } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 interface AuthState {

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
 import admin from 'firebase-admin';
 
 export const authRouter = Router();

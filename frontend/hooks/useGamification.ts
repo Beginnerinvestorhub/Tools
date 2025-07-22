@@ -337,13 +337,6 @@ export function useGamification(userId: string): UseGamificationReturn {
   const trackEvent = useCallback(async (eventType: string, data: any = {}) => {
     if (!userProgress) return;
 
-    const event: GamificationEvent = {
-      type: eventType,
-      userId,
-      data,
-      timestamp: new Date()
-    };
-
     let pointsToAward = 0;
     let updatedStats = { ...userProgress.stats };
 

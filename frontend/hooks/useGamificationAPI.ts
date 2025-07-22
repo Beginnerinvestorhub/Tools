@@ -85,8 +85,6 @@ export const useGamificationAPI = (): UseGamificationReturn => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
-    if (!user) return;
     const token = await user.getIdToken();
     return axios.create({
       baseURL: API_BASE_URL,

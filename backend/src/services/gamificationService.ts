@@ -460,7 +460,6 @@ export class GamificationService {
     }
 
     const currentPoints = currentResult.rows[0].total_points;
-    const currentLevel = currentResult.rows[0].level;
     const newTotalPoints = currentPoints + points;
 
     // Calculate new level
