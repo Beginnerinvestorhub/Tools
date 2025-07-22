@@ -6,8 +6,10 @@ import ReactGA from 'react-ga4';
 import { Helmet } from 'react-helmet';
 import NudgeChatWidget from '../components/NudgeChatWidget';
 import NavBar from '../components/NavBar';
-import { GlobalErrorBoundary, logError } from '../components/ErrorBoundary';
-
+import { GlobalErrorBoundary } from '../components/ErrorBoundary';
+import StateProvider from '../components/StateProvider';
+import NotificationSystem from '../components/NotificationSystem';
+import ModalSystem from '../components/ModalSystem';
 
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
@@ -29,8 +31,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   // Global error handler for the error boundary
   const handleGlobalError = (error: Error, errorInfo: any) => {
-    logError(error, errorInfo, 'Global App Error');
-    
     // Send to analytics/monitoring service
     if (GA_TRACKING_ID) {
       ReactGA.event({
@@ -42,7 +42,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   };
 
   return (
-    <GlobalErrorBoundary onError={handleGlobalError}>
+    <>
       <Helmet>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="utf-8" />
@@ -52,10 +52,16 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:site_name" content="Investment Tools Hub" />
         <link rel="icon" href="/favicon.ico" />
       </Helmet>
-      <NavBar />
-      <Component {...pageProps} />
-      <NudgeChatWidget />
-    </GlobalErrorBoundary>
+      <StateProvider>
+        <GlobalErrorBoundary onError={handleGlobalError}>
+          <NavBar />
+          <Component {...pageProps} />
+          <NudgeChatWidget />
+          <NotificationSystem />
+          <ModalSystem />
+        </GlobalErrorBoundary>
+      </StateProvider>
+    </>
   );
 }
 
