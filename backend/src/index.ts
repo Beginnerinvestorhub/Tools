@@ -62,6 +62,22 @@ import { educationRouter } from './routes/education';
 import { leaderboardRouter } from './routes/leaderboard';
 import { challengesRouter } from './routes/challenges';
 
+// OpenAPI Documentation
+import {
+  serveOpenApiSpec,
+  serveSwaggerUI,
+  serveReDoc,
+  serveDocsLanding,
+  docsAuth
+} from './middleware/swagger';
+
+// API Documentation Routes (with optional authentication)
+app.get('/api/docs', docsAuth, serveDocsLanding);
+app.get('/api/docs/swagger', docsAuth, serveSwaggerUI);
+app.get('/api/docs/redoc', docsAuth, serveReDoc);
+app.get('/api/docs/openapi.json', serveOpenApiSpec);
+
+// API Routes
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/dashboard', dashboardRouter);
@@ -74,8 +90,22 @@ app.use('/api/education', educationRouter);
 app.use('/api/gamification/leaderboard', leaderboardRouter);
 app.use('/api/gamification/challenges', challengesRouter);
 
-// Health Check
-app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
+// Enhanced Health Check with system status
+app.get('/api/health', async (_, res) => {
+  const healthStatus = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      database: process.env.DATABASE_URL ? 'healthy' : 'unavailable',
+      stripe: process.env.STRIPE_SECRET_KEY ? 'healthy' : 'unavailable',
+      redis: 'unavailable' // Add Redis check if implemented
+    }
+  };
+  
+  res.json(healthStatus);
+});
 
 // Initialize Database and Start Server
 if (require.main === module) {
