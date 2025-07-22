@@ -7,11 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   
   try {
-    // Get backend URL from environment variables
-    const backendUrl = process.env.ESG_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL + '/api/esg' || 'http://localhost:5000/api/esg';
-    
     // For now, provide mock data since the backend endpoint requires authentication
     // This prevents the 500 error while maintaining functionality
+    // Backend URL would be: process.env.ESG_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL + '/api/esg' || 'http://localhost:5000/api/esg'
     const mockESGData = {
       data: [
         {

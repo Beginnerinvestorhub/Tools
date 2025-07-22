@@ -41,7 +41,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
     
     // Log error info for debugging
-    console.error('Global Error:', error, errorInfo);
+    console.error('Global Error:', error);
+    console.error('Error Info:', errorInfo);
   };
 
   return (
