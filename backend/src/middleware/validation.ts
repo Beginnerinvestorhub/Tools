@@ -93,3 +93,14 @@ export const sanitize = {
   },
 
   // Normalize email addresses
+  email: (str: string): string => {
+    return str.toLowerCase().trim();
+  },
+
+  // Remove extra whitespace
+  whitespace: (str: string): string => {
+    return str.replace(/\s+/g, ' ').trim();
+  }
+};
+
+export { validate, ValidationError, sanitize };

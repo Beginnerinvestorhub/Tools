@@ -211,4 +211,18 @@ export const simulationSchemas = {
         timeHorizon: Joi.number().integer().min(1).max(50).required(), // years
         initialInvestment: commonPatterns.currency.required(),
         monthlyContribution: commonPatterns.currency.default(0),
-        inflationRate: Joi.n
+        inflationRate: Joi.number().min(0).max(0.2).default(0.03), // 0-20% with 3% default
+        expectedReturn: Joi.number().min(0).max(0.5).default(0.07), // 0-50% with 7% default
+        riskTolerance: Joi.string().valid('conservative', 'moderate', 'aggressive').default('moderate')
+      }).required()
+    })
+  }
+};
+
+// Export all schemas
+export {
+  authSchemas,
+  profileSchemas,
+  portfolioSchemas,
+  commonPatterns
+};

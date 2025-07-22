@@ -122,4 +122,59 @@ Update the user's profile information with comprehensive validation.
           'application/json': {
             schema: {
               $ref: '#/components/schemas/UserProfile'
-            },
+            }
+          }
+        }
+      },
+      responses: {
+        '200': {
+          description: 'Profile updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Profile updated successfully' },
+                  data: {
+                    $ref: '#/components/schemas/UserProfile'
+                  }
+                }
+              }
+            }
+          }
+        },
+        '400': {
+          description: 'Invalid input data',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: false },
+                  message: { type: 'string', example: 'Invalid input data' }
+                }
+              }
+            }
+          }
+        },
+        '401': {
+          description: 'Unauthorized - Invalid or missing token',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: false },
+                  message: { type: 'string', example: 'Unauthorized access' }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export default profilePaths;

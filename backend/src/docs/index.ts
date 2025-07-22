@@ -61,3 +61,45 @@ const dashboardPaths: OpenAPIV3.PathsObject = {
                           type: 'object',
                           properties: {
                             title: { type: 'string' },
+                            content: { type: 'string' },
+                            date: { type: 'string', format: 'date-time' }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        '401': {
+          description: 'Unauthorized - Invalid or missing token',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: false },
+                  message: { type: 'string', example: 'Unauthorized access' }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+// ==============================================================================
+// COMBINED DOCUMENTATION EXPORT
+// ==============================================================================
+
+export const combinedPaths: OpenAPIV3.PathsObject = {
+  ...authPaths,
+  ...profilePaths,
+  ...dashboardPaths
+};
+
+export default combinedPaths;
