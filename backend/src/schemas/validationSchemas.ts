@@ -3,9 +3,11 @@ import Joi from 'joi';
 // Common validation patterns
 const commonPatterns = {
   email: Joi.string().email().lowercase().trim().max(255),
-  password: Joi.string().min(8).max(128).pattern(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/
-  ).message('Password must contain at least 8 characters with uppercase, lowercase, number, and special character'),
+  password: Joi.string()
+    .min(8)
+    .max(128)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    .message('Password must contain at least 8 characters with uppercase, lowercase, number, and special character'),
   name: Joi.string().trim().min(1).max(100).pattern(/^[a-zA-Z\s'-]+$/),
   phone: Joi.string().pattern(/^\+?[\d\s\-\(\)]+$/).min(10).max(20),
   url: Joi.string().uri({ scheme: ['http', 'https'] }),
@@ -209,130 +211,4 @@ export const simulationSchemas = {
         timeHorizon: Joi.number().integer().min(1).max(50).required(), // years
         initialInvestment: commonPatterns.currency.required(),
         monthlyContribution: commonPatterns.currency.default(0),
-        inflationRate: Joi.number().min(0).max(20).default(3), // percentage
-        numberOfSimulations: Joi.number().integer().min(100).max(10000).default(1000)
-      }).required()
-    }).xor('portfolioId', 'customPortfolio') // Either portfolioId OR customPortfolio, not both
-  },
-  
-  getSimulation: {
-    params: Joi.object({
-      simulationId: commonPatterns.uuid.required()
-    })
-  }
-};
-
-// Newsletter schemas
-export const newsletterSchemas = {
-  subscribe: {
-    body: Joi.object({
-      email: commonPatterns.email.required(),
-      firstName: commonPatterns.name.optional(),
-      interests: Joi.array().items(
-        Joi.string().valid('stocks', 'bonds', 'crypto', 'real_estate', 'retirement', 'tax_planning')
-      ).max(10).optional(),
-      frequency: Joi.string().valid('daily', 'weekly', 'monthly').default('weekly')
-    })
-  },
-  
-  unsubscribe: {
-    body: Joi.object({
-      email: commonPatterns.email.required(),
-      token: Joi.string().optional()
-    })
-  }
-};
-
-// Admin schemas
-export const adminSchemas = {
-  getUserList: {
-    query: Joi.object({
-      page: Joi.number().integer().min(1).default(1),
-      limit: Joi.number().integer().min(1).max(100).default(20),
-      search: Joi.string().max(100).optional(),
-      role: Joi.string().valid('user', 'admin', 'paiduser').optional(),
-      sortBy: Joi.string().valid('createdAt', 'email', 'lastName').default('createdAt'),
-      sortOrder: Joi.string().valid('asc', 'desc').default('desc')
-    })
-  },
-  
-  updateUserRole: {
-    params: Joi.object({
-      userId: commonPatterns.uuid.required()
-    }),
-    body: Joi.object({
-      role: Joi.string().valid('user', 'admin', 'paiduser').required(),
-      reason: Joi.string().max(500).optional()
-    })
-  },
-  
-  deleteUser: {
-    params: Joi.object({
-      userId: commonPatterns.uuid.required()
-    }),
-    body: Joi.object({
-      reason: Joi.string().max(500).required(),
-      confirmDelete: Joi.boolean().valid(true).required()
-    })
-  }
-};
-
-// Gamification schemas
-export const gamificationSchemas = {
-  submitChallenge: {
-    body: Joi.object({
-      challengeId: commonPatterns.uuid.required(),
-      answer: Joi.alternatives().try(
-        Joi.string().max(1000),
-        Joi.number(),
-        Joi.boolean(),
-        Joi.array().items(Joi.string())
-      ).required(),
-      timeSpent: Joi.number().integer().min(0).max(7200).optional() // seconds, max 2 hours
-    })
-  },
-  
-  getLeaderboard: {
-    query: Joi.object({
-      period: Joi.string().valid('daily', 'weekly', 'monthly', 'all-time').default('weekly'),
-      category: Joi.string().valid('points', 'challenges', 'streak').default('points'),
-      limit: Joi.number().integer().min(1).max(100).default(10)
-    })
-  }
-};
-
-// File upload schemas
-export const uploadSchemas = {
-  uploadAvatar: {
-    // File validation will be handled by multer middleware
-    body: Joi.object({
-      description: Joi.string().max(255).optional()
-    })
-  }
-};
-
-// Search and filtering schemas
-export const searchSchemas = {
-  searchAssets: {
-    query: Joi.object({
-      q: Joi.string().min(1).max(100).required(),
-      type: Joi.string().valid('stocks', 'etf', 'mutual_fund', 'crypto').optional(),
-      limit: Joi.number().integer().min(1).max(50).default(10),
-      exchange: Joi.string().max(10).optional()
-    })
-  }
-};
-
-// Export all schemas
-export const validationSchemas = {
-  auth: authSchemas,
-  profile: profileSchemas,
-  riskAssessment: riskAssessmentSchemas,
-  portfolio: portfolioSchemas,
-  simulation: simulationSchemas,
-  newsletter: newsletterSchemas,
-  admin: adminSchemas,
-  gamification: gamificationSchemas,
-  upload: uploadSchemas,
-  search: searchSchemas
-};
+        inflationRate: Joi.n
