@@ -241,7 +241,7 @@ export const serveOpenApiSpec = (req: Request, res: Response) => {
         ...openApiSpec,
         servers: [
             { url: baseUrl, description: 'Current server' },
-            ...openApiSpec.servers
+            ...(openApiSpec.servers || [])
         ]
     };
     
