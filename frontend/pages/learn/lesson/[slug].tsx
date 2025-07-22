@@ -7,7 +7,7 @@ import path from 'path';
 import LessonPlayer from '../../../components/education/LessonPlayer';
 import Quiz from '../../../components/education/Quiz';
 import GlossaryTooltip from '../../../components/education/GlossaryTooltip';
-import modules from '../../../content/education/modules';
+import { modules } from '../../../content/education/modules';
 
 interface Props {
   mdxSource: MDXRemoteSerializeResult;

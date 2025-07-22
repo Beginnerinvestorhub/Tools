@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import modules from '../../content/education/modules';
+import { modules } from '../../content/education/modules';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';

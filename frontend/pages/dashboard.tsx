@@ -22,14 +22,14 @@ export default function DashboardPage() {
 
   const {
     userProgress,
-    // badges,
-    // achievements,
+    badges,
+    achievements,
     // notifications,
     isLoading: gamificationLoading,
     error: gamificationError,
     trackEvent,
     // dismissNotification,
-  } = useGamificationAPI(user?.uid || '');
+  } = useGamificationAPI();
 
   // Track daily login when component mounts
   useEffect(() => {
@@ -75,7 +75,24 @@ export default function DashboardPage() {
         {/* Gamification Progress */}
         {userProgress && !gamificationLoading && (
           <UserStatsCard 
-            userProgress={userProgress} 
+            userProgress={{
+              ...userProgress,
+              badges: (badges as any) || [],
+              achievements: (achievements as any) || [],
+              streaks: {
+                loginStreak: 0,
+                learningStreak: 0
+              },
+              stats: {
+                toolsUsed: [],
+                assessmentsCompleted: 0,
+                portfoliosCreated: 0,
+                educationModulesCompleted: 0,
+                totalTimeSpent: 0,
+                averageSessionTime: 0,
+                favoriteTools: []
+              }
+            }} 
             compact={true}
             className="mb-6"
           />

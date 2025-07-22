@@ -79,7 +79,7 @@ export default function PrivacyPolicy() {
         </ul>
         <p className="mb-6 text-gray-700">You can control cookie settings through your browser preferences.</p>
         
-        <h2 className="text-2xl font-semibold mt-8 mb-4 text-indigo-800">Children's Privacy</h2>
+        <h2 className="text-2xl font-semibold mt-8 mb-4 text-indigo-800">Children&apos;s Privacy</h2>
         <p className="mb-6 text-gray-700">Our services are not intended for individuals under 18 years of age. We do not knowingly collect personal information from children under 18. If we become aware that we have collected such information, we will take steps to delete it promptly.</p>
         
         <h2 className="text-2xl font-semibold mt-8 mb-4 text-indigo-800">International Data Transfers</h2>
