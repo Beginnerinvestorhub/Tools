@@ -99,7 +99,7 @@ python-jose[cryptography]==3.3.0    # JWT token handling
 # ==============================================================================
 # PRODUCTION DEPLOYMENT
 # ==============================================================================
-gunicorn==21.2.0                    # WSGI HTTP Server
+gunicorn==23.0.0                    # WSGI HTTP Server
 supervisor==4.2.5                   # Process control system
 
 # ==============================================================================
