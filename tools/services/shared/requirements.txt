@@ -83,7 +83,7 @@ mypy==1.6.1                         # Static type checker
 # ==============================================================================
 # SECURITY & VALIDATION
 # ==============================================================================
-cryptography==41.0.7                # Cryptographic recipes and primitives
+cryptography==44.0.1                # Cryptographic recipes and primitives
 passlib[bcrypt]==1.7.4              # Password hashing library
 python-jose[cryptography]==3.3.0    # JWT token handling
 
