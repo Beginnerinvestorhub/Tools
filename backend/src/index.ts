@@ -61,6 +61,7 @@ import gamificationRouter from './routes/gamification';
 import { educationRouter } from './routes/education';
 import { leaderboardRouter } from './routes/leaderboard';
 import { challengesRouter } from './routes/challenges';
+import esgRouter from './routes/esg';
 
 // OpenAPI Documentation
 import {
@@ -89,6 +90,7 @@ app.use('/api/gamification', gamificationRouter);
 app.use('/api/education', educationRouter);
 app.use('/api/gamification/leaderboard', leaderboardRouter);
 app.use('/api/gamification/challenges', challengesRouter);
+app.use('/api/esg', esgRouter);
 
 // Enhanced Health Check with system status
 app.get('/api/health', async (_, res) => {
