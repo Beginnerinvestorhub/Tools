@@ -28,11 +28,7 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center flex-1 px-4 text-center max-w-4xl mx-auto py-12">
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 mb-6 shadow-lg">
-          <h1 className="text-3xl md:text-5xl font-bold text-indigo-700 text-center">
-            Beginner Investor Hub
-          </h1>
-        </div>
+
         <div className="flex flex-row gap-4 mb-8 justify-center">
           <Link href="/dashboard">
             <button className="px-6 py-3 bg-indigo-700 text-white rounded-lg font-semibold hover:bg-indigo-800">
