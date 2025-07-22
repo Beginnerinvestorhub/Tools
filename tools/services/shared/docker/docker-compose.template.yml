@@ -1,0 +1,193 @@
+# ==============================================================================
+# STANDARDIZED DOCKER COMPOSE TEMPLATE FOR PYTHON SERVICES
+# ==============================================================================
+# This template provides a consistent development environment setup
+# Copy and customize for each service as needed
+
+version: '3.8'
+
+services:
+  # ==============================================================================
+  # MAIN SERVICE
+  # ==============================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${SERVICE_NAME:-python-service}
+    ports:
+      - "${SERVICE_PORT:-8000}:8000"
+    environment:
+      - SERVICE_NAME=${SERVICE_NAME:-python-service}
+      - SERVICE_PORT=8000
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@db:5432/app_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./src:/app/src:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ==============================================================================
+  # DATABASE SERVICE
+  # ==============================================================================
+  db:
+    image: postgres:15-alpine
+    container_name: ${SERVICE_NAME:-python-service}-db
+    environment:
+      - POSTGRES_DB=${DB_NAME:-app_db}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==============================================================================
+  # REDIS SERVICE
+  # ==============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: ${SERVICE_NAME:-python-service}-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==============================================================================
+  # CELERY WORKER (Optional)
+  # ==============================================================================
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${SERVICE_NAME:-python-service}-worker
+    command: celery -A src.celery_app worker --loglevel=info
+    environment:
+      - SERVICE_NAME=${SERVICE_NAME:-python-service}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@db:5432/app_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${REDIS_URL:-redis://redis:6379/0}
+    volumes:
+      - ./src:/app/src:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+    profiles:
+      - celery
+
+  # ==============================================================================
+  # CELERY BEAT SCHEDULER (Optional)
+  # ==============================================================================
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${SERVICE_NAME:-python-service}-beat
+    command: celery -A src.celery_app beat --loglevel=info
+    environment:
+      - SERVICE_NAME=${SERVICE_NAME:-python-service}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@db:5432/app_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${REDIS_URL:-redis://redis:6379/0}
+    volumes:
+      - ./src:/app/src:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+    profiles:
+      - celery
+
+  # ==============================================================================
+  # MONITORING & OBSERVABILITY (Optional)
+  # ==============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ${SERVICE_NAME:-python-service}-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - app-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ${SERVICE_NAME:-python-service}-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+    profiles:
+      - monitoring
+
+# ==============================================================================
+# VOLUMES
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

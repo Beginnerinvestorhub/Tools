@@ -6,6 +6,7 @@ import ReactGA from 'react-ga4';
 import { Helmet } from 'react-helmet';
 import NudgeChatWidget from '../components/NudgeChatWidget';
 import NavBar from '../components/NavBar';
+import { GlobalErrorBoundary, logError } from '../components/ErrorBoundary';
 
 
 const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
@@ -26,8 +27,22 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [router.events]);
 
+  // Global error handler for the error boundary
+  const handleGlobalError = (error: Error, errorInfo: any) => {
+    logError(error, errorInfo, 'Global App Error');
+    
+    // Send to analytics/monitoring service
+    if (GA_TRACKING_ID) {
+      ReactGA.event({
+        category: 'Error',
+        action: 'Global Error Boundary',
+        label: error.message,
+      });
+    }
+  };
+
   return (
-    <>
+    <GlobalErrorBoundary onError={handleGlobalError}>
       <Helmet>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="utf-8" />
@@ -40,7 +55,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <NavBar />
       <Component {...pageProps} />
       <NudgeChatWidget />
-    </>
+    </GlobalErrorBoundary>
   );
 }
 

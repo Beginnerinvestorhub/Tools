@@ -1,0 +1,106 @@
+# ==============================================================================
+# STANDARDIZED DOCKERFILE TEMPLATE FOR PYTHON SERVICES
+# ==============================================================================
+# This template provides a consistent Docker configuration across all services
+# Copy and customize for each service as needed
+
+FROM python:3.11-slim
+
+# ==============================================================================
+# METADATA & LABELS
+# ==============================================================================
+LABEL maintainer="Beginner Investor Hub <dev@beginnerinvestorhub.com>"
+LABEL version="1.0.0"
+LABEL description="Python microservice for Beginner Investor Hub"
+
+# ==============================================================================
+# ENVIRONMENT VARIABLES
+# ==============================================================================
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# ==============================================================================
+# SYSTEM DEPENDENCIES
+# ==============================================================================
+RUN apt-get update && apt-get install -y \
+    # Build essentials
+    build-essential \
+    gcc \
+    g++ \
+    # System libraries
+    curl \
+    wget \
+    git \
+    # Database clients
+    postgresql-client \
+    # Cleanup
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# ==============================================================================
+# CREATE APPLICATION USER
+# ==============================================================================
+RUN groupadd --gid 1000 appuser \
+    && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash appuser
+
+# ==============================================================================
+# SET WORKING DIRECTORY
+# ==============================================================================
+WORKDIR /app
+
+# ==============================================================================
+# INSTALL PYTHON DEPENDENCIES
+# ==============================================================================
+# Copy requirements first for better Docker layer caching
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
+
+# ==============================================================================
+# COPY APPLICATION CODE
+# ==============================================================================
+COPY --chown=appuser:appuser src/ ./src/
+COPY --chown=appuser:appuser scripts/ ./scripts/
+COPY --chown=appuser:appuser .env.example ./.env.example
+
+# ==============================================================================
+# CREATE NECESSARY DIRECTORIES
+# ==============================================================================
+RUN mkdir -p /app/logs /app/data /app/tmp \
+    && chown -R appuser:appuser /app
+
+# ==============================================================================
+# SWITCH TO NON-ROOT USER
+# ==============================================================================
+USER appuser
+
+# ==============================================================================
+# EXPOSE PORT
+# ==============================================================================
+EXPOSE 8000
+
+# ==============================================================================
+# HEALTH CHECK
+# ==============================================================================
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# ==============================================================================
+# STARTUP COMMAND
+# ==============================================================================
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ==============================================================================
+# ALTERNATIVE STARTUP OPTIONS
+# ==============================================================================
+# For development:
+# CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# For production with Gunicorn:
+# CMD ["gunicorn", "src.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+
+# For debugging:
+# CMD ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
