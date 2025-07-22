@@ -18,7 +18,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth, isFirebaseInitialized } from '../lib/firebase';
 import { 
   AuthState, 
   AuthActions, 
@@ -404,6 +404,12 @@ let unsubscribe: (() => void) | null = null;
 export const initializeAuthListener = () => {
   if (unsubscribe) {
     unsubscribe();
+  }
+
+  // Check if Firebase is properly initialized before setting up listener
+  if (!isFirebaseInitialized() || !auth) {
+    console.warn('Firebase not initialized - skipping auth listener setup');
+    return;
   }
 
   unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
