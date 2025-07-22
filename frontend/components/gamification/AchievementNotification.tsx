@@ -1,6 +1,4 @@
-// Achievement notification component for showing unlocked badges and achievements
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Badge, Achievement } from '../../types/gamification';
 import BadgeCard from './BadgeCard';
 
@@ -22,11 +20,15 @@ export default function AchievementNotification({
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
+  const handleClose = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  }, [onClose]);
+
   useEffect(() => {
-    // Animate in
     const showTimer = setTimeout(() => setIsVisible(true), 100);
-    
-    // Auto close
     const closeTimer = setTimeout(() => {
       handleClose();
     }, duration);
@@ -35,14 +37,7 @@ export default function AchievementNotification({
       clearTimeout(showTimer);
       clearTimeout(closeTimer);
     };
-  }, [duration]);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      onClose();
-    }, 300);
-  };
+  }, [duration, handleClose]);
 
   const getNotificationContent = () => {
     if (badge) {
@@ -94,14 +89,13 @@ export default function AchievementNotification({
         ${content.color}
         animate-bounce-subtle
       `}>
-        {/* Notification content */}
         <div className="p-4 text-white">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h3 className="font-bold text-lg mb-1">{content.title}</h3>
               <h4 className="font-semibold text-base mb-2">{content.subtitle}</h4>
               <p className="text-sm opacity-90 mb-3">{content.description}</p>
-              
+
               {content.points > 0 && (
                 <div className="bg-white bg-opacity-20 rounded-full px-3 py-1 inline-block">
                   <span className="text-sm font-bold">+{content.points} points</span>
@@ -109,7 +103,6 @@ export default function AchievementNotification({
               )}
             </div>
 
-            {/* Close button */}
             <button
               onClick={handleClose}
               className="ml-4 text-white hover:text-gray-200 transition-colors"
@@ -122,7 +115,6 @@ export default function AchievementNotification({
             </button>
           </div>
 
-          {/* Badge preview */}
           {badge && (
             <div className="mt-3 flex justify-center">
               <BadgeCard
@@ -135,11 +127,8 @@ export default function AchievementNotification({
           )}
         </div>
 
-        {/* Progress bar for auto-close */}
         <div className="h-1 bg-white bg-opacity-30">
-          <div 
-            className="h-full bg-white transition-all ease-linear animate-shrink"
-          />
+          <div className="h-full bg-white transition-all ease-linear animate-shrink" />
         </div>
       </div>
 
@@ -147,12 +136,12 @@ export default function AchievementNotification({
         .animate-shrink {
           animation: shrink ${duration}ms linear forwards;
         }
-        
+
         @keyframes shrink {
           from { width: 100%; }
           to { width: 0%; }
         }
-        
+
         @keyframes bounce-subtle {
           0%, 20%, 53%, 80%, 100% {
             transform: translate3d(0,0,0);
@@ -167,7 +156,7 @@ export default function AchievementNotification({
             transform: translate3d(0, -2px, 0);
           }
         }
-        
+
         .animate-bounce-subtle {
           animation: bounce-subtle 1s ease-in-out;
         }

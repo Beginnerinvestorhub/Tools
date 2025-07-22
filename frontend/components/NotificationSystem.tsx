@@ -3,7 +3,7 @@
  * Global notification display and management system
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Transition } from '@headlessui/react';
 import { 
   CheckCircleIcon, 

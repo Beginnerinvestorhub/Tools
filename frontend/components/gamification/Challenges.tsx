@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -22,13 +22,9 @@ export default function Challenges() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchChallenges();
-  }, [user]); // fetchChallenges is stable
-
-  const fetchChallenges = async () => {
+  const fetchChallenges = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       const { data } = await axios.get(`/api/gamification/challenges/${user.uid}`);
@@ -38,7 +34,11 @@ export default function Challenges() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchChallenges();
+  }, [fetchChallenges]);
 
   const claimReward = async (challengeId: string) => {
     try {
@@ -92,7 +92,10 @@ export default function Challenges() {
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min((challenge.progress / challenge.target) * 100, 100)}%` }}
+                    // eslint-disable-next-line react/forbid-dom-props
+                    style={{
+                      width: `${Math.min((challenge.progress / challenge.target) * 100, 100)}%`
+                    }}
                   ></div>
                 </div>
               </div>

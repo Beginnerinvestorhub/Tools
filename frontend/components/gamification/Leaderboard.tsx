@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -16,11 +16,7 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('week');
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [timeframe]); // fetchLeaderboard is stable
-
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await axios.get(`/api/gamification/leaderboard?timeframe=${timeframe}`);
@@ -30,7 +26,11 @@ export default function Leaderboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeframe]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
 
   if (loading) {
     return <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>;
@@ -62,12 +62,17 @@ export default function Leaderboard() {
             }`}
           >
             <div className="flex items-center space-x-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                index === 1 ? 'bg-gray-300 text-gray-700' :
-                index === 2 ? 'bg-orange-400 text-orange-900' :
-                'bg-gray-200 text-gray-600'
-              }`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  index === 0
+                    ? 'bg-yellow-400 text-yellow-900'
+                    : index === 1
+                    ? 'bg-gray-300 text-gray-700'
+                    : index === 2
+                    ? 'bg-orange-400 text-orange-900'
+                    : 'bg-gray-200 text-gray-600'
+                }`}
+              >
                 {entry.rank}
               </div>
               <div>

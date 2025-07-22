@@ -1,6 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, ArrowLeft, Home } from 'lucide-react';
-import { useRouter } from 'next/router';
 
 interface Props {
   children: ReactNode;
@@ -104,7 +103,7 @@ class PageErrorBoundary extends Component<Props, State> {
                 {pageName} Unavailable
               </h1>
               <p className="text-gray-600 mb-4">
-                This page encountered an error and couldn't load properly. 
+                This page encountered an error and couldn&apos;t load properly. 
                 You can try refreshing or navigate to another page.
               </p>
               <div className="bg-gray-100 rounded-md p-2 mb-4">

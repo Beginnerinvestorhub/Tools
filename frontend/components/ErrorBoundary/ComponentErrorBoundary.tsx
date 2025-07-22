@@ -107,7 +107,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
                 {componentName} Error
               </h3>
               <p className="text-sm text-red-700 mt-1">
-                This component encountered an error and couldn't render properly.
+                This component encountered an error and couldn&apos;t render properly.
               </p>
               
               {/* Development mode: Show error message */}
