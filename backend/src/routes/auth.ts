@@ -162,7 +162,8 @@ authRouter.post('/reset-password',
       // In production: Verify token and update password
       // For demo: Accept any token
       
-      console.log(`Password reset completed for token: ${token.substring(0, 8)}...`);
+      const sanitizedToken = token.replace(/\n|\r/g, "").substring(0, 8);
+      console.log(`Password reset completed for token: ${sanitizedToken}...`);
       
       res.json({
         message: 'Password reset successfully',
