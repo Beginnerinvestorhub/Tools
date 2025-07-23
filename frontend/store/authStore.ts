@@ -6,17 +6,12 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import { 
-  User, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   updateProfile,
-  sendPasswordResetEmail,
-  sendEmailVerification,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider
+  sendEmailVerification
 } from 'firebase/auth';
 import { auth, isFirebaseInitialized } from '../lib/firebase';
 import { 
