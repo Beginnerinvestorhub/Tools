@@ -89,7 +89,8 @@ export const validate = (schema: {
 export const sanitize = {
   // Remove HTML tags and dangerous characters
   html: (str: string): string => {
-    return str.replace(/<[^>]*>/g, '').trim();
+    const sanitizeHtml = require('sanitize-html');
+    return sanitizeHtml(str, { allowedTags: [], allowedAttributes: {} }).trim();
   },
 
   // Normalize email addresses
