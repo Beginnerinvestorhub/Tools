@@ -9,8 +9,7 @@ import {
   PortfolioState, 
   PortfolioActions, 
   Portfolio, 
-  Holding, 
-  PortfolioPerformance 
+  Holding 
 } from './types';
 import { 
   createAsyncAction, 
