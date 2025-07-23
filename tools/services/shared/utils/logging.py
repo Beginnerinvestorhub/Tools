@@ -289,7 +289,7 @@ def log_business_event(
 # ==============================================================================
 
 import time
-from fastapi import Request, Response
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
