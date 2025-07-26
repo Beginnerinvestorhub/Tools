@@ -1,20 +1,15 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import admin from 'firebase-admin';
 import jwt from 'jsonwebtoken';
-import { validate, sanitize, validateRateLimit } from '../middleware/validation';
-import { validationSchemas } from '../schemas/validationSchemas';
+import { validate, sanitize } from '../middleware/validation';
+import { authSchemas } from '../schemas/validationSchemas';
 
 export const authRouter = Router();
 
-// Rate limiting for auth endpoints
-const authRateLimit = validateRateLimit(15 * 60 * 1000, 5, 'Too many authentication attempts');
-const generalAuthRateLimit = validateRateLimit(15 * 60 * 1000, 10);
-
 // Login endpoint with comprehensive validation
 authRouter.post('/login', 
-  authRateLimit,
-  validate(validationSchemas.auth.login),
-  async (req, res) => {
+  validate(authSchemas.login),
+  async (req: Request, res: Response) => {
     try {
       const { email, password, rememberMe } = req.body;
       
@@ -71,9 +66,8 @@ authRouter.post('/login',
 
 // User registration endpoint
 authRouter.post('/register',
-  generalAuthRateLimit,
-  validate(validationSchemas.auth.register),
-  async (req, res) => {
+  validate(authSchemas.register),
+  async (req: Request, res: Response) => {
     try {
       const { email, password, firstName, lastName, acceptTerms, marketingOptIn } = req.body;
       
@@ -125,9 +119,8 @@ authRouter.post('/register',
 
 // Forgot password endpoint
 authRouter.post('/forgot-password',
-  generalAuthRateLimit,
-  validate(validationSchemas.auth.forgotPassword),
-  async (req, res) => {
+  validate(authSchemas.forgotPassword),
+  async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
       const sanitizedEmail = sanitize.email(email);
@@ -153,9 +146,8 @@ authRouter.post('/forgot-password',
 
 // Reset password endpoint
 authRouter.post('/reset-password',
-  generalAuthRateLimit,
-  validate(validationSchemas.auth.resetPassword),
-  async (req, res) => {
+  validate(authSchemas.resetPassword),
+  async (req: Request, res: Response) => {
     try {
       const { token, password } = req.body;
       
@@ -181,8 +173,7 @@ authRouter.post('/reset-password',
 
 // OAuth login endpoint
 authRouter.post('/oauth',
-  generalAuthRateLimit,
-  (req, res) => {
+  (req: Request, res: Response) => {
     // TODO: Implement OAuth flow (Google, Facebook, etc.)
     res.status(501).json({ 
       error: 'OAuth not implemented',

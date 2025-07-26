@@ -16,7 +16,7 @@ const nextConfig = withBundleAnalyzer(withMDX({
   reactStrictMode: true,
   
   // Performance optimizations
-  swcMinify: true,
+  // swcMinify: true, // ❌ Removed for Next.js 15 compatibility
   compress: true,
   
   // Image optimization

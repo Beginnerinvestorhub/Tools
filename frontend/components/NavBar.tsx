@@ -1,130 +1,356 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
+import { ChevronDownIcon, UserIcon, BellIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { useAuthUser, useIsAuthenticated } from '../store/authStore'
 
-const navLinks = [
+interface NavItem {
+  href: string;
+  label: string;
+  subItems?: NavItem[];
+}
+
+const navLinks: NavItem[] = [
   { href: '/', label: 'Home' },
-  { href: '/tools', label: 'Tools' },
-  { href: '/risk-assessment', label: 'Risk Assessment' },
-  { href: '/fractional-share-calculator', label: 'Fractional Shares' },
-  { href: '/portfolio-monitor', label: 'Portfolio Monitor' },
-  { href: '/esg-screener', label: 'ESG Screener' }
+  { href: '/dashboard', label: 'My Journey' },
+  {
+    href: '/learn',
+    label: 'Learn',
+    subItems: [
+      { href: '/learn/my-path', label: 'My Learning Path' },
+      { href: '/learn/challenges', label: 'Challenges' },
+      { href: '/learn', label: 'Content Library' },
+      { href: '/learn/glossary', label: 'Glossary' }
+    ]
+  },
+  {
+    href: '/practice',
+    label: 'Practice',
+    subItems: [
+      { href: '/portfolio-monitor', label: 'Virtual Portfolio' },
+      { href: '/practice/sandbox', label: 'Investment Sandbox' }
+    ]
+  },
+  {
+    href: '/tools',
+    label: 'Tools',
+    subItems: [
+      { href: '/fractional-share-calculator', label: 'Fractional Share Calculator' },
+      { href: '/risk-assessment', label: 'Risk Assessment' },
+      { href: '/esg-screener', label: 'ESG Screener' }
+    ]
+  },
+  {
+    href: '/community',
+    label: 'Community',
+    subItems: [
+      { href: '/community/leaderboards', label: 'Leaderboards' },
+      { href: '/community/achievements', label: 'Achievements' },
+      { href: '/community/discussions', label: 'Discussions' }
+    ]
+  }
 ]
 
 /**
- * Navbar component that provides navigation links and a responsive menu.
+ * Enhanced Navbar component with user-centric navigation structure.
  * 
- * Renders a horizontal navigation bar with links when viewed on medium or larger screens.
- * On smaller screens, it displays a hamburger menu icon that toggles a vertical menu overlay.
- * 
- * - Uses `usePathname` to track the current route and highlight the active link.
- * - Manages the menu's open/close state with `useState`.
- * - Closes the menu when clicking outside or when the route changes using `useEffect`.
- * - Includes accessibility features such as `aria-label` for the hamburger button.
+ * Features:
+ * - User journey-focused navigation (My Journey, Learn, Practice, Tools, Community)
+ * - Dropdown menus for main navigation sections
+ * - Global search functionality
+ * - Notifications bell
+ * - User profile access
+ * - Responsive design with mobile hamburger menu
+ * - Authentication-aware navigation
  */
 export default function Navbar() {
   const pathname = usePathname()
+  const user = useAuthUser()
+  const isAuthenticated = useIsAuthenticated()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Handle clicks outside menu and dropdowns
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
       if (buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
         setMenuOpen(false)
       }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null)
+      }
     }
-    if (menuOpen) {
+    if (menuOpen || activeDropdown) {
       document.addEventListener('mousedown', onClickOutside)
     }
     return () => {
       document.removeEventListener('mousedown', onClickOutside)
     }
-  }, [menuOpen])
+  }, [menuOpen, activeDropdown])
 
+  // Close menu and dropdowns on route change
   useEffect(() => {
     setMenuOpen(false)
+    setActiveDropdown(null)
   }, [pathname])
 
+  // Handle search functionality
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      // TODO: Implement global search functionality
+      console.log('Searching for:', searchQuery)
+      // Navigate to search results page or open search modal
+    }
+  }
+
+  // Handle dropdown toggle
+  const toggleDropdown = (label: string) => {
+    setActiveDropdown(activeDropdown === label ? null : label)
+  }
+
   return (
-    <nav className="relative bg-white border-b border-indigo-100">
+    <nav className="relative bg-white border-b border-indigo-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
           <div className="flex-shrink-0">
-            <Link href="/" className="text-xl font-bold text-indigo-700" aria-label="Home">
-              {/* Logo placeholder */}
-              <span className="sr-only">Home</span>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">BIH</span>
+              </div>
+              <span className="text-xl font-bold text-indigo-700 hidden sm:block">
+                Beginner Investor Hub
+              </span>
             </Link>
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden lg:flex items-center space-x-1" ref={dropdownRef}>
             {navLinks.map(link => (
-              <Link key={link.href} href={link.href}>
-                <span
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 cursor-pointer ${
-                    pathname === link.href
-                      ? 'bg-indigo-50 text-indigo-800'
-                      : 'text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
-                  }`}
-                >
-                  {link.label}
-                </span>
-              </Link>
+              <div key={link.href} className="relative">
+                {link.subItems ? (
+                  <>
+                    <button
+                      onClick={() => toggleDropdown(link.label)}
+                      className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
+                        pathname.startsWith(link.href) && link.href !== '/'
+                          ? 'bg-indigo-50 text-indigo-800'
+                          : 'text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
+                      }`}
+                    >
+                      {link.label}
+                      <ChevronDownIcon className={`ml-1 h-4 w-4 transition-transform duration-200 ${
+                        activeDropdown === link.label ? 'rotate-180' : ''
+                      }`} />
+                    </button>
+                    {activeDropdown === link.label && (
+                      <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                        {link.subItems.map(subItem => (
+                          <Link
+                            key={subItem.href}
+                            href={subItem.href}
+                            className={`block px-4 py-2 text-sm transition-colors duration-150 ${
+                              pathname === subItem.href
+                                ? 'bg-indigo-50 text-indigo-800'
+                                : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700'
+                            }`}
+                            onClick={() => setActiveDropdown(null)}
+                          >
+                            {subItem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
+                      pathname === link.href
+                        ? 'bg-indigo-50 text-indigo-800'
+                        : 'text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )}
+              </div>
             ))}
           </div>
-          
-          {/* Mobile menu button */}
-          <button
-            ref={buttonRef}
-            onClick={() => setMenuOpen(open => !open)}
-            className="md:hidden flex items-center px-2 py-1 border rounded text-indigo-700 border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-          >
-        {/* Hamburger icon SVG */}
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {menuOpen ? (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16" />
-          )}
-            </svg>
-          </button>
+
+          {/* Right side: Search, Notifications, Profile */}
+          <div className="flex items-center space-x-3">
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="hidden md:block">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search content, tools..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-64 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            </form>
+
+            {isAuthenticated && (
+              <>
+                {/* Notifications */}
+                <button className="relative p-2 text-gray-600 hover:text-indigo-600 transition-colors duration-150">
+                  <BellIcon className="h-5 w-5" />
+                  {/* Notification badge */}
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    3
+                  </span>
+                </button>
+
+                {/* User Profile */}
+                <Link href="/profile" className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors duration-150">
+                  {user?.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="h-8 w-8 rounded-full" />
+                  ) : (
+                    <div className="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                      <UserIcon className="h-5 w-5 text-white" />
+                    </div>
+                  )}
+                  <span className="hidden sm:block text-sm font-medium text-gray-700">
+                    {user?.displayName || 'Profile'}
+                  </span>
+                </Link>
+              </>
+            )}
+
+            {!isAuthenticated && (
+              <div className="flex items-center space-x-2">
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors duration-150"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-150"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+            
+            {/* Mobile menu button */}
+            <button
+              ref={buttonRef}
+              onClick={() => setMenuOpen(open => !open)}
+              className="lg:hidden flex items-center p-2 text-indigo-700 hover:bg-indigo-50 rounded-md transition-colors duration-150"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
       
-      {/* Mobile menu overlay - Conditionally rendered */}
+      {/* Mobile menu overlay */}
       {menuOpen && (
-        <div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden z-50">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="absolute top-full left-0 w-full bg-white shadow-lg lg:hidden z-50 border-t border-gray-200">
+          <div className="px-4 py-3 space-y-1">
+            {/* Mobile Search */}
+            <form onSubmit={handleSearch} className="mb-4">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </form>
+
+            {/* Mobile Navigation Links */}
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-150 ${
-                  pathname === link.href
-                    ? 'bg-indigo-50 text-indigo-800'
-                    : 'text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
+              <div key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-150 ${
+                    pathname === link.href || (pathname.startsWith(link.href) && link.href !== '/')
+                      ? 'bg-indigo-50 text-indigo-800'
+                      : 'text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
+                  }`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+                {link.subItems && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {link.subItems.map(subItem => (
+                      <Link
+                        key={subItem.href}
+                        href={subItem.href}
+                        className={`block px-3 py-1 text-sm rounded-md transition-colors duration-150 ${
+                          pathname === subItem.href
+                            ? 'bg-indigo-50 text-indigo-800'
+                            : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700'
+                        }`}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {subItem.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
+
+            {/* Mobile Auth Links */}
+            {!isAuthenticated && (
+              <div className="pt-4 border-t border-gray-200 space-y-2">
+                <Link
+                  href="/login"
+                  className="block px-3 py-2 text-base font-medium text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors duration-150"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="block px-3 py-2 text-base font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-150"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+
+            {isAuthenticated && (
+              <div className="pt-4 border-t border-gray-200">
+                <Link
+                  href="/profile"
+                  className="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:bg-indigo-50 rounded-md transition-colors duration-150"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <UserIcon className="h-5 w-5 mr-2" />
+                  Profile & Settings
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
