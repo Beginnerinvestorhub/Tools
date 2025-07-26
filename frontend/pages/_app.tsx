@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [router.events]);
 
   // Global error handler for the error boundary
-  const handleGlobalError = (error: Error, errorInfo: React.ErrorInfo) => {
+  const handleGlobalError = (error: Error) => {
     // Send to analytics/monitoring service
     if (GA_TRACKING_ID) {
       ReactGA.event({
@@ -42,7 +42,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     
     // Log error info for debugging
     console.error('Global Error:', error);
-    console.error('Error Info:', errorInfo);
+
   };
 
   return (
