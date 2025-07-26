@@ -19,6 +19,7 @@ import json
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+from models.advanced_ai import AdvancedAIOrchestrator
 import logging
 
 # Configure logging
@@ -121,6 +122,9 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             headers={"WWW-Authenticate": "Bearer"},
         )
     return {"user_id": token}  # Simplified - in production, decode JWT
+
+# Initialize Advanced AI Orchestrator
+advanced_ai = AdvancedAIOrchestrator()
 
 # AI Recommendation Engine
 class AIRecommendationEngine:
@@ -441,7 +445,8 @@ async def startup_event():
         db_connection = await get_db_pool()
         async with db_connection.acquire() as conn:
             await ai_engine.load_content_data(conn)
-        logger.info("AI Behavioral Nudge System started successfully")
+            await advanced_ai.initialize(conn)
+        logger.info("AI Behavioral Nudge System with Advanced AI started successfully")
     except Exception as e:
         logger.error(f"Failed to start AI system: {e}")
 
@@ -543,6 +548,307 @@ async def recommend_learning_path(
     except Exception as e:
         logger.error(f"Error generating recommendation for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/nudge/advanced-recommendations")
+async def get_advanced_recommendations(
+    user_id: str,
+    db_connection = Depends(get_db)
+) -> Dict:
+    """
+    Get advanced AI recommendations using machine learning models
+    Combines collaborative filtering, content-based filtering, and behavioral predictions
+    """
+    try:
+        # Get user profile and behavior data
+        user_profile = await ai_engine.get_user_profile(user_id, db_connection)
+        if not user_profile:
+            raise HTTPException(status_code=404, detail="User profile not found")
+        
+        behavior_data = await ai_engine.analyze_user_behavior(user_id, db_connection)
+        
+        # Get advanced recommendations
+        advanced_results = await advanced_ai.get_advanced_recommendations(
+            user_id, 
+            user_profile.__dict__, 
+            behavior_data.__dict__, 
+            db_connection
+        )
+        
+        return {
+            "user_id": user_id,
+            "advanced_recommendations": advanced_results["recommendations"],
+            "behavioral_predictions": advanced_results["predictions"],
+            "optimized_nudge": advanced_results["optimized_nudge"],
+            "confidence_score": advanced_results["confidence_score"],
+            "model_version": "advanced_v1.0",
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating advanced recommendations: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/analytics/user-insights")
+async def get_user_insights(
+    user_id: str,
+    db_connection = Depends(get_db)
+) -> Dict:
+    """
+    Get comprehensive user analytics and behavioral insights
+    """
+    try:
+        # Get user behavior data
+        behavior_data = await ai_engine.analyze_user_behavior(user_id, db_connection)
+        
+        # Get behavioral predictions
+        user_features = {
+            'total_content': len(behavior_data.recent_sessions),
+            'completed_content': sum(1 for s in behavior_data.recent_sessions if s['event_type'] == 'lesson_completed'),
+            'avg_time_spent': behavior_data.average_session_duration,
+            'active_days': len(set(s['timestamp'][:10] for s in behavior_data.recent_sessions)),
+            'total_events': len(behavior_data.recent_sessions),
+            'completion_rate': behavior_data.completion_rate,
+            'time_horizon': 'medium_term',  # Would come from user profile
+            'learning_style': 'visual'  # Would come from user profile
+        }
+        
+        engagement_pred = advanced_ai.behavioral_engine.predict_engagement(user_features)
+        completion_pred = advanced_ai.behavioral_engine.predict_completion_probability(user_features)
+        churn_risk = advanced_ai.behavioral_engine.predict_churn_risk(user_features)
+        
+        # Calculate learning trajectory
+        learning_trajectory = await _calculate_learning_trajectory(user_id, db_connection)
+        
+        return {
+            "user_id": user_id,
+            "engagement_score": float(engagement_pred),
+            "completion_probability": float(completion_pred),
+            "churn_risk": float(churn_risk),
+            "learning_velocity": behavior_data.learning_velocity,
+            "preferred_content_types": behavior_data.preferred_content_types,
+            "learning_trajectory": learning_trajectory,
+            "behavioral_segment": _get_behavioral_segment(engagement_pred, completion_pred, churn_risk),
+            "recommendations": {
+                "intervention_needed": churn_risk > 0.7,
+                "suggested_content_type": behavior_data.preferred_content_types[0] if behavior_data.preferred_content_types else "lesson",
+                "optimal_session_length": min(30, max(10, behavior_data.average_session_duration))
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating user insights: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/analytics/cohort-analysis")
+async def get_cohort_analysis(
+    cohort_period: str = "weekly",
+    db_connection = Depends(get_db)
+) -> Dict:
+    """
+    Get cohort analysis for user retention and engagement
+    """
+    try:
+        # Get cohort data
+        cohort_query = """
+            SELECT 
+                DATE_TRUNC($1, ulp.created_at) as cohort_period,
+                COUNT(DISTINCT ulp.user_id) as cohort_size,
+                COUNT(DISTINCT CASE WHEN ulpr.completed_at > ulp.created_at + INTERVAL '7 days' THEN ulp.user_id END) as week_1_retention,
+                COUNT(DISTINCT CASE WHEN ulpr.completed_at > ulp.created_at + INTERVAL '30 days' THEN ulp.user_id END) as month_1_retention,
+                AVG(CASE WHEN ulpr.status = 'completed' THEN 1.0 ELSE 0.0 END) as avg_completion_rate
+            FROM user_learning_profiles ulp
+            LEFT JOIN user_learning_progress ulpr ON ulp.user_id = ulpr.user_id
+            WHERE ulp.created_at > NOW() - INTERVAL '90 days'
+            GROUP BY DATE_TRUNC($1, ulp.created_at)
+            ORDER BY cohort_period DESC
+        """
+        
+        cohort_data = await db_connection.fetch(cohort_query, cohort_period)
+        
+        # Calculate retention rates
+        cohorts = []
+        for row in cohort_data:
+            cohort_size = row['cohort_size']
+            cohorts.append({
+                "period": row['cohort_period'].isoformat(),
+                "cohort_size": cohort_size,
+                "week_1_retention_rate": (row['week_1_retention'] / cohort_size) if cohort_size > 0 else 0,
+                "month_1_retention_rate": (row['month_1_retention'] / cohort_size) if cohort_size > 0 else 0,
+                "avg_completion_rate": float(row['avg_completion_rate'] or 0)
+            })
+        
+        return {
+            "cohort_period": cohort_period,
+            "cohorts": cohorts,
+            "summary": {
+                "total_cohorts": len(cohorts),
+                "avg_week_1_retention": sum(c["week_1_retention_rate"] for c in cohorts) / len(cohorts) if cohorts else 0,
+                "avg_month_1_retention": sum(c["month_1_retention_rate"] for c in cohorts) / len(cohorts) if cohorts else 0,
+                "avg_completion_rate": sum(c["avg_completion_rate"] for c in cohorts) / len(cohorts) if cohorts else 0
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating cohort analysis: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.post("/models/retrain")
+async def retrain_models(
+    force: bool = False,
+    db_connection = Depends(get_db)
+) -> Dict:
+    """
+    Retrain AI models with latest data
+    """
+    try:
+        # Check if retraining is needed
+        should_retrain = force or await advanced_ai.should_retrain_models(db_connection)
+        
+        if not should_retrain:
+            return {
+                "status": "skipped",
+                "message": "Models are up to date",
+                "last_update": advanced_ai.last_model_update.isoformat() if advanced_ai.last_model_update else None
+            }
+        
+        # Retrain models
+        logger.info("Starting model retraining...")
+        await advanced_ai.initialize(db_connection)
+        
+        return {
+            "status": "success",
+            "message": "Models retrained successfully",
+            "retrained_at": datetime.now().isoformat(),
+            "models_updated": [
+                "collaborative_filtering",
+                "content_based",
+                "behavioral_analytics",
+                "nudge_optimization"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error retraining models: {e}")
+        raise HTTPException(status_code=500, detail="Model retraining failed")
+
+@app.get("/models/performance")
+async def get_model_performance(
+    db_connection = Depends(get_db)
+) -> Dict:
+    """
+    Get AI model performance metrics
+    """
+    try:
+        # Get recent nudge effectiveness
+        nudge_query = """
+            SELECT 
+                nudge_type,
+                COUNT(*) as total_nudges,
+                COUNT(CASE WHEN user_response = 'clicked' THEN 1 END) as clicked,
+                COUNT(CASE WHEN user_response = 'completed_action' THEN 1 END) as completed,
+                AVG(effectiveness_score) as avg_effectiveness
+            FROM nudge_logs
+            WHERE delivered_at > NOW() - INTERVAL '30 days'
+            GROUP BY nudge_type
+        """
+        
+        nudge_data = await db_connection.fetch(nudge_query)
+        
+        # Get recommendation accuracy (simplified)
+        rec_query = """
+            SELECT 
+                COUNT(*) as total_recommendations,
+                COUNT(CASE WHEN ulpr.status = 'completed' THEN 1 END) as completed_recommendations
+            FROM learning_recommendations lr
+            LEFT JOIN user_learning_progress ulpr ON lr.recommended_content_id = ulpr.learning_content_id
+            WHERE lr.created_at > NOW() - INTERVAL '30 days'
+        """
+        
+        rec_data = await db_connection.fetchrow(rec_query)
+        
+        nudge_performance = []
+        for row in nudge_data:
+            total = row['total_nudges']
+            nudge_performance.append({
+                "nudge_type": row['nudge_type'],
+                "total_sent": total,
+                "click_rate": (row['clicked'] / total) if total > 0 else 0,
+                "completion_rate": (row['completed'] / total) if total > 0 else 0,
+                "avg_effectiveness": float(row['avg_effectiveness'] or 0)
+            })
+        
+        total_recs = rec_data['total_recommendations'] or 0
+        recommendation_accuracy = (rec_data['completed_recommendations'] / total_recs) if total_recs > 0 else 0
+        
+        return {
+            "model_status": "healthy",
+            "last_update": advanced_ai.last_model_update.isoformat() if advanced_ai.last_model_update else None,
+            "nudge_performance": nudge_performance,
+            "recommendation_accuracy": float(recommendation_accuracy),
+            "overall_performance_score": _calculate_overall_performance(nudge_performance, recommendation_accuracy),
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting model performance: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# Helper functions
+async def _calculate_learning_trajectory(user_id: str, db_connection) -> Dict:
+    """Calculate user's learning trajectory over time"""
+    query = """
+        SELECT 
+            DATE(completed_at) as completion_date,
+            COUNT(*) as lessons_completed
+        FROM user_learning_progress
+        WHERE user_id = $1 AND status = 'completed'
+          AND completed_at > NOW() - INTERVAL '30 days'
+        GROUP BY DATE(completed_at)
+        ORDER BY completion_date
+    """
+    
+    rows = await db_connection.fetch(query, user_id)
+    
+    trajectory = []
+    cumulative = 0
+    for row in rows:
+        cumulative += row['lessons_completed']
+        trajectory.append({
+            "date": row['completion_date'].isoformat(),
+            "daily_completions": row['lessons_completed'],
+            "cumulative_completions": cumulative
+        })
+    
+    return {
+        "daily_progress": trajectory,
+        "total_days_active": len(trajectory),
+        "avg_daily_completions": sum(t["daily_completions"] for t in trajectory) / len(trajectory) if trajectory else 0
+    }
+
+def _get_behavioral_segment(engagement: float, completion: float, churn_risk: float) -> str:
+    """Determine user behavioral segment"""
+    if churn_risk > 0.7:
+        return "at_risk"
+    elif engagement > 0.7 and completion > 0.8:
+        return "champion"
+    elif engagement > 0.5 and completion > 0.6:
+        return "loyal"
+    elif engagement < 0.3:
+        return "hibernating"
+    else:
+        return "developing"
+
+def _calculate_overall_performance(nudge_performance: List, recommendation_accuracy: float) -> float:
+    """Calculate overall AI system performance score"""
+    if not nudge_performance:
+        return recommendation_accuracy
+    
+    avg_nudge_effectiveness = sum(n["avg_effectiveness"] for n in nudge_performance) / len(nudge_performance)
+    return (avg_nudge_effectiveness * 0.6 + recommendation_accuracy * 0.4)
 
 if __name__ == "__main__":
     import uvicorn

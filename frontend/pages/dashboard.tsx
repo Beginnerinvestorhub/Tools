@@ -8,6 +8,8 @@ import MarketDataWidget from '../components/MarketDataWidget';
 import { useGamificationAPI } from '../hooks/useGamificationAPI';
 import UserStatsCard from '../components/gamification/UserStatsCard';
 import AchievementNotification from '../components/gamification/AchievementNotification';
+import { useOnboardingCompleted } from '../store/learningStore';
+import PersonalizedLearningDashboard from '../components/learning/PersonalizedLearningDashboard';
 // import { Badge, Achievement } from '../types/gamification'; // Unused for now
 
 const STRIPE_PRICE_ID = 'price_12345';
@@ -15,10 +17,12 @@ const STRIPE_PRICE_ID = 'price_12345';
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const onboardingCompleted = useOnboardingCompleted();
   const [notification, setNotification] = useState<{
     type: 'badge' | 'achievement' | 'points';
     data: any;
   } | null>(null);
+  const [activeTab, setActiveTab] = useState<'learning' | 'tools' | 'market'>('learning');
 
   const {
     userProgress,
@@ -45,12 +49,16 @@ export default function DashboardPage() {
     }
   }, [gamificationError]);
 
-  // Redirect unauthenticated users to login
+  // Redirect logic for authentication and onboarding
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login');
+    if (!loading) {
+      if (!user) {
+        router.replace('/login');
+      } else if (!onboardingCompleted) {
+        router.replace('/onboarding');
+      }
     }
-  }, [user, loading, router]);
+  }, [user, loading, onboardingCompleted, router]);
 
   if (loading) {
     return (
@@ -60,63 +68,122 @@ export default function DashboardPage() {
     );
   }
 
+  // Don't render if redirecting
+  if (!user || !onboardingCompleted) {
+    return null;
+  }
+
   return (
     <div className="page-wrapper min-h-screen bg-gradient-to-br from-white to-indigo-50 flex flex-col">
       <Head>
-        <title>Dashboard | Investment Tools Hub</title>
-        <meta name="description" content="Your investment dashboard and tools." />
+        <title>My Journey - Dashboard | Beginner Investor Hub</title>
+        <meta name="description" content="Your personalized investment learning journey and dashboard." />
       </Head>
 
-      <main className="max-w-5xl mx-auto py-12 flex flex-col gap-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-indigo-800 text-center">
-          Welcome to your Dashboard
-        </h1>
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Welcome back, {user.displayName || 'Investor'}!
+          </h1>
+          <p className="text-lg text-gray-600">
+            Continue your personalized investment learning journey
+          </p>
+        </div>
 
-        {/* Gamification Progress */}
+        {/* Gamification Progress - Compact Display */}
         {userProgress && !gamificationLoading && (
-          <UserStatsCard 
-            userProgress={{
-              ...userProgress,
-              badges: (badges as any) || [],
-              achievements: (achievements as any) || [],
-              streaks: {
-                loginStreak: 0,
-                learningStreak: 0
-              },
-              stats: {
-                toolsUsed: [],
-                assessmentsCompleted: 0,
-                portfoliosCreated: 0,
-                educationModulesCompleted: 0,
-                totalTimeSpent: 0,
-                averageSessionTime: 0,
-                favoriteTools: []
-              }
-            }} 
-            compact={true}
-            className="mb-6"
-          />
+          <div className="mb-8">
+            <UserStatsCard 
+              userProgress={{
+                ...userProgress,
+                badges: (badges as any) || [],
+                achievements: (achievements as any) || [],
+                streaks: {
+                  loginStreak: 0,
+                  learningStreak: 0
+                },
+                stats: {
+                  toolsUsed: [],
+                  assessmentsCompleted: 0,
+                  portfoliosCreated: 0,
+                  educationModulesCompleted: 0,
+                  totalTimeSpent: 0,
+                  averageSessionTime: 0,
+                  favoriteTools: []
+                }
+              }} 
+              compact={true}
+              className=""
+            />
+          </div>
         )}
 
-        {/* Embedded App */}
-        <MainAppEmbed />
+        {/* Navigation Tabs */}
+        <div className="mb-8">
+          <nav className="flex space-x-8 border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('learning')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'learning'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              My Learning Path
+            </button>
+            <button
+              onClick={() => setActiveTab('tools')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'tools'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Investment Tools
+            </button>
+            <button
+              onClick={() => setActiveTab('market')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'market'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Market Overview
+            </button>
+          </nav>
+        </div>
 
-        {/* Market Data Section */}
-        <section className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-indigo-700 mb-4">
-            Market Overview
-          </h2>
-          <MarketDataWidget
-            alphaVantageKey={process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || ''}
-            iexCloudKey={process.env.NEXT_PUBLIC_IEX_CLOUD_API_KEY || ''}
-            symbol="AAPL"
-            coinId="bitcoin"
-          />
-        </section>
-
-        {/* Stripe Checkout */}
-        <div className="flex justify-center">
-          <StripeCheckoutButton priceId={STRIPE_PRICE_ID} />
+        {/* Tab Content */}
+        <div className="mb-8">
+          {activeTab === 'learning' && (
+            <PersonalizedLearningDashboard />
+          )}
+          
+          {activeTab === 'tools' && (
+            <div className="space-y-6">
+              <MainAppEmbed />
+              
+              {/* Stripe Checkout */}
+              <div className="flex justify-center">
+                <StripeCheckoutButton priceId={STRIPE_PRICE_ID} />
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'market' && (
+            <section className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Market Overview
+              </h2>
+              <MarketDataWidget
+                alphaVantageKey={process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY || ''}
+                iexCloudKey={process.env.NEXT_PUBLIC_IEX_CLOUD_API_KEY || ''}
+                symbol="AAPL"
+                coinId="bitcoin"
+              />
+            </section>
+          )}
         </div>
       </main>
       
