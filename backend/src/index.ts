@@ -1,23 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
-import path from 'path';
 import rateLimit from 'express-rate-limit';
 import { testConnection, initializeDatabase } from './config/database';
+import { validateEnv, env } from './config/env';
 
-// Load environment variables from backend/.env
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-// ⚠️ Warn if Stripe key is missing (but don't crash)
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('⚠️ STRIPE_SECRET_KEY not found - Stripe functionality will be disabled');
-}
-
-// ⚠️ Warn if Database URL is missing
-if (!process.env.DATABASE_URL) {
-  console.warn('⚠️ DATABASE_URL not found - Database functionality will be disabled');
-}
+// Validate environment variables
+validateEnv();
 
 const app = express();
 
@@ -27,11 +16,15 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Middleware: CORS
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : '*';
+// In production, if no ALLOWED_ORIGINS is set, restrict to no origins
+// Otherwise, use the configured origins
+const corsOptions = env.allowedOrigins && env.allowedOrigins.length > 0 
+  ? { origin: env.allowedOrigins }
+  : process.env.NODE_ENV === 'production'
+  ? { origin: false } // Disable CORS in production if no origins configured
+  : { origin: '*' }; // Allow all in development if not configured
 
-app.use(cors({ origin: allowedOrigins }));
+app.use(cors(corsOptions));
 
 // Middleware: Rate limiting
 const limiter = rateLimit({
@@ -55,6 +48,7 @@ import { userRouter } from './routes/user';
 import { dashboardRouter } from './routes/dashboard';
 import { adminRouter } from './routes/admin';
 import newsletterRouter from './routes/newsletter';
+import { nudgeRouter } from './routes/nudge';
 import stripeRouter from './routes/stripe';
 import profileRouter from './routes/profile';
 import gamificationRouter from './routes/gamification';
@@ -90,6 +84,7 @@ app.use('/api/profile', profileRouter);
 app.use('/api/gamification', gamificationRouter);
 app.use('/api/education', educationRouter);
 app.use('/api/learning', learningRouter);
+app.use('/api/nudge', nudgeRouter);
 app.use('/api/gamification/leaderboard', leaderboardRouter);
 app.use('/api/gamification/challenges', challengesRouter);
 app.use('/api/esg', esgRouter);
@@ -113,7 +108,7 @@ app.get('/api/health', async (_, res) => {
 
 // Initialize Database and Start Server
 if (require.main === module) {
-  const port = process.env.PORT || 4000;
+  const PORT = env.port;
   
   // Initialize database connection and schema
   const initServer = async () => {
@@ -132,15 +127,16 @@ if (require.main === module) {
       console.log('⚠️ Server will continue without database functionality');
     }
     
-    app.listen(port, () => {
-      const host = process.env.NODE_ENV === 'production' ? process.env.BACKEND_HOST || 'production' : 'localhost';
-      console.log(`✅ Backend API running at http://${host}:${port}`);
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📚 API Documentation available at http://localhost:${PORT}/api/docs`);
+      console.log(`🔧 Environment: ${env.nodeEnv}`);
     });
   };
   
   initServer();
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (env.nodeEnv !== 'production') {
     console.log('🔧 Loaded ENV:', {
       ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
       STRIPE_SECRET_KEY: !!process.env.STRIPE_SECRET_KEY,

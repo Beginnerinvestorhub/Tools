@@ -53,7 +53,7 @@ flake8==6.1.0
 mypy==1.7.1
 
 # Security
-cryptography==41.0.8
+cryptography==42.0.5                # Upgraded to latest secure version
 
 # Monitoring
 prometheus-client==0.19.0

@@ -1,0 +1,212 @@
+// Prisma schema for Beginner Investor Hub
+// This schema defines the database models for the application.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+  premium
+}
+
+enum RiskLevel {
+  low
+  medium
+  high
+}
+
+// User model (expand as needed)
+model User {
+  id              String     @id @default(uuid())
+  email           String     @unique
+  firstName       String?
+  lastName        String?
+  role            Role       @default(user)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  profile         UserProfile?
+  challenges      UserChallenge[]
+  portfolios      Portfolio[]
+  transactions    Transaction[]
+  achievements    UserAchievement[]
+  leaderboard     LeaderboardEntry?
+  riskProfile     RiskProfile?
+  learningPath    LearningPath?
+  nudgeLogs       NudgeLog[]
+}
+
+// User profile (mirrors in-memory UserProfile interface)
+model UserProfile {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String   @unique
+  phone           String?
+  dateOfBirth     DateTime?
+  address         Json?
+  preferences     Json?
+  riskTolerance   RiskLevel?
+  goals           String?
+  investmentGoals String?
+  timeHorizon     String?
+  learningStyle   String?
+  preferredTopics String?
+  completedLessons String[]
+  completedChallenges String[]
+  behavioralTendencies String?
+  updatedAt       DateTime @updatedAt
+}
+
+// Challenge template (static definitions)
+model Challenge {
+  id          String   @id
+  title       String
+  description String
+  type        String
+  target      Int
+  reward      Json
+  createdAt   DateTime @default(now())
+  userChallenges UserChallenge[]
+}
+
+// User-challenge progress
+model UserChallenge {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  challenge    Challenge @relation(fields: [challengeId], references: [id])
+  challengeId  String
+  completed    Boolean  @default(false)
+  progress     Int      @default(0)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, challengeId])
+}
+
+// Portfolio model
+model Portfolio {
+  id           String       @id @default(uuid())
+  name         String
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  // holdings is flexible but a dedicated Holding model would be more robust for querying.
+  // Example:
+  // holdings     Holding[]
+  holdings     Json
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  isDefault    Boolean      @default(false)
+
+  @@index([userId])
+}
+
+enum TransactionType {
+  BUY
+  SELL
+  DIVIDEND
+}
+
+// Transaction model
+model Transaction {
+  id           String       @id @default(uuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  type         TransactionType
+  symbol       String
+  quantity     Float
+  price        Float
+  total        Float
+  date         DateTime     @default(now())
+  portfolioId  String?
+
+  @@index([userId])
+  @@index([portfolioId])
+}
+
+// Achievement model
+model Achievement {
+  id           String       @id
+  name         String
+  description  String
+  criteria     Json
+  icon         String?
+  points       Int
+  createdAt    DateTime     @default(now())
+  userAchievements UserAchievement[]
+}
+
+// User achievement progress
+model UserAchievement {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  achievementId   String
+  achievement     Achievement  @relation(fields: [achievementId], references: [id])
+  earnedAt        DateTime?
+  progress        Int          @default(0)
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([userId, achievementId])
+}
+
+// Leaderboard entry
+model LeaderboardEntry {
+  id           String       @id @default(uuid())
+  userId       String       @unique
+  user         User         @relation(fields: [userId], references: [id])
+  points       Int          @default(0)
+  rank         Int?
+  lastUpdated  DateTime     @updatedAt
+}
+
+// Risk profile
+model RiskProfile {
+  id              String       @id @default(uuid())
+  userId          String       @unique
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  riskTolerance   RiskLevel
+  investmentHorizon String
+  incomeStability String
+  investmentExperience String
+  financialGoals  String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+// Learning path
+model LearningPath {
+  id              String       @id @default(uuid())
+  userId          String       @unique
+  user            User         @relation(fields: [userId], references: [id])
+  currentLessonId String?
+  completedLessons String[]
+  completedChallenges String[]
+  nextRecommended String?
+  progress        Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+// Nudge log for behavioral analysis
+model NudgeLog {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  nudgeType       String
+  nudgeContent    String
+  actionTaken     String?
+  timestamp       DateTime     @default(now())
+  feedback        String?
+
+  @@index([userId])
+}

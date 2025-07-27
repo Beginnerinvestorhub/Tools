@@ -1,90 +1,95 @@
 import { Router } from 'express';
-import { pool } from '../config/database';
+import prisma from '../services/databaseService';
+import { requireAuth } from '../utils/requireAuth';
 
 export const leaderboardRouter = Router();
 
-// Get leaderboard data
+/**
+ * GET /api/gamification/leaderboard
+ * Get leaderboard data, sorted by points.
+ * Supports `limit` and `timeframe` query parameters.
+ */
 leaderboardRouter.get('/', async (req, res) => {
   try {
-    const { timeframe = 'week' } = req.query;
-    const client = await pool.connect();
-    
-    let dateFilter = '';
+    const { timeframe = 'all_time', limit = 50 } = req.query;
+    const take = Math.min(Number(limit), 100); // Cap limit at 100 for performance
+
+    // TODO: Implement more robust time-based filtering.
+    // This currently uses `lastUpdated` as a simple filter. A better approach
+    // would be to track points earned within specific periods.
+    let whereClause = {};
     if (timeframe === 'week') {
-      dateFilter = "AND up.updated_at >= NOW() - INTERVAL '7 days'";
-    } else if (timeframe === 'month') {
-      dateFilter = "AND up.updated_at >= NOW() - INTERVAL '30 days'";
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      whereClause = { lastUpdated: { gte: oneWeekAgo } };
     }
-    
-    const result = await client.query(`
-      SELECT 
-        up.user_id,
-        up.points,
-        up.level,
-        ROW_NUMBER() OVER (ORDER BY up.points DESC) as rank
-      FROM user_progress up
-      WHERE up.points > 0 ${dateFilter}
-      ORDER BY up.points DESC
-      LIMIT 50
-    `);
-    
-    const leaderboard = result.rows.map((row, index) => ({
-      userId: row.user_id,
-      displayName: null, // Could be enhanced with user profiles
-      points: parseInt(row.points),
-      level: parseInt(row.level),
-      rank: index + 1
+
+    const leaderboardEntries = await prisma.leaderboardEntry.findMany({
+      where: whereClause,
+      orderBy: {
+        points: 'desc',
+      },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true, // Fallback display name
+          },
+        },
+      },
+      take,
+    });
+
+    const leaderboard = leaderboardEntries.map((entry, index) => ({
+      rank: index + 1,
+      userId: entry.userId,
+      displayName: entry.user ? `${entry.user.firstName || ''} ${entry.user.lastName || ''}`.trim() || entry.user.email : 'Anonymous',
+      points: entry.points,
+      // Example of a dynamic level calculation based on points
+      level: Math.floor(Math.sqrt(entry.points / 10)) + 1,
+      lastUpdated: entry.lastUpdated,
     }));
-    
-    client.release();
+
     res.json(leaderboard);
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to fetch leaderboard data' });
   }
 });
 
-// Get user's leaderboard position
-leaderboardRouter.get('/position/:userId', async (req, res) => {
+/**
+ * GET /api/gamification/leaderboard/position/:userId
+ * Get a specific user's rank and points from the leaderboard.
+ */
+leaderboardRouter.get('/position/:userId', requireAuth(), async (req, res) => {
   try {
     const { userId } = req.params;
-    const { timeframe = 'week' } = req.query;
-    const client = await pool.connect();
-    
-    let dateFilter = '';
-    if (timeframe === 'week') {
-      dateFilter = "AND up.updated_at >= NOW() - INTERVAL '7 days'";
-    } else if (timeframe === 'month') {
-      dateFilter = "AND up.updated_at >= NOW() - INTERVAL '30 days'";
-    }
-    
-    const result = await client.query(`
-      WITH ranked_users AS (
-        SELECT 
-          up.user_id,
-          up.points,
-          up.level,
-          ROW_NUMBER() OVER (ORDER BY up.points DESC) as rank
-        FROM user_progress up
-        WHERE up.points > 0 ${dateFilter}
-      )
-      SELECT * FROM ranked_users WHERE user_id = $1
-    `, [userId]);
-    
-    client.release();
-    
-    if (result.rows.length === 0) {
+
+    // Use a raw query with a window function for efficient ranking.
+    // This avoids fetching the entire table into memory.
+    const result: Array<{ rank: BigInt; points: number }> = await prisma.$queryRaw`
+      SELECT rank, points
+      FROM (
+        SELECT "userId", points, RANK() OVER (ORDER BY points DESC) as rank
+        FROM "LeaderboardEntry"
+      ) as ranked_users
+      WHERE "userId" = ${userId}
+    `;
+
+    if (result.length === 0) {
+      // User is not on the leaderboard yet
       return res.json({ rank: null, points: 0, level: 1 });
     }
-    
-    const userPosition = result.rows[0];
+
+    const userPosition = result[0];
     res.json({
-      rank: parseInt(userPosition.rank),
-      points: parseInt(userPosition.points),
-      level: parseInt(userPosition.level)
+      rank: Number(userPosition.rank),
+      points: userPosition.points,
+      level: Math.floor(Math.sqrt(userPosition.points / 10)) + 1, // Consistent level calculation
     });
   } catch (error) {
     console.error('Error fetching user position:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to fetch user leaderboard position' });
   }
 });

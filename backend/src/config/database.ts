@@ -1,10 +1,11 @@
 // Database configuration for PostgreSQL
 import { Pool } from 'pg';
+import { env } from './env';
 
 // Database connection configuration
 const dbConfig = {
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionString: env.databaseUrl,
+  ssl: env.nodeEnv === 'production' ? { rejectUnauthorized: true } : false,
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
   connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established

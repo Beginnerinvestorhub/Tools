@@ -141,6 +141,9 @@ export default function Navbar() {
                           ? 'bg-indigo-50 text-indigo-800'
                           : 'text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
                       }`}
+                      aria-haspopup="true"
+                      aria-expanded={activeDropdown === link.label}
+                      aria-controls={`dropdown-${link.label.replace(/\s+/g, '-')}`}
                     >
                       {link.label}
                       <ChevronDownIcon className={`ml-1 h-4 w-4 transition-transform duration-200 ${
@@ -148,7 +151,11 @@ export default function Navbar() {
                       }`} />
                     </button>
                     {activeDropdown === link.label && (
-                      <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                      <div
+                        id={`dropdown-${link.label.replace(/\s+/g, '-')}`}
+                        role="menu"
+                        className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50"
+                      >
                         {link.subItems.map(subItem => (
                           <Link
                             key={subItem.href}
@@ -159,6 +166,7 @@ export default function Navbar() {
                                 : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700'
                             }`}
                             onClick={() => setActiveDropdown(null)}
+                            role="menuitem"
                           >
                             {subItem.label}
                           </Link>
@@ -201,16 +209,22 @@ export default function Navbar() {
             {isAuthenticated && (
               <>
                 {/* Notifications */}
-                <button className="relative p-2 text-gray-600 hover:text-indigo-600 transition-colors duration-150">
+                <button
+                  className="relative p-2 text-gray-600 hover:text-indigo-600 transition-colors duration-150"
+                  aria-label="View notifications, 3 unread"
+                >
                   <BellIcon className="h-5 w-5" />
                   {/* Notification badge */}
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <span
+                    className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+                    aria-hidden="true"
+                  >
                     3
                   </span>
                 </button>
 
                 {/* User Profile */}
-                <Link href="/profile" className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors duration-150">
+                <Link href="/profile" className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors duration-150" aria-label="View profile and settings">
                   {user?.photoURL ? (
                     <img src={user.photoURL} alt="Profile" className="h-8 w-8 rounded-full" />
                   ) : (
@@ -248,12 +262,15 @@ export default function Navbar() {
               onClick={() => setMenuOpen(open => !open)}
               className="lg:hidden flex items-center p-2 text-indigo-700 hover:bg-indigo-50 rounded-md transition-colors duration-150"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
             >
               <svg
                 className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 {menuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -268,18 +285,28 @@ export default function Navbar() {
       
       {/* Mobile menu overlay */}
       {menuOpen && (
-        <div className="absolute top-full left-0 w-full bg-white shadow-lg lg:hidden z-50 border-t border-gray-200">
+        <div 
+          id="mobile-menu"
+          className="absolute top-full left-0 w-full bg-white shadow-lg lg:hidden z-50 border-t border-gray-200"
+          role="dialog"
+          aria-labelledby="mobile-menu-title"
+          aria-modal="true"
+        >
           <div className="px-4 py-3 space-y-1">
-            {/* Mobile Search */}
+            <div id="mobile-menu-title" className="sr-only">Mobile Navigation Menu</div>
+            {/* Mobile Search */
             <form onSubmit={handleSearch} className="mb-4">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <label htmlFor="mobile-search" className="sr-only">Search content and tools</label>
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" aria-hidden="true" />
                 <input
+                  id="mobile-search"
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  aria-autocomplete="list"
                 />
               </div>
             </form>

@@ -1,40 +1,32 @@
 import express, { Request, Response } from 'express';
+import { UserProfile as PrismaUserProfile, RiskLevel } from '@prisma/client';
 import { requireAuth } from '../middleware/requireAuth';
 import { validate, sanitize, validateRateLimit } from '../middleware/validation';
 import { validationSchemas } from '../schemas/validationSchemas';
+import prisma from '../services/databaseService';
 
 const router = express.Router();
 
 // Rate limiting for profile endpoints
 const profileRateLimit = validateRateLimit(15 * 60 * 1000, 20, 'Too many profile requests');
 
-// In-memory profile store (replace with DB in production)
-interface UserProfile {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  dateOfBirth?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
-  };
-  preferences?: {
-    emailNotifications?: boolean;
-    smsNotifications?: boolean;
-    marketingEmails?: boolean;
-    theme?: string;
-    language?: string;
-  };
-  riskTolerance?: string;
-  goals?: string;
-  updatedAt?: string;
+// This DTO defines the shape of the profile data sent to the client.
+interface UserProfileResponse {
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
+  dateOfBirth?: string | null; // ISO string format YYYY-MM-DD
+  address?: any;
+  preferences?: any;
+  riskTolerance?: RiskLevel | null;
+  goals?: string | null;
+  updatedAt: string;
 }
 
-const profiles: Record<string, UserProfile> = {};
-
+/**
+ * Maps a Prisma UserProfile model to a public-facing API response object.
+ * @param profile The UserProfile object from Prisma.
+ * @returns
 // GET /api/profile - get current user's profile
 router.get('/', 
   profileRateLimit,
@@ -50,13 +42,29 @@ router.get('/',
         });
       }
 
-      const userProfile = profiles[userId] || {};
+      // Get user profile from database
+      const userProfile = await prisma.userProfile.findUnique({
+        where: { userId }
+      });
+      
+      // Transform database model to API response format
+      const profileData = userProfile ? {
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        phone: userProfile.phone,
+        dateOfBirth: userProfile.dateOfBirth,
+        address: userProfile.address as UserProfile['address'],
+        preferences: userProfile.preferences as UserProfile['preferences'],
+        riskTolerance: userProfile.riskTolerance,
+        goals: userProfile.goals,
+        updatedAt: userProfile.updatedAt.toISOString()
+      } : {};
       
       // Add metadata
       const profileWithMetadata = {
-        ...userProfile,
-        profileComplete: Object.keys(userProfile).length > 0,
-        lastUpdated: userProfile.updatedAt || null
+        ...profileData,
+        profileComplete: Object.keys(profileData).length > 0,
+        lastUpdated: profileData.updatedAt || null
       };
 
       res.json({
@@ -153,18 +161,65 @@ router.put('/',
       // Add timestamp
       sanitizedData.updatedAt = new Date().toISOString();
       
-      // Merge with existing profile
-      profiles[userId] = {
-        ...profiles[userId],
-        ...sanitizedData
+      // Update or create user profile in database
+      const existingProfile = await prisma.userProfile.findUnique({
+        where: { userId }
+      });
+      
+      let updatedProfile;
+      if (existingProfile) {
+        // Update existing profile
+        updatedProfile = await prisma.userProfile.update({
+          where: { userId },
+          data: {
+            firstName: sanitizedData.firstName,
+            lastName: sanitizedData.lastName,
+            phone: sanitizedData.phone,
+            dateOfBirth: sanitizedData.dateOfBirth,
+            address: sanitizedData.address as any,
+            preferences: sanitizedData.preferences as any,
+            riskTolerance: sanitizedData.riskTolerance,
+            goals: sanitizedData.goals,
+            updatedAt: new Date()
+          }
+        });
+      } else {
+        // Create new profile
+        updatedProfile = await prisma.userProfile.create({
+          data: {
+            userId,
+            firstName: sanitizedData.firstName,
+            lastName: sanitizedData.lastName,
+            phone: sanitizedData.phone,
+            dateOfBirth: sanitizedData.dateOfBirth,
+            address: sanitizedData.address as any,
+            preferences: sanitizedData.preferences as any,
+            riskTolerance: sanitizedData.riskTolerance,
+            goals: sanitizedData.goals,
+            updatedAt: new Date()
+          }
+        });
+      }
+      
+      // Transform database model to API response format
+      const profileData = {
+        firstName: updatedProfile.firstName,
+        lastName: updatedProfile.lastName,
+        phone: updatedProfile.phone,
+        dateOfBirth: updatedProfile.dateOfBirth,
+        address: updatedProfile.address as UserProfile['address'],
+        preferences: updatedProfile.preferences as UserProfile['preferences'],
+        riskTolerance: updatedProfile.riskTolerance,
+        goals: updatedProfile.goals,
+        updatedAt: updatedProfile.updatedAt.toISOString()
       };
       
-      console.log(`Profile updated for user: ${userId} at ${sanitizedData.updatedAt}`);
+      console.log(`Profile updated for user: ${userId} at ${profileData.updatedAt}`);
       
       res.json({ 
         success: true,
         message: 'Profile updated successfully',
-        profile: profiles[userId],
+        profile: profileData,
         updatedFields: Object.keys(sanitizedData).filter(key => key !== 'updatedAt')
       });
     } catch (error) {
@@ -192,15 +247,21 @@ router.delete('/',
       }
 
       // Check if profile exists
-      if (!profiles[userId]) {
+      const existingProfile = await prisma.userProfile.findUnique({
+        where: { userId }
+      });
+      
+      if (!existingProfile) {
         return res.status(404).json({
           error: 'Profile not found',
           message: 'No profile data found to delete'
         });
       }
 
-      // Delete profile
-      delete profiles[userId];
+      // Delete profile from database
+      await prisma.userProfile.delete({
+        where: { userId }
+      });
       
       console.log(`Profile deleted for user: ${userId} at ${new Date().toISOString()}`);
       

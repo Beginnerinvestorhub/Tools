@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException
 from dotenv import load_dotenv
+import env
 
 load_dotenv()
 

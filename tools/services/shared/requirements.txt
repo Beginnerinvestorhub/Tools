@@ -38,8 +38,7 @@ psycopg2-binary==2.9.9              # PostgreSQL adapter
 # CACHING & MESSAGE QUEUES
 # ==============================================================================
 redis==6.2.0                        # In-memory data structure store
-celery==5.3.4                       # Distributed task queue
-celery-beat==2.4.0                  # Celery periodic task scheduler
+celery==5.3.4                       # Distributed task que               # Celery periodic task scheduler
 
 # ==============================================================================
 # CONFIGURATION & ENVIRONMENT
@@ -83,9 +82,9 @@ mypy==1.6.1                         # Static type checker
 # ==============================================================================
 # SECURITY & VALIDATION
 # ==============================================================================
-cryptography==41.0.7                # Cryptographic recipes and primitives
+cryptography==42.0.5                # Upgraded to latest secure version
 passlib[bcrypt]==1.7.4              # Password hashing library
-python-jose[cryptography]==3.3.0    # JWT token handling
+python-jose[cryptography]==3.3.0    # (No newer stable, consider PyJWT if issues persist)
 
 # ==============================================================================
 # OPTIONAL: MACHINE LEARNING EXTENSIONS

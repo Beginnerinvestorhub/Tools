@@ -12,9 +12,9 @@
 
 # Machine Learning & AI
 tensorflow==2.15.0                  # Deep learning framework
-torch==2.1.0                        # PyTorch deep learning
+torch==2.3.0                        # Upgraded to latest secure version
 torchvision==0.16.0                 # Computer vision for PyTorch
-transformers==4.35.0                # Hugging Face transformers
+transformers==4.41.2                # Upgraded to latest secure version
 sentence-transformers==2.2.2        # Sentence embeddings
 
 # Natural Language Processing
@@ -33,8 +33,8 @@ lightgbm==4.1.0                     # Light gradient boosting
 catboost==1.2.2                     # Categorical boosting
 
 # Model Serving & MLOps
-mlflow==2.8.1                       # ML lifecycle management
-bentoml==1.1.6                      # Model serving
+mlflow==2.12.1                      # Upgraded to latest secure version
+bentoml==1.2.7                      # Upgraded to latest secure version
 optuna==3.4.0                       # Hyperparameter optimization
 
 # Data Visualization
