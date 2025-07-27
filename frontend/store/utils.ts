@@ -9,34 +9,52 @@ import { produce } from 'immer';
 // PERSISTENCE UTILITIES
 // ============================================================================
 
+/**
+ * A safe storage implementation for Zustand's persist middleware that
+ * works with server-side rendering and handles environments where
+ * localStorage is not available.
+ */
+const ssrSafeStorage = {
+  getItem: (name: string): string | null => {
+    // If window is not defined, we are on the server, return null.
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    try {
+      return localStorage.getItem(name);
+    } catch (error) {
+      console.warn(`Error reading localStorage key “${name}”:`, error);
+      return null;
+    }
+  },
+  setItem: (name: string, value: string): void => {
+    // If window is not defined, we are on the server, do nothing.
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      localStorage.setItem(name, value);
+    } catch (error) {
+      console.warn(`Error setting localStorage key “${name}”:`, error);
+    }
+  },
+  removeItem: (name: string): void => {
+    // If window is not defined, we are on the server, do nothing.
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      localStorage.removeItem(name);
+    } catch (error) {
+      console.warn(`Error removing localStorage key “${name}”:`, error);
+    }
+  },
+};
+
 export const createPersistConfig = (name: string, version: number = 1) => ({
   name,
   version,
-  storage: {
-    getItem: (name: string) => {
-      try {
-        const item = localStorage.getItem(name);
-        return item ? JSON.parse(item) : null;
-      } catch (error) {
-        console.warn(`Failed to parse localStorage item ${name}:`, error);
-        return null;
-      }
-    },
-    setItem: (name: string, value: any) => {
-      try {
-        localStorage.setItem(name, JSON.stringify(value));
-      } catch (error) {
-        console.warn(`Failed to set localStorage item ${name}:`, error);
-      }
-    },
-    removeItem: (name: string) => {
-      try {
-        localStorage.removeItem(name);
-      } catch (error) {
-        console.warn(`Failed to remove localStorage item ${name}:`, error);
-      }
-    },
-  },
+  storage: ssrSafeStorage,
   partialize: (state: any) => {
     // Only persist specific parts of the state
     const { isLoading, error, ...persistedState } = state;

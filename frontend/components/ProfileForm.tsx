@@ -1,49 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useAuth } from '../hooks/useAuth';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { profileValidationSchema } from '../lib/validationSchemas';
+import { useAuth } from '../hooks/useAuth'; // Assuming a hook that provides the Firebase user
+import axios from 'axios'; // Using axios as in the original component
+
+interface ProfileFormData {
+  firstName: string;
+  lastName: string;
+  riskTolerance: 'conservative' | 'moderate' | 'aggressive' | '';
+  goals?: string;
+}
+
+const riskOptions = [
+  { value: 'conservative', label: 'Conservative' },
+  { value: 'moderate', label: 'Moderate' },
+  { value: 'aggressive', label: 'Aggressive' },
+];
 
 export default function ProfileForm() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState({ name: '', riskTolerance: '', goals: '' });
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting, isValid, isDirty },
+  } = useForm<ProfileFormData>({
+    resolver: yupResolver(profileValidationSchema),
+    mode: 'onChange', // Validate on change for immediate feedback
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      riskTolerance: '',
+      goals: '',
+    },
+  });
 
   useEffect(() => {
-    if (!user) return;
-    setLoading(true);
-    user.getIdToken().then(token => {
-      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, { headers: { Authorization: `Bearer ${token}` } })
-        .then(res => setProfile(res.data))
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    });
-  }, [user]);
+    const fetchProfile = async () => {
+      if (!user) return;
+      try {
+        const token = await user.getIdToken();
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // The old form had a single 'name' field. We adapt to firstName/lastName.
+        const [firstName, ...lastNameParts] = data.name?.split(' ') || ['', ''];
+        reset({
+          firstName: data.firstName || firstName,
+          lastName: data.lastName || lastNameParts.join(' '),
+          riskTolerance: data.riskTolerance || '',
+          goals: data.goals || '',
+        });
+      } catch (error) {
+        setStatusMessage({ type: 'error', message: 'Failed to load profile.' });
+      }
+    };
+    fetchProfile();
+  }, [user, reset]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
-    setSaved(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: ProfileFormData) => {
     if (!user) return;
-    setLoading(true);
+    setStatusMessage(null);
     try {
       const token = await user.getIdToken();
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, profile, { headers: { Authorization: `Bearer ${token}` } });
-      setSaved(true);
-    } catch {
-      setSaved(false);
-    } finally {
-      setLoading(false);
+      // The backend route is PUT for updates
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStatusMessage({ type: 'success', message: 'Profile saved successfully!' });
+      reset(data); // Resets the dirty state after a successful save
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'An unexpected error occurred.';
+      setStatusMessage({ type: 'error', message });
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-16 bg-white rounded-xl shadow-lg p-8">
       <h2 className="text-2xl font-bold mb-6 text-indigo-700">Profile</h2>
-      <p className="mb-4">Email: <span className="font-mono">{user?.email}</span></p>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {user?.email && <p className="mb-4">Email: <span className="font-mono">{user.email}</span></p>}
+      <form onSubmit={handleSubmit
         <div>
           <label className="block text-sm font-medium mb-1">Name</label>
           <input

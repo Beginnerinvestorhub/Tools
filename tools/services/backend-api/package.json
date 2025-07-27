@@ -7,7 +7,9 @@
     "start": "node dist/server.js",
     "dev": "nodemon",
     "build": "tsc",
-    "test": "echo \"Error: No test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },

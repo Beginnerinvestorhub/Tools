@@ -8,8 +8,8 @@ out/
 .turbo/
 
 # Environment variables
-#.env
-#.env.*
+.env
+.env.*
 
 # Logs
 *.log

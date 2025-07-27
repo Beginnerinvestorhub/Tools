@@ -5,11 +5,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 
 // Import routes
 import authRoutes from './routes/authRoutes';
 import riskAssessmentRoutes from './routes/riskAssessmentRoutes';
 import simulationRoutes from './routes/simulationRoutes';
+import healthRoutes from './routes/healthRoutes';
+import nudgeEngineRoutes from './routes/nudgeEngineRoutes';
+
+// Import middleware
+import { validateEnvironment } from './middleware/envValidationMiddleware';
 
 // Import your custom ApiError class
 import { ApiError } from '../../packages/api-types/src'; // Adjust path if needed
@@ -17,14 +23,86 @@ import { ApiError } from '../../packages/api-types/src'; // Adjust path if neede
 // Load environment variables from .env file
 dotenv.config();
 
+// Validate environment variables
+validateEnvironment();
+
 const app: Application = express();
 
-// Middleware
-// Enable CORS for all routes or specific origins
-app.use(cors());
+// Global rate limiting
+const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    error: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false, // Disable `X-RateLimit-*` headers
+});
 
-// Add security headers
-app.use(helmet());
+// Apply rate limiting to all requests
+app.use(globalRateLimiter);
+
+// Auth rate limiting (more restrictive)
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs for auth endpoints
+  message: {
+    error: 'Too many authentication attempts, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Only count failed requests
+});
+
+// Apply auth rate limiting to auth routes
+// This will be applied in the routes themselves
+
+// Middleware
+// Enable CORS for specific origins only in production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'https://yourdomain.com'] 
+    : '*',
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Add security headers with enhanced Helmet configuration
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'"],
+      connectSrc: ["'self'", "https://*.firebaseio.com", "https://www.googleapis.com"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  dnsPrefetchControl: {
+    allow: false,
+  },
+  frameguard: {
+    action: 'deny',
+  },
+  hidePoweredBy: true,
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
+  ieNoOpen: true,
+  noSniff: true,
+  referrerPolicy: {
+    policy: 'no-referrer',
+  },
+  xssFilter: true,
+}));
 
 // Log HTTP requests in a developer-friendly format
 app.use(morgan('dev'));
@@ -36,6 +114,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/risk-assessment', riskAssessmentRoutes);
 app.use('/api/simulation', simulationRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/nudge-engine', nudgeEngineRoutes);
 
 // Root route for API health check
 app.get('/api', (req: Request, res: Response) => {

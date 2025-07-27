@@ -13,7 +13,7 @@ export default function NudgeChatWidget() {
     setMessages(msgs => [...msgs, { from: 'user', text: input }]);
     setLoading(true);
     try {
-      const res = await axios.post('/api/nudge', { message: input });
+      const res = await axios.post('/api/nudge-engine-proxy', { message: input });
       setMessages(msgs => [...msgs, { from: 'bot', text: res.data.nudge }]);
     } catch (err) {
       // Log unexpected errors for debugging

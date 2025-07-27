@@ -278,3 +278,200 @@ This file continues the comprehensive, file-by-file audit of the Beginner Invest
 - Add colorblind-friendly indicators for progress and badges.
 
 ---
+
+## Frontend Directory - Hooks
+
+*The following entries cover custom React hooks used for shared logic and state management across the frontend application.*
+
+---
+
+### 16. `hooks/useApi.ts`
+**Purpose:**
+- Provides a generic custom hook for making API calls, abstracting away the state management for loading, error, and data states.
+
+**Issues:**
+- Lacks built-in caching or request deduplication, which can lead to redundant and inefficient network requests for the same data.
+- Error handling is generic; it may not propagate specific HTTP status codes or detailed error messages required for nuanced UI feedback.
+- Does not support request cancellation (e.g., via `AbortController`), which can lead to state updates on unmounted components if a user navigates away quickly.
+
+**Code Quality:**
+- Clean, modular, and uses modern `async/await` patterns effectively.
+- Good use of TypeScript generics to provide type safety for both request payloads and response data.
+
+**Improvement Suggestions:**
+- Integrate with a dedicated data-fetching library like `react-query` or leverage the application's own `apiCacheStore` to implement caching, stale-while-revalidate logic, and request deduplication.
+- Add support for `AbortController` to allow for request cancellation in a `useEffect` cleanup function.
+- Enhance the returned error object to include HTTP status codes and structured error details from the API response.
+
+---
+
+### 17. `hooks/useAuth.ts`
+**Purpose:**
+- Acts as a selector hook to provide authentication state (e.g., user object, `isAuthenticated` status) and functions (e.g., `login`, `logout`) from the global Zustand `authStore`.
+
+**Issues:**
+- As a selector for a global store, the primary risk is ensuring all components have migrated to this hook from any legacy authentication logic that might have made direct API calls.
+- Lacks inline documentation to clarify which specific parts of the auth state will or will not trigger component re-renders, which can be crucial for performance optimization.
+
+**Code Quality:**
+- Follows Zustand best practices by using selectors to prevent unnecessary re-renders.
+- Provides a clean, focused, and clear interface to the authentication state.
+
+**Improvement Suggestions:**
+- Add JSDoc comments to the hook and its returned values to explain performance characteristics and selector behavior.
+- Implement a custom ESLint rule to detect and flag any remaining legacy authentication patterns, ensuring a consistent approach across the codebase.
+
+---
+
+### 18. `hooks/useDebounce.ts`
+**Purpose:**
+- A utility hook that debounces a value, delaying updates until a specified time has passed without change. This is useful for performance-intensive operations like search-as-you-type API calls.
+
+**Issues:**
+- No major issues found; this is a standard and correct implementation of a debounce hook.
+
+**Code Quality:**
+- Simple, effective, and well-implemented using `useEffect` and `setTimeout`.
+- Correctly uses generics to maintain type safety for the debounced value.
+
+**Improvement Suggestions:**
+- Consider adding a complementary `useThrottle` hook to the codebase for handling related use cases like rate-limiting button clicks or scroll events.
+
+---
+
+### 19. `hooks/useForm.ts`
+**Purpose:**
+- A custom hook designed to manage form state, handle input changes, and perform validation.
+
+**Issues:**
+- The internal validation logic is basic. It would be difficult to scale for complex forms without integrating a more robust, schema-based validation library.
+- Lacks support for more advanced form structures like nested fields or dynamic field arrays.
+- Does not have built-in accessibility features, such as programmatically associating error messages with form inputs via `aria-describedby`.
+
+**Code Quality:**
+- Good separation of concerns between state management, event handlers, and validation logic.
+- Uses TypeScript generics effectively to provide type safety for the form's data structure.
+
+**Improvement Suggestions:**
+- Integrate a schema-based validation library like `Zod` or `Yup` to define and manage complex validation rules declaratively.
+- Refactor the hook to support nested data structures and field arrays for more complex forms.
+- Automatically generate and link `id` and `aria-describedby` attributes to improve form accessibility out-of-the-box.
+
+---
+
+### 20. `hooks/useLocalStorage.ts`
+**Purpose:**
+- A hook to synchronize a component's state with the browser's `localStorage`.
+
+**Issues:**
+- Does not handle server-side rendering (SSR) gracefully. Accessing `localStorage` on the server will cause the application to crash during the rendering process in Next.js.
+- Lacks error handling for scenarios where `localStorage` is disabled by the user or the storage quota is exceeded.
+
+**Code Quality:**
+- Follows a standard and readable implementation pattern using `useState` and `useEffect`.
+- Correctly uses a function for the initial `useState` value to ensure `localStorage` is only read once on component mount.
+
+**Improvement Suggestions:**
+- Add a check for `typeof window !== 'undefined'` before any `localStorage` access to ensure the hook is SSR-safe.
+- Wrap all `localStorage.setItem` and `localStorage.getItem` calls in a `try...catch` block to gracefully handle potential storage errors.
+- Consider expanding the hook to optionally support `sessionStorage` by passing a configuration object.
+
+---
+
+## Frontend Directory - Pages
+
+*The following entries cover the Next.js pages, which define the application's routes, data-fetching logic, and page composition.*
+
+---
+
+### 21. `pages/_app.tsx`
+**Purpose:**
+- A custom Next.js `App` component that wraps all pages. It's used to initialize global state providers, apply global CSS, and inject systems like notifications and modals.
+
+**Issues:**
+- Lacks a top-level `ErrorBoundary` component. An error thrown in any page or component could crash the entire application without a graceful fallback.
+- The `initializeStores` function is called on every render. While the internal listeners might be idempotent, this could be optimized to run only once on initial mount.
+
+**Code Quality:**
+- Cleanly composes multiple providers (`StateProvider`, `QueryClientProvider`, etc.), following standard patterns for global context setup.
+- Correctly imports and applies global stylesheets.
+
+**Improvement Suggestions:**
+- Wrap the `<Component {...pageProps} />` in a global `ErrorBoundary` component to catch unhandled exceptions and display a user-friendly error message.
+- Move the `initializeStores()` call into a `useEffect` hook with an empty dependency array (`[]`) to ensure it runs only once when the application mounts.
+
+---
+
+### 22. `pages/_document.tsx`
+**Purpose:**
+- A custom Next.js `Document` to augment the application's `<html>` and `<body>` tags. Used for server-side rendering of static elements like fonts, meta tags, and language attributes.
+
+**Issues:**
+- The `<html>` tag is missing a `lang` attribute, which is a minor but important accessibility and SEO issue.
+
+**Code Quality:**
+- Follows the standard, recommended structure for a custom `_document.tsx` file.
+- Correctly uses `<Head>`, `<Html>`, `<Main>`, and `<NextScript>`.
+
+**Improvement Suggestions:**
+- Add `lang="en"` to the `<html>` tag to declare the primary language of the page for screen readers and search engines.
+- Consider preloading critical fonts using `<link rel="preload">` within the `<Head>` component to improve initial page load performance (LCP).
+
+---
+
+### 23. `pages/index.tsx` (Home Page)
+**Purpose:**
+- The main landing page for unauthenticated users, showcasing the application's features, value propositions, and call-to-actions for registration.
+
+**Issues:**
+- SEO metadata (title, description) is static and not managed through a dedicated library, making it harder to maintain and optimize.
+- Lacks structured data (JSON-LD), which could improve search engine visibility and rich snippet results.
+
+**Code Quality:**
+- Well-composed from smaller, reusable marketing components (`FeatureCard`, `TestimonialCard`, `ValueProposition`).
+- Uses Next.js's `getStaticProps` for data fetching, which is optimal for a mostly static landing page.
+
+**Improvement Suggestions:**
+- Integrate `next-seo` to manage page-specific meta tags, Open Graph data, and other SEO-related headers in a structured way.
+- Add a `<script type="application/ld+json">` tag with structured data (e.g., `Organization`, `WebSite`) to enhance SEO.
+- Ensure all images are optimized using `next/image` and have descriptive `alt` tags.
+
+---
+
+### 24. `pages/dashboard.tsx`
+**Purpose:**
+- The primary dashboard for authenticated users. It aggregates and displays key information like portfolio value, user stats, challenges, and learning recommendations.
+
+**Issues:**
+- Lacks explicit route protection middleware or a higher-order component (HOC). Logic to redirect unauthenticated users appears to be handled client-side within a `useEffect`, which can cause a flash of content before redirection.
+- Fetches a large amount of data on initial load from multiple sources (`usePortfolio`, `useGamification`, `useLearningStore`). This could lead to a slow initial render and multiple loading spinners.
+
+**Code Quality:**
+- Effectively uses the global state stores to fetch and display data, demonstrating good separation of concerns.
+- The UI is well-composed from various widget-like components (`PortfolioMonitor`, `UserStatsCard`, `Challenges`).
+
+**Improvement Suggestions:**
+- Implement route protection using a HOC or by checking authentication status in `getServerSideProps` to redirect unauthenticated users on the server, preventing any client-side flicker.
+- Consolidate initial data fetching into a single API endpoint or use `Promise.all` in `getServerSideProps` to fetch data in parallel, reducing the number of round-trips and improving load time.
+- Implement skeleton loading states for each widget to provide a better user experience while data is being fetched.
+
+---
+
+### 25. `pages/login.tsx`
+**Purpose:**
+- Provides the user interface for authentication, allowing users to log in to their accounts.
+
+**Issues:**
+- If a user is already authenticated and navigates to `/login`, they are not automatically redirected to the dashboard. This can be a confusing user experience.
+- Form error messages are generic. They don't specify whether the issue is an incorrect email or password, which can be a security best practice but sometimes frustrates users. This is a design trade-off to consider.
+
+**Code Quality:**
+- The page is clean and focused, primarily rendering the `LoginForm` component.
+- Correctly uses the `useAuth` hook from the global store to handle the login logic and manage loading/error states.
+
+**Improvement Suggestions:**
+- Add a check (either in `getServerSideProps` or a client-side `useEffect`) to redirect already-authenticated users from the login page to the `/dashboard`.
+- Ensure the form provides clear, accessible feedback for both success and error states, leveraging the global `NotificationSystem`.
+
+---
+---
