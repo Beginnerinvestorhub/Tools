@@ -72,7 +72,7 @@ python-dateutil==2.8.2              # Date/time parsing utilities
 # ==============================================================================
 # DEVELOPMENT & TESTING
 # ==============================================================================
-pytest==7.4.3                       # Testing framework
+pytest==8.4.1                       # Testing framework
 pytest-asyncio==0.21.1              # Async testing support
 pytest-cov==4.1.0                   # Coverage reporting
 black==23.9.1                       # Code formatter
