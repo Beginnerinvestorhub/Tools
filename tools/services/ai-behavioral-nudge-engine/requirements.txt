@@ -34,7 +34,7 @@ catboost==1.2.2                     # Categorical boosting
 
 # Model Serving & MLOps
 mlflow==2.12.1                      # Upgraded to latest secure version
-bentoml==1.2.7                      # Upgraded to latest secure version
+bentoml==1.4.21                      # Upgraded to latest secure version
 optuna==3.4.0                       # Hyperparameter optimization
 
 # Data Visualization
