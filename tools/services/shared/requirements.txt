@@ -51,7 +51,7 @@ dynaconf==3.2.4                     # Configuration management
 # ==============================================================================
 # LOGGING & MONITORING
 # ==============================================================================
-loguru==0.7.2                       # Advanced logging library
+loguru==0.7.3                       # Advanced logging library
 
 # ==============================================================================
 # FINANCIAL DATA APIs
