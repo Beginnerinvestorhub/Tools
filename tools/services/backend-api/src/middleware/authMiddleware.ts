@@ -27,15 +27,35 @@ declare global {
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
+    // Check for authorization header
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return next(new ApiError(401, 'Authentication required: No token provided or invalid format.'));
     }
 
     const idToken = authHeader.split(' ')[1];
 
+    // Validate token format (basic check)
+    if (!idToken || idToken.length < 10) {
+        return next(new ApiError(401, 'Authentication failed: Invalid token format.'));
+    }
+
     try {
-        // Verify the Firebase ID token
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        // Verify the Firebase ID token with additional security checks
+        // Check that the token was issued recently (optional security measure)
+        const decodedToken = await admin.auth().verifyIdToken(idToken, true /** checkRevoked */);
+
+        // Additional security checks
+        const now = Math.floor(Date.now() / 1000);
+        
+        // Check if token was issued recently (within 1 hour)
+        if (decodedToken.iat && (now - decodedToken.iat > 3600)) {
+            return next(new ApiError(401, 'Authentication failed: Token too old.'));
+        }
+
+        // Check if token is not yet valid (future dated)
+        if (decodedToken.nbf && decodedToken.nbf > now) {
+            return next(new ApiError(401, 'Authentication failed: Token not yet valid.'));
+        }
 
         // Attach user information to the request object
         req.user = {
@@ -52,6 +72,12 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
         }
         if (error.code === 'auth/argument-error' || error.code === 'auth/invalid-id-token') {
             return next(new ApiError(401, 'Authentication failed: Invalid token.'));
+        }
+        if (error.code === 'auth/user-disabled') {
+            return next(new ApiError(401, 'Authentication failed: User account disabled.'));
+        }
+        if (error.code === 'auth/id-token-revoked') {
+            return next(new ApiError(401, 'Authentication failed: Token revoked.'));
         }
         // Generic error for other token verification issues
         return next(new ApiError(401, 'Authentication failed: Could not verify token.'));

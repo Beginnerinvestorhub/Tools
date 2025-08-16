@@ -57,9 +57,8 @@ Each service has its own `.env.example` file. Copy to `.env` and fill in the val
 - NEXT_PUBLIC_API_BASE_URL (http://localhost:4000)
 - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
 - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-- NUDGE_ENGINE_API_KEY
 
-### Backend (`backend/.env.example`)
+### Backend (`backend/...env.example`)
 - PORT
 - FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
 - JWT_SECRET
@@ -75,10 +74,23 @@ Each service has its own `.env.example` file. Copy to `.env` and fill in the val
 
 ## 🖥️ Local Development
 
-- Run `docker-compose up --build` from the root to start all services.
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000
-- Python Engine: http://localhost:8000
+### Frontend & Backend
+See the `README.md` files in the `frontend` and `backend` directories for setup instructions.
+
+### Python Services
+Each Python service in the `tools/services/` directory contains setup scripts to create its virtual environment.
+
+> **Note:** The `tools/services/shared` directory contains common code and is not a runnable service. It does not have a setup script. The setup scripts are located within the individual service directories like `risk-calculation-engine`, `market-data-ingestion`, etc.
+
+To set up a Python service (e.g., `risk-calculation-engine`):
+1.  Navigate to the service directory:
+    ```bash
+    cd tools/services/risk-calculation-engine
+    ```
+2.  Run the setup script for your terminal:
+    - For **PowerShell**: `.\setup_python_env.ps1`
+    - For **Command Prompt**: `setup_python_env.bat`
+3.  Once complete, activate the environment: `.\.venv\Scripts\activate`
 
 ---
 

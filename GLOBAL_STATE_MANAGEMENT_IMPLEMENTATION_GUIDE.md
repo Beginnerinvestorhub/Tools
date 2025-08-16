@@ -23,7 +23,6 @@ frontend/store/
 ├── authStore.ts                # Authentication and user management
 ├── portfolioStore.ts           # Portfolio and investment data
 ├── uiStore.ts                  # UI state, modals, notifications
-├── apiCacheStore.ts            # Intelligent API response caching
 └── index.ts                    # Main exports and initialization
 ```
 

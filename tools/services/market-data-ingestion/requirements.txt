@@ -13,11 +13,12 @@
 # Additional Financial Data Sources
 quandl==3.7.0                       # Quandl financial data API
 finnhub-python==2.4.18              # Finnhub API client
-iex-api-python==0.0.7               # IEX Cloud API client
+iex-api-python>=0.0.5               # IEX Cloud API client (using available version)
 
 # Advanced Data Processing
 scipy==1.11.4                       # Scientific computing
-ta-lib==0.4.28                      # Technical analysis library
+# ta-lib==0.4.28                      # Technical analysis library - COMMENTED OUT due to Windows build requirements
+pandas-ta>=0.3.14b                  # Alternative technical analysis library (pure Python)
 numba==0.58.1                       # JIT compiler for numerical functions
 
 # Time Series Analysis

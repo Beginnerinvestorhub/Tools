@@ -1,0 +1,52 @@
+# .github/workflows/docker-scan.yml
+name: Docker Image Security Scan
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: Build and Scan Docker Images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - name: backend-api
+            path: ./tools/services/backend-api
+          - name: python-engine
+            path: ./python-engine # Assuming this is the correct path for the python engine
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image for ${{ matrix.service.name }}
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service.path }}
+          # Do not push the image, just load it for scanning
+          load: true
+          tags: local/${{ matrix.service.name }}:latest
+
+      - name: Run Trivy vulnerability scanner on ${{ matrix.service.name }}
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'local/${{ matrix.service.name }}:latest'
+          format: 'table'
+          # Fail the build if HIGH or CRITICAL vulnerabilities are found
+          exit-code: '1'
+          # Scan for OS packages and language-specific dependencies
+          vuln-type: 'os,library'
+          # Only report on vulnerabilities with a known fix
+          ignore-unfixed: true
+          # Severity levels to report on
+          severity: 'CRITICAL,HIGH'

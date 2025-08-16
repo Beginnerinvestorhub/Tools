@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { testConnection, initializeDatabase } from './config/database';
 import { validateEnv, env } from './config/env';
+import { errorHandler } from './middleware/errorHandler';
+import { logger } from './utils/logger';
 
 // Validate environment variables
 validateEnv();
@@ -104,6 +106,22 @@ app.get('/api/health', async (_, res) => {
   };
   
   res.json(healthStatus);
+});
+
+// Centralized error handling middleware
+// This must be the last middleware in the chain
+app.use(errorHandler);
+
+// Add handlers for uncaught exceptions and unhandled rejections
+// These are safety nets for errors not caught by Express.
+process.on('uncaughtException', (error: Error) => {
+  logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...', { error: error.message, stack: error.stack });
+  process.exit(1); // Exit process with failure
+});
+
+process.on('unhandledRejection', (reason: any) => {
+  logger.error('UNHANDLED REJECTION! 💥 Shutting down...', { reason });
+  process.exit(1); // Exit process with failure
 });
 
 // Initialize Database and Start Server

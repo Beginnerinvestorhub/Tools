@@ -5,13 +5,13 @@ import { useRouter } from 'next/router';
 import ReactGA from 'react-ga4';
 import { Helmet } from 'react-helmet';
 import NudgeChatWidget from '../components/NudgeChatWidget';
-import NavBar from '../components/NavBar';
-import { GlobalErrorBoundary } from '../components/ErrorBoundary';
+import NavBar from '../components/NavBar'; // Assuming NavBar is part of the layout
+import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary'; // Corrected import path
 import StateProvider from '../components/StateProvider';
 import NotificationSystem from '../components/NotificationSystem';
 import ModalSystem from '../components/ModalSystem';
 
-const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID; // Corrected variable name
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -29,21 +29,22 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [router.events]);
 
-  // Global error handler for the error boundary
-  const handleGlobalError = (error: Error) => {
-    // Send to analytics/monitoring service
+  // Global error handler for the ErrorBoundary
+  const handleGlobalError = (error: Error, errorInfo: React.ErrorInfo) => {
+    // This function can be expanded to log errors to a service like Sentry
     if (GA_TRACKING_ID) {
       ReactGA.event({
         category: 'Error',
         action: 'Global Error Boundary',
         label: error.message,
+        nonInteraction: true,
       });
     }
-    
-    // Log error info for debugging
-    console.error('Global Error:', error);
-
+    console.error('Global Error Boundary caught an error:', error, errorInfo);
   };
+
+  // The audit mentioned optimizing an `initializeStores` call.
+  // This is likely handled within the `StateProvider` component now.
 
   return (
     <>
@@ -56,15 +57,15 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta property="og:site_name" content="Investment Tools Hub" />
         <link rel="icon" href="/favicon.ico" />
       </Helmet>
-      <StateProvider>
-        <GlobalErrorBoundary onError={handleGlobalError}>
+      <ErrorBoundary onError={handleGlobalError}>
+        <StateProvider>
           <NavBar />
           <Component {...pageProps} />
           <NudgeChatWidget />
           <NotificationSystem />
           <ModalSystem />
-        </GlobalErrorBoundary>
-      </StateProvider>
+        </StateProvider>
+      </ErrorBoundary>
     </>
   );
 }

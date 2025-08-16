@@ -9,34 +9,52 @@ import { produce } from 'immer';
 // PERSISTENCE UTILITIES
 // ============================================================================
 
+/**
+ * A safe storage implementation for Zustand's persist middleware that
+ * works with server-side rendering and handles environments where
+ * localStorage is not available.
+ */
+const ssrSafeStorage = {
+  getItem: (name: string): string | null => {
+    // If window is not defined, we are on the server, return null.
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    try {
+      return localStorage.getItem(name);
+    } catch (error) {
+      console.warn(`Error reading localStorage key “${name}”:`, error);
+      return null;
+    }
+  },
+  setItem: (name: string, value: string): void => {
+    // If window is not defined, we are on the server, do nothing.
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      localStorage.setItem(name, value);
+    } catch (error) {
+      console.warn(`Error setting localStorage key “${name}”:`, error);
+    }
+  },
+  removeItem: (name: string): void => {
+    // If window is not defined, we are on the server, do nothing.
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      localStorage.removeItem(name);
+    } catch (error) {
+      console.warn(`Error removing localStorage key “${name}”:`, error);
+    }
+  },
+};
+
 export const createPersistConfig = (name: string, version: number = 1) => ({
   name,
   version,
-  storage: {
-    getItem: (name: string) => {
-      try {
-        const item = localStorage.getItem(name);
-        return item ? JSON.parse(item) : null;
-      } catch (error) {
-        console.warn(`Failed to parse localStorage item ${name}:`, error);
-        return null;
-      }
-    },
-    setItem: (name: string, value: any) => {
-      try {
-        localStorage.setItem(name, JSON.stringify(value));
-      } catch (error) {
-        console.warn(`Failed to set localStorage item ${name}:`, error);
-      }
-    },
-    removeItem: (name: string) => {
-      try {
-        localStorage.removeItem(name);
-      } catch (error) {
-        console.warn(`Failed to remove localStorage item ${name}:`, error);
-      }
-    },
-  },
+  storage: ssrSafeStorage,
   partialize: (state: any) => {
     // Only persist specific parts of the state
     const { isLoading, error, ...persistedState } = state;
@@ -177,75 +195,6 @@ export const createErrorHandler = (context: string) => (error: unknown): string 
 };
 
 // ============================================================================
-// DEBOUNCE UTILITIES
-// ============================================================================
-
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
-  
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-};
-
-export const throttle = <T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): ((...args: Parameters<T>) => void) => {
-  let inThrottle: boolean;
-  
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  };
-};
-
-// ============================================================================
-// VALIDATION UTILITIES
-// ============================================================================
-
-export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-export const validatePassword = (password: string): { valid: boolean; errors: string[] } => {
-  const errors: string[] = [];
-  
-  if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long');
-  }
-  
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
-  }
-  
-  if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
-  }
-  
-  if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number');
-  }
-  
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push('Password must contain at least one special character');
-  }
-  
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
-};
-
-// ============================================================================
 // NOTIFICATION UTILITIES
 // ============================================================================
 
@@ -305,68 +254,4 @@ export const safeLocalStorage = {
       return false;
     }
   },
-};
-
-// ============================================================================
-// RETRY UTILITIES
-// ============================================================================
-
-export const createRetryFunction = <T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  delay: number = 1000,
-  backoff: number = 2
-) => {
-  return async (): Promise<T> => {
-    let lastError: Error;
-    
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        return await fn();
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        
-        if (attempt === maxRetries) {
-          throw lastError;
-        }
-        
-        // Wait before retrying with exponential backoff
-        await new Promise(resolve => 
-          setTimeout(resolve, delay * Math.pow(backoff, attempt))
-        );
-      }
-    }
-    
-    throw lastError!;
-  };
-};
-
-// ============================================================================
-// DEEP MERGE UTILITY
-// ============================================================================
-
-export const deepMerge = <T extends Record<string, any>>(target: T, source: Partial<T>): T => {
-  const result = { ...target };
-  
-  for (const key in source) {
-    if (source.hasOwnProperty(key)) {
-      const sourceValue = source[key];
-      const targetValue = result[key];
-      
-      if (
-        sourceValue &&
-        typeof sourceValue === 'object' &&
-        !Array.isArray(sourceValue) &&
-        targetValue &&
-        typeof targetValue === 'object' &&
-        !Array.isArray(targetValue)
-      ) {
-        result[key] = deepMerge(targetValue, sourceValue);
-      } else {
-        result[key] = sourceValue as T[Extract<keyof T, string>];
-      }
-    }
-  }
-  
-  return result;
 };

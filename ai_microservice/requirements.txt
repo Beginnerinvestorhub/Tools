@@ -1,13 +1,8 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-python-dotenv==1.0.0
-psycopg2-binary==2.9.9
-sqlalchemy==2.0.23
-pandas==2.1.4
-numpy==1.25.2
-scikit-learn==1.3.2
-python-jose[cryptography]==3.4.0    # (No newer stable, consider PyJWT if issues persist)
-httpx==0.25.2
+# Inherit shared dependencies from the consolidated standard.
+# The path is relative to the new location this service will be moved to.
+-r ../shared/requirements.txt
+
+# Add any service-specific dependencies here if needed.
+# The AI microservice uses asyncpg directly for its database connection pool,
+# which is not included in the shared dependencies.
 asyncpg==0.29.0
-python-multipart==0.0.9             # Upgraded to latest secure version

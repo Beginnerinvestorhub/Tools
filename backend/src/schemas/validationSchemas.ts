@@ -219,10 +219,23 @@ export const simulationSchemas = {
   }
 };
 
+// Admin schemas
+export const adminSchemas = {
+  updateRole: {
+    body: Joi.object({
+      userId: commonPatterns.uuid.required(),
+      role: Joi.string().valid('admin', 'user', 'premium').required(),
+    }),
+  },
+};
+
 // Export all schemas
 export {
   authSchemas,
   profileSchemas,
   portfolioSchemas,
-  commonPatterns
+  riskAssessmentSchemas,
+  simulationSchemas,
+  adminSchemas,
+  commonPatterns,
 };

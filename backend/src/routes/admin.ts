@@ -1,9 +1,10 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
-import { requireAuth } from '../utils/requireAuth';
+import { requireAuth } from '../middleware/requireAuth';
 import prisma from '../services/databaseService';
 import { validate } from '../middleware/validation';
 import { adminSchemas } from '../schemas/validationSchemas';
+import { NotFoundError } from '../utils/errors';
 
 export const adminRouter = Router();
 
@@ -11,7 +12,7 @@ export const adminRouter = Router();
 const requireAdmin = requireAuth(['admin']);
 
 // GET /api/admin/dashboard - Get admin dashboard overview data
-adminRouter.get('/dashboard', requireAdmin, async (req, res) => {
+adminRouter.get('/dashboard', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userCount = await prisma.user.count();
     const portfolioCount = await prisma.portfolio.count();
@@ -26,13 +27,12 @@ adminRouter.get('/dashboard', requireAdmin, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching admin dashboard data:', error);
-    res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    next(error);
   }
 });
 
 // GET /api/admin/users - list all users
-adminRouter.get('/users', requireAdmin, async (req, res) => {
+adminRouter.get('/users', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -48,13 +48,12 @@ adminRouter.get('/users', requireAdmin, async (req, res) => {
     });
     res.json({ users });
   } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to fetch users' });
+    next(error);
   }
 });
 
 // POST /api/admin/role - update a user's role
-adminRouter.post('/role', requireAdmin, validate(adminSchemas.updateRole), async (req, res) => {
+adminRouter.post('/role', requireAdmin, validate(adminSchemas.updateRole), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, role } = req.body;
     const updatedUser = await prisma.user.update({
@@ -63,10 +62,11 @@ adminRouter.post('/role', requireAdmin, validate(adminSchemas.updateRole), async
     });
     res.json({ success: true, user: updatedUser });
   } catch (error) {
+    // The global error handler will catch Prisma's P2025 error (record not found),
+    // but we can provide a more specific message here.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return res.status(404).json({ error: 'User not found' });
+      return next(new NotFoundError('The specified user does not exist.'));
     }
-    console.error('Error updating user role:', error);
-    res.status(500).json({ error: 'Failed to update user role' });
+    next(error);
   }
 });

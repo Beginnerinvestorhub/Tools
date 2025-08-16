@@ -1,0 +1,8 @@
+# Inherit shared dependencies from the consolidated standard.
+# The path is relative to the new location this service will be moved to.
+-r ../shared/requirements.txt
+
+# Add any service-specific dependencies here if needed.
+# The AI microservice uses asyncpg directly for its database connection pool,
+# which is not included in the shared dependencies.
+asyncpg>=0.29.0

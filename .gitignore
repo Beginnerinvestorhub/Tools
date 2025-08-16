@@ -8,8 +8,8 @@ out/
 .turbo/
 
 # Environment variables
-#.env
-#.env.*
+.env
+.env.*
 
 # Logs
 *.log
@@ -84,3 +84,4 @@ coverage/
 *.swp
 *.swo
 *~
+.tmp.driveupload/
