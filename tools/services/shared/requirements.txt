@@ -35,12 +35,14 @@ alembic==1.16.3                     # Database migration tool
 # psycopg-binary is the modern replacement for psycopg2-binary, with better
 # support for pre-compiled wheels, avoiding build-from-source issues.
 psycopg-binary>=3.1.0               # PostgreSQL adapter
+asyncpg==0.29.0                     # Async PostgreSQL adapter
 
 # ==============================================================================
 # CACHING & MESSAGE QUEUES
 # ==============================================================================
 redis==6.2.0                        # In-memory data structure store
 celery==5.3.4                       # Distributed task queue
+rq==1.15.1                          # Simple job queue
 
 # ==============================================================================
 # CONFIGURATION & ENVIRONMENT
@@ -52,11 +54,12 @@ dynaconf==3.2.4                     # Configuration management
 # LOGGING & MONITORING
 # ==============================================================================
 loguru==0.7.2                       # Advanced logging library
+prometheus-client==0.19.0           # Prometheus monitoring
 
 # ==============================================================================
 # FINANCIAL DATA APIs
 # ==============================================================================
-yfinance>=0.2.65              # Yahoo Finance API
+yfinance>=0.2.65                    # Yahoo Finance API
 alpha-vantage==3.0.0                # Alpha Vantage API client
 # polygon-api-client==1.12.5          # Polygon.io API client - COMMENTED OUT due to websockets conflict
                                      # Requires websockets<12.0 but yfinance needs >=13.0
@@ -64,7 +67,7 @@ alpha-vantage==3.0.0                # Alpha Vantage API client
 # ==============================================================================
 # REAL-TIME COMMUNICATION
 # ==============================================================================
-websockets  # Let pip resolve the best version
+websockets                          # Let pip resolve the best version
 
 # ==============================================================================
 # DATE & TIME HANDLING
@@ -75,7 +78,7 @@ python-dateutil==2.8.2              # Date/time parsing utilities
 # ==============================================================================
 # DEVELOPMENT & TESTING
 # ==============================================================================
-pytest>=8.1.1                      # Testing framework
+pytest>=8.1.1                       # Testing framework
 pytest-asyncio==0.21.1              # Async testing support
 pytest-cov==4.1.0                   # Coverage reporting
 black==24.3.0                       # Code formatter
@@ -85,26 +88,25 @@ mypy==1.6.1                         # Static type checker
 # ==============================================================================
 # SECURITY & VALIDATION
 # ==============================================================================
-cryptography==42.0.5                # Upgraded to latest secure version
+cryptography==42.0.5                # Latest secure version
 passlib[bcrypt]==1.7.4              # Password hashing library
-python-jose[cryptography]==3.3.0    # (No newer stable, consider PyJWT if issues persist)
+python-jose[cryptography]==3.3.0    # JWT handling
 
 # ==============================================================================
-# OPTIONAL: MACHINE LEARNING EXTENSIONS
+# PERFORMANCE & UTILITIES
 # ==============================================================================
-# Uncomment based on specific service needs:
+orjson==3.9.10                      # Fast JSON handling
+slowapi==0.1.9                      # Rate limiting
+healthcheck==1.3.3                  # Health checks
+psutil==5.9.6                       # System monitoring
+
+# ==============================================================================
+# AI & MACHINE LEARNING (Optional)
+# ==============================================================================
+openai==1.16.2                      # OpenAI API client
 # tensorflow==2.15.0                # Deep learning framework
 # torch==2.1.0                      # PyTorch deep learning
 # transformers==4.35.0              # Hugging Face transformers
-# openai==1.3.0                     # OpenAI API client
-
-# ==============================================================================
-# DEVELOPMENT TOOLS
-# ==============================================================================
-# flake8==7.0.0                       # Python linting tool
-# black==24.3.0                       # Python code formatter
-# pytest==8.1.1                       # Testing framework
-# pytest-cov==4.1.0                   # Coverage reporting for pytest
 
 # ==============================================================================
 # PRODUCTION DEPLOYMENT
@@ -118,4 +120,5 @@ supervisor==4.2.5                   # Process control system
 # - FastAPI 0.116.0 requires Pydantic v2
 # - SQLAlchemy 2.0.23 uses new syntax (breaking changes from 1.x)
 # - Python 3.9+ required for all dependencies
-# - All versions tested for compatibility as of 2024
+# - All versions tested for compatibility with Python 3.13.5
+# - Using flexible version ranges (>=) for numpy and scikit-learn per memory

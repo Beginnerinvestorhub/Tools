@@ -8,19 +8,26 @@ A full-stack investment analysis platform for beginner investors, featuring:
 - Python FastAPI AI Behavioral Nudge Engine
 - Firebase Authentication (RBAC)
 - Stripe payments, newsletter signup, admin dashboard
-- Dockerized for local dev and deploy
+- Dockerized for local dev and production deploy
 
 ---
 
 ## 🚀 Quick Start
+
+### Development Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/Beginnerinvestorhub/Tools.git
 cd Tools
 
-# Install dependencies (from root)
-cd frontend && npm install && cd ../backend && npm install && cd ../python-engine && pip install -r requirements.txt
+# Install Node.js dependencies
+pnpm install
+
+# Set up Python services (each service has its own virtual environment)
+cd tools/services/ai-behavioral-nudge-engine && python -m venv .venv && .\.venv\Scripts\activate && pip install -r requirements.txt && cd ../../..
+cd tools/services/market-data-ingestion && python -m venv .venv && .\.venv\Scripts\activate && pip install -r requirements.txt && cd ../../..
+cd tools/services/risk-calculation-engine && python -m venv .venv && .\.venv\Scripts\activate && pip install -r requirements.txt && cd ../../..
 
 # Copy and configure environment variables
 cp frontend/.env.example frontend/.env
@@ -28,8 +35,19 @@ cp backend/.env.example backend/.env
 cp python-engine/.env.example python-engine/.env
 # Edit each .env file with your keys/configs
 
-# Start all services (from root)
+# Start all services for development
 docker-compose up --build
+```
+
+### Production Deployment
+
+```bash
+# Build and deploy production services
+docker-compose -f docker-compose.prod.yml up --build -d
+
+# Or use individual service commands
+pnpm build
+pnpm start
 ```
 
 ---
@@ -38,12 +56,20 @@ docker-compose up --build
 
 ```
 Tools/
-├── frontend/         # Next.js app (UI, auth, dashboard, admin, onboarding, Stripe, newsletter)
-├── backend/          # Node.js/Express API (auth, RBAC, Stripe, newsletter, admin)
-├── python-engine/    # FastAPI AI Behavioral Nudge Engine
-├── docker-compose.yml
-├── README.md
-└── ...
+├── frontend/                    # Next.js app (UI, auth, dashboard, admin)
+├── backend/                     # Node.js/Express API (auth, RBAC, Stripe)
+├── python-engine/               # FastAPI AI Behavioral Nudge Engine
+├── tools/
+│   ├── services/
+│   │   ├── shared/              # Consolidated Python dependencies
+│   │   ├── ai-behavioral-nudge-engine/    # AI nudging service
+│   │   ├── market-data-ingestion/         # Market data collection
+│   │   └── risk-calculation-engine/       # Risk assessment service
+│   └── packages/                # Shared TypeScript packages
+├── nginx/                       # Production reverse proxy config
+├── docker-compose.yml           # Development environment
+├── docker-compose.prod.yml      # Production environment
+└── README.md
 ```
 
 ---
@@ -58,7 +84,7 @@ Each service has its own `.env.example` file. Copy to `.env` and fill in the val
 - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
 - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 
-### Backend (`backend/...env.example`)
+### Backend (`backend/.env.example`)
 - PORT
 - FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
 - JWT_SECRET
@@ -66,40 +92,59 @@ Each service has its own `.env.example` file. Copy to `.env` and fill in the val
 - API_KEY_NUDGE_ENGINE
 - STRIPE_SECRET_KEY
 - FRONTEND_URL
+- DATABASE_URL (PostgreSQL)
 
-### Python Engine (`python-engine/.env.example`)
-- OPENAI_API_KEY, ...
+### Python Services
+Each Python service inherits from `tools/services/shared/requirements.txt` and adds service-specific dependencies.
 
 ---
 
 ## 🖥️ Local Development
 
 ### Frontend & Backend
-See the `README.md` files in the `frontend` and `backend` directories for setup instructions.
+```bash
+# Start development servers
+pnpm dev
+
+# Or individually
+pnpm --filter frontend dev
+pnpm --filter backend dev
+```
 
 ### Python Services
-Each Python service in the `tools/services/` directory contains setup scripts to create its virtual environment.
+Each Python service in the `tools/services/` directory has its own virtual environment:
 
-> **Note:** The `tools/services/shared` directory contains common code and is not a runnable service. It does not have a setup script. The setup scripts are located within the individual service directories like `risk-calculation-engine`, `market-data-ingestion`, etc.
+```bash
+# Example: AI Behavioral Nudge Engine
+cd tools/services/ai-behavioral-nudge-engine
+python -m venv .venv
+.\.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # macOS/Linux
+pip install -r requirements.txt
+python src/api.py
+```
 
-To set up a Python service (e.g., `risk-calculation-engine`):
-1.  Navigate to the service directory:
-    ```bash
-    cd tools/services/risk-calculation-engine
-    ```
-2.  Run the setup script for your terminal:
-    - For **PowerShell**: `.\setup_python_env.ps1`
-    - For **Command Prompt**: `setup_python_env.bat`
-3.  Once complete, activate the environment: `.\.venv\Scripts\activate`
+### Database Setup
+```bash
+# Initialize Prisma database
+cd backend
+npx prisma generate
+npx prisma db push
+npx prisma db seed  # Optional: seed with test data
+```
 
 ---
 
 ## 🛠️ Features
-- **Authentication:** Firebase Auth (email/password, OAuth), role-based access (user, admin, paiduser)
+
+- **Authentication:** Firebase Auth (email/password, OAuth), role-based access (user, admin, premium)
 - **Dashboard:** Main app UI, embedded legacy frontend, Stripe upgrade, newsletter signup
 - **Profile/Onboarding:** User profile, risk tolerance, investment goals
 - **Admin Panel:** User list, role management
-- **AI Nudge Engine:** Chat widget, Python FastAPI microservice
+- **AI Services:** 
+  - Behavioral nudge engine with advanced AI orchestration
+  - Market data ingestion and processing
+  - Risk calculation and portfolio simulation
 - **Stripe Integration:** Subscription checkout, backend session creation
 - **Newsletter Signup:** API endpoint, ready for integration with Mailchimp/ConvertKit
 - **SEO & Analytics:** Google Analytics, Open Graph/meta tags
@@ -107,229 +152,78 @@ To set up a Python service (e.g., `risk-calculation-engine`):
 ---
 
 ## 🐳 Docker & Deployment
-- Each service has a `Dockerfile`
-- `docker-compose.yml` orchestrates local dev
-- For production, deploy each service to AWS/GCP/Azure or use ECS/Amplify/Heroku
+
+### Development
+```bash
+docker-compose up --build
+```
+
+### Production
+```bash
+# With SSL and Nginx reverse proxy
+docker-compose -f docker-compose.prod.yml up --build -d
+
+# Services available at:
+# - Frontend: https://your-domain.com
+# - Backend API: https://your-domain.com/api/
+# - Python AI: https://your-domain.com/python-api/
+# - Nudge Engine: https://your-domain.com/nudge-api/
+# - Risk Engine: https://your-domain.com/risk-api/
+```
+
+### Production Requirements
+- SSL certificates in `nginx/ssl/` directory
+- Production environment files (`.env.production`)
+- PostgreSQL and Redis instances
+- Proper firewall and security configuration
 
 ---
 
 ## 🧪 Testing
-- Frontend: `npm run test` (Jest, React Testing Library)
-- Backend: `npm run test` (Jest, Supertest)
-- Python Engine: `pytest`
+
+```bash
+# Frontend tests
+pnpm --filter frontend test
+
+# Backend tests  
+pnpm --filter backend test
+
+# Python service tests
+cd tools/services/ai-behavioral-nudge-engine
+pytest
+
+cd tools/services/risk-calculation-engine
+pytest
+```
 
 ---
 
 ## 🔒 Security
+
 - All secrets via `.env` files (never commit real keys)
 - JWT for backend API, Firebase Admin SDK for token verification
 - CORS configured via `ALLOWED_ORIGINS`
+- Rate limiting on all API endpoints
+- SSL/TLS encryption in production
+- Security headers via Nginx
 
 ---
 
 ## 📄 CI/CD
-- Recommended: GitHub Actions, AWS CodePipeline, or similar
-- Example workflows in `.github/workflows/`
+
+GitHub Actions workflows in `.github/workflows/`:
+- `ci.yml` - Continuous integration
+- `codeql.yml` - Security analysis
+- `eslint.yml` - Code quality checks
 
 ---
 
 ## 🤝 Contributing
+
 1. Fork the repo & make a branch
 2. Add/fix features, update docs
-3. PR with clear description
-
----
-
-## 📬 Support
-For questions or support, open an issue or contact the maintainer.
-│   ├── ui/
-│   │   └── src/
-│   │       └── index.ts
-│   │   └── package.json
-│   └── utils/
-│       └── src/
-│           └── formatters.ts
-│       └── package.json
-├── services/
-│   ├── backend-api/
-│   │   ├── src/
-│   │   │   ├── controllers/
-│   │   │   │   ├── authController.ts
-│   │   │   │   ├── riskAssessmentController.ts
-│   │   │   │   └── simulationController.ts
-│   │   │   ├── models/
-│   │   │   │   ├── userModel.ts
-│   │   │   │   ├── riskProfileModel.ts
-│   │   │   │   ├── simulationModel.ts
-│   │   │   │   └── marketDataModel.ts
-│   │   │   ├── routes/
-│   │   │   │   ├── authRoutes.ts
-│   │   │   │   ├── riskAssessmentRoutes.ts
-│   │   │   │   └── simulationRoutes.ts
-│   │   │   ├── services/
-│   │   │   │   ├── authService.ts
-│   │   │   │   ├── riskEngineService.ts
-│   │   │   │   └── dbService.ts
-│   │   │   ├── app.ts
-│   │   │   └── server.ts
-│   │   ├── package.json
-│   │   ├── tsconfig.json
-│   │   └── nodemon.json
-│   ├── market-data-ingestion/
-│   │   ├── src/
-│   │   │   ├── data_fetcher.py
-│   │   │   ├── data_processor.py
-│   │   │   ├── db_loader.py
-│   │   │   ├── main.py
-│   │   │   └── config.py
-│   │   ├── requirements.txt
-│   │   └── Dockerfile
-│   └── risk-calculation-engine/
-│       ├── src/
-│       │   ├── risk_assessment_engine.py
-│       │   ├── portfolio_simulator.py
-│       │   ├── correlations.py
-│       │   ├── api.py
-│       │   └── config.py
-│       ├── requirements.txt
-│       └── Dockerfile
-│   └── ai-behavioral-nudge-engine/
-│       ├── src/
-│       │   ├── data_collector.py
-│       │   ├── bias_detector.py
-│       │   ├── nudge_generator.py
-│       │   ├── api.py
-│       │   └── config.py
-│       ├── requirements.txt
-│       └── Dockerfile
-
-
-## 🛠️ Technologies
-
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express, TypeScript
-- **Data Services**: Python, FastAPI
-- **Database**: PostgreSQL (assumed)
-- **Package Management**: pnpm
-- **Authentication**: NextAuth.js
-
-## 🔧 Development
-
-### Prerequisites
-
-- Node.js 18+
-- pnpm 8+
-- Python 3.9+
-- Docker (for services)
-
-### Running the Development Environment
-
-1. **Start the web application**:
-   ```bash
-   cd apps/web
-   pnpm dev
-   ```
-
-2. **Start the backend API**:
-   ```bash
-   cd services/backend-api
-   pnpm dev
-   ```
-
-3. **Start Python services**:
-   ```bash
-   # Market data ingestion
-   cd services/market-data-ingestion
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   python src/main.py
-
-   # Risk calculation engine
-   cd services/risk-calculation-engine
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   python src/api.py
-   ```
-
-### Using Docker
-
-```bash
-# Build and run all services
-docker-compose up --build
-
-# Run specific service
-docker-compose up market-data-ingestion
-```
-
-## 📖 Features
-
-### Risk Assessment Tool
-- Comprehensive risk profiling questionnaire
-- Dynamic risk scoring algorithm
-- Personalized investment recommendations
-
-### Portfolio Simulation
-- Monte Carlo simulation engine
-- Historical backtesting capabilities
-- Scenario analysis and stress testing
-
-### AI Behavioral Nudges
-- Behavioral bias detection
-- Personalized nudge recommendations
-- Investment decision support
-
-## 📚 Documentation
-
-- [Web Application Setup](./apps/web/README.md)
-- [Backend API Documentation](./services/backend-api/README.md)
-- [Market Data Ingestion](./services/market-data-ingestion/README.md)
-- [Risk Calculation Engine](./services/risk-calculation-engine/README.md)
-- [AI Behavioral Nudge Engine](./services/ai-behavioral-nudge-engine/README.md)
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-pnpm test
-
-# Run tests for specific package
-pnpm test:web
-pnpm test:api
-```
-
-## 🚀 Deployment
-
-### Production Build
-
-```bash
-# Build all packages
-pnpm build
-
-# Deploy web application
-cd apps/web
-pnpm build
-pnpm start
-```
-
-### Docker Deployment
-
-```bash
-# Build production images
-docker-compose -f docker-compose.prod.yml build
-
-# Deploy to production
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Run tests: `pnpm test`
+4. Submit PR with clear description
 
 ### Development Guidelines
 
@@ -339,23 +233,32 @@ docker-compose -f docker-compose.prod.yml up -d
 - Update documentation as needed
 - Ensure all CI checks pass
 
-## 📄 License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📚 API Documentation
 
-## 🙏 Acknowledgments
+- Backend API docs: `http://localhost:4000/api/docs`
+- Python services have individual Swagger/OpenAPI docs
+- Comprehensive Prisma schema documentation
 
-- [Next.js](https://nextjs.org/) for the web framework
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-- [FastAPI](https://fastapi.tiangolo.com/) for Python services
-- Investment data providers and APIs
+---
 
-## 📞 Support
+## 🚀 Production Deployment Checklist
 
-For questions and support:
-- Create an issue in this repository
-- Join our Discord community
-- Email: support@beginnerinvestorhub.com
+- [ ] SSL certificates configured
+- [ ] Environment variables set for production
+- [ ] Database migrations applied
+- [ ] Redis cache configured
+- [ ] Monitoring and logging set up
+- [ ] Backup strategy implemented
+- [ ] Security headers configured
+- [ ] Rate limiting tuned for production load
+
+---
+
+## 📬 Support
+
+For questions or support, open an issue or contact the maintainer.
 
 ---
 
