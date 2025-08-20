@@ -1,12 +1,6 @@
 // beginnerinvestorhub/tools/services/backend-api/src/middleware/envValidationMiddleware.ts
 
-import { Request, Response, NextFunction } from 'express';
-import { z } from 'zod';
-
-interface EnvError {
-  path: (string | number)[];
-  message: string;
-}
+import { z, ZodError } from 'zod';
 
 /**
  * Schema for validating required environment variables
@@ -23,46 +17,28 @@ const envSchema = z.object({
 });
 
 /**
- * Middleware to validate required environment variables at startup
- * @param req The Express request object
- * @param res The Express response object
- * @param next The Express next middleware function
+ * Validates required environment variables at application startup.
+ * If validation fails, it logs the errors and exits the process.
  */
-export const validateEnvironment = () => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // Validate environment variables
-      envSchema.parse({
-        NODE_ENV: process.env.NODE_ENV,
-        PORT: process.env.PORT,
-        FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
-        FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
-        FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
-        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-        FRONTEND_URL: process.env.FRONTEND_URL,
-        RISK_CALC_ENGINE_URL: process.env.RISK_CALC_ENGINE_URL,
+export const validateEnvironment = (): void => {
+  try {
+    // Zod can parse `process.env` directly
+    envSchema.parse(process.env);
+    console.log('✅ Environment variables validated successfully.');
+  } catch (error) {
+    if (error instanceof ZodError) {
+      console.error('❌ Environment validation failed. Critical environment variables are missing:');
+      error.errors.forEach((err) => {
+        console.error(`  - ${err.path.join('.')}: ${err.message}`);
       });
-      
-      next();
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error('Environment validation failed:');
-        error.errors.forEach((err: any) => {
-          console.error(`  - ${err.path.join('.')}: ${err.message}`);
-        });
-        
-        // In production, we should exit the process if environment variables are missing
-        if (process.env.NODE_ENV === 'production') {
-          console.error('Critical environment variables are missing. Shutting down...');
-          process.exit(1);
-        }
-        
-        next(new Error('Environment validation failed'));
-      } else {
-        next(error);
-      }
+      // Exit the process if critical environment variables are missing, regardless of NODE_ENV.
+      process.exit(1);
+    } else {
+      console.error('An unexpected error occurred during environment validation:', error);
+      process.exit(1);
     }
-  };
+  }
 };
 
+// You can still export it as default if you prefer that pattern
 export default validateEnvironment;

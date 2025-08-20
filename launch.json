@@ -1,0 +1,89 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Frontend (web): Next.js Server",
+        "type": "node-terminal",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        // This command is taken from your execution log.
+        "command": "pnpm --filter web dev",
+        "console": "integratedTerminal",
+        "serverReadyAction": {
+          // Waits for Next.js to be ready before launching the browser debugger.
+          "pattern": "started server on .+, url: (https?://.+)",
+          "uriFormat": "%s",
+          "action": "startDebugging",
+          "name": "Frontend (web): Next.js Client"
+        }
+      },
+      {
+        "name": "Frontend (web): Next.js Client",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:3000",
+        // The path from your error log indicates the web app is in 'apps/web'.
+        "webRoot": "${workspaceFolder}/apps/web"
+      },
+      {
+        "name": "Backend: API Server",
+        "type": "node-terminal",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        // NOTE: Assumes your backend package is named 'api' in your root package.json.
+        "command": "pnpm --filter api dev",
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "Python: AI Engine",
+        "type": "python",
+        "request": "launch",
+        // NOTE: Update this path if your main script is not 'app.py'.
+        "program": "${workspaceFolder}/python-engine/app.py",
+        "console": "integratedTerminal",
+        "justMyCode": true,
+        "envFile": "${workspaceFolder}/python-engine/.env"
+      }
+    ],
+    "compounds": [
+      {
+        // The most common debug scenario: Frontend + Backend
+        "name": "Debug Full Stack (Web + API)",
+        "configurations": [
+          "Frontend (web): Next.js Server", // This name must match the server config above
+          "Backend: API Server"
+        ],
+        "stopAll": true,
+        "preLaunchTask": "pnpm install" // Optional: run install before launching
+      },
+      {
+        // For when you need to debug everything at once.
+        "name": "Debug All (Web + API + Python)",
+        "configurations": [
+          "Frontend (web): Next.js Server",
+          "Backend: API Server",
+          "Python: AI Engine"
+        ],
+        "stopAll": true,
+        "preLaunchTask": "pnpm install" // Optional: run install before launching
+      }
+    ]
+  }
+  /*
+    NOTE: The "preLaunchTask" feature requires a tasks.json file. If you don't have one,
+    you can create a `.vscode/tasks.json` file with the following content to enable it:
+    
+    {
+      "version": "2.0.0",
+      "tasks": [
+        {
+          "label": "pnpm install",
+          "type": "shell",
+          "command": "pnpm install",
+          "problemMatcher": []
+        }
+      ]
+    }
+  */
+  
+  

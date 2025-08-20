@@ -4,24 +4,52 @@ import Link from 'next/link';
 import Layout from '../components/Layout';
 import NewsletterSignup from '../components/NewsletterSignup';
 import FeatureCard from '../components/FeatureCard';
-import ValueProposition from '../components/ValueProposition';
-import TestimonialCard from '../components/TestimonialCard';
 import {
-  AcademicCapIcon,
   ScaleIcon,
   ChartBarIcon,
-  GlobeAltIcon,
   PlayIcon,
   CheckCircleIcon,
   StarIcon,
   ArrowRightIcon,
   ShieldCheckIcon,
   LightBulbIcon,
-  TrophyIcon,
-  HeartIcon
+  TrophyIcon
 } from '@heroicons/react/24/outline';
+import { ComponentProps } from 'react';
 
-export default function Home() {
+const features: ComponentProps<typeof FeatureCard>[] = [
+  {
+    icon: <LightBulbIcon className="h-8 w-8 text-indigo-600" />,
+    title: 'Personalized Learning Paths',
+    description: 'Tailored just for you. Our AI adapts to your goals and learning style.',
+    href: '/learn/my-path',
+    linkText: 'Explore Learning Path',
+  },
+  {
+    icon: <TrophyIcon className="h-8 w-8 text-green-600" />,
+    title: 'Gamified Challenges',
+    description: 'Master concepts with fun, interactive tasks. Earn points and climb the leaderboards!',
+    href: '/learn/challenges',
+    linkText: 'View Challenges',
+  },
+  {
+    icon: <ChartBarIcon className="h-8 w-8 text-blue-600" />,
+    title: 'Risk-Free Virtual Portfolio',
+    description: 'Practice buying and selling with simulated money. See your strategies play out in real-time.',
+    href: '/portfolio-monitor',
+    linkText: 'Try Virtual Portfolio',
+  },
+  {
+    icon: <ScaleIcon className="h-8 w-8 text-purple-600" />,
+    title: 'Smart Tools & Insights',
+    description: 'Access calculators, risk assessments, and ESG screeners to make informed decisions.',
+    href: '/tools',
+    linkText: 'Explore Tools',
+  },
+];
+
+
+export default function Home() {  
   return (
     <Layout>
       <Head>
@@ -34,6 +62,22 @@ export default function Home() {
         <meta name="twitter:title" content="Demystify Investing, Build Your Wealth Confidently" />
         <meta name="twitter:description" content="Your personalized path to smart investing starts here. Learn through interactive lessons, gamified challenges, and risk-free virtual investing." />
         <meta name="twitter:image" content="/og-image.png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Beginner Investor Hub',
+              url: 'https://www.beginnerinvestorhub.com', // Replace with your production URL
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://www.beginnerinvestorhub.com/search?q={search_term_string}', // Replace with your search URL
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
       </Head>
 
       {/* Hero Section */}
@@ -43,27 +87,21 @@ export default function Home() {
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6">
               <span className="text-indigo-600">Demystify Investing,</span>
-              <br />
-              Build Your Wealth N              <span className="text-indigo-600">Confidently</span>
+              <br />Build Your Wealth <span className="text-indigo-600">Confidently</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               Beginner Investor Hub guides you through interactive lessons, gamified challenges, 
               and risk-free virtual investing. Your personalized path to financial freedom starts here.
             </p>
             
-            {/* Primary CTA */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Link href="/signup">
-                <button className="px-8 py-4 bg-indigo-600 text-white text-lg font-semibold rounded-xl hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center">
-                  Start Your Investing Journey Free
-                  <ArrowRightIcon className="ml-2 h-5 w-5" />
-                </button>
+              <Link href="/signup" className="px-8 py-4 bg-indigo-600 text-white text-lg font-semibold rounded-xl hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center">
+                Start Your Investing Journey Free
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
-              <Link href="/dashboard">
-                <button className="px-8 py-4 bg-white border-2 border-indigo-600 text-indigo-600 text-lg font-semibold rounded-xl hover:bg-indigo-50 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center">
-                  <PlayIcon className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </button>
+              <Link href="/dashboard" className="px-8 py-4 bg-white border-2 border-indigo-600 text-indigo-600 text-lg font-semibold rounded-xl hover:bg-indigo-50 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center">
+                <PlayIcon className="mr-2 h-5 w-5" />
+                Watch Demo
               </Link>
             </div>
 
@@ -71,7 +109,7 @@ export default function Home() {
             <div className="relative max-w-4xl mx-auto">
               <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
                 <div className="aspect-video bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center">
-                  <div className="text-center">
+                  <div className="text-center" aria-label="Interactive Learning Dashboard Preview">
                     <ChartBarIcon className="h-16 w-16 text-indigo-600 mx-auto mb-4" />
                     <p className="text-indigo-600 font-semibold">Interactive Learning Dashboard Preview</p>
                   </div>
@@ -150,61 +188,16 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Personalized Learning Paths */}
-            <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-indigo-100 rounded-xl flex items-center justify-center mb-6">
-                <LightBulbIcon className="h-8 w-8 text-indigo-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Personalized Learning Paths</h3>
-              <p className="text-gray-600 mb-6">
-                Tailored just for you. Our AI adapts to your goals and learning style.
-              </p>
-              <Link href="/learn/my-path" className="text-indigo-600 font-semibold hover:text-indigo-700 flex items-center">
-                Explore Learning Path <ArrowRightIcon className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
-
-            {/* Gamified Challenges */}
-            <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mb-6">
-                <TrophyIcon className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Gamified Challenges</h3>
-              <p className="text-gray-600 mb-6">
-                Master concepts with fun, interactive tasks. Earn points and climb the leaderboards!
-              </p>
-              <Link href="/learn/challenges" className="text-indigo-600 font-semibold hover:text-indigo-700 flex items-center">
-                View Challenges <ArrowRightIcon className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
-
-            {/* Risk-Free Virtual Portfolio */}
-            <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-                <ChartBarIcon className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Risk-Free Virtual Portfolio</h3>
-              <p className="text-gray-600 mb-6">
-                Practice buying and selling with simulated money. See your strategies play out in real-time.
-              </p>
-              <Link href="/portfolio-monitor" className="text-indigo-600 font-semibold hover:text-indigo-700 flex items-center">
-                Try Virtual Portfolio <ArrowRightIcon className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
-
-            {/* Smart Tools & Insights */}
-            <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-                <ScaleIcon className="h-8 w-8 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Smart Tools & Insights</h3>
-              <p className="text-gray-600 mb-6">
-                Access calculators, risk assessments, and ESG screeners to make informed decisions.
-              </p>
-              <Link href="/tools" className="text-indigo-600 font-semibold hover:text-indigo-700 flex items-center">
-                Explore Tools <ArrowRightIcon className="ml-1 h-4 w-4" />
-              </Link>
-            </div>
+            {features.map((feature) => (
+              <FeatureCard
+                key={feature.title}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+                href={feature.href}
+                linkText={feature.linkText}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -227,7 +220,7 @@ export default function Home() {
             {/* Our Approach */}
             <div className="text-center">
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <LightBulbIcon className="h-8 w-8 text-indigo-600" />
+                <LightBulbIcon className="h-8 w-8 text-indigo-600" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">AI-Driven Personalization</h3>
               <p className="text-gray-600">
@@ -238,7 +231,7 @@ export default function Home() {
 
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <TrophyIcon className="h-8 w-8 text-green-600" />
+                <TrophyIcon className="h-8 w-8 text-green-600" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Gamified Learning</h3>
               <p className="text-gray-600">
@@ -249,7 +242,7 @@ export default function Home() {
 
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShieldCheckIcon className="h-8 w-8 text-blue-600" />
+                <ShieldCheckIcon className="h-8 w-8 text-blue-600" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">Risk-Free Practice</h3>
               <p className="text-gray-600">
@@ -266,7 +259,7 @@ export default function Home() {
             </h3>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <div className="flex items-start">
+                <div className="flex items-start" >
                   <CheckCircleIcon className="flex-shrink-0 w-6 h-6 text-green-500 mt-1" />
                   <div className="ml-4">
                     <h4 className="font-semibold text-gray-900">Learn at Your Own Pace</h4>
@@ -336,16 +329,14 @@ export default function Home() {
                 ))}
               </div>
               <blockquote className="text-gray-600 mb-6">
-                "Before Beginner Investor Hub, I was completely lost in the world of investing. 
-                Now I feel confident making my first real investments! The personalized learning 
-                path was exactly what I needed."
+                "I went from knowing nothing about stocks to making my first investment in just a few weeks. The personalized learning path was a game-changer!"
               </blockquote>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <span className="text-indigo-600 font-semibold">SP</span>
+                  <span className="text-indigo-600 font-semibold">JS</span>
                 </div>
                 <div className="ml-4">
-                  <p className="font-semibold text-gray-900">Sarah P.</p>
+                  <p className="font-semibold text-gray-900">Jessica S.</p>
                   <p className="text-gray-500 text-sm">Marketing Manager</p>
                 </div>
               </div>
@@ -410,17 +401,13 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/signup">
-              <button className="px-8 py-4 bg-white text-indigo-600 text-lg font-semibold rounded-xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center">
-                Join Thousands of Confident Investors
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </button>
+            <Link href="/signup" className="px-8 py-4 bg-white text-indigo-600 text-lg font-semibold rounded-xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center">
+              Join Thousands of Confident Investors
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>
-            <Link href="/dashboard">
-              <button className="px-8 py-4 bg-transparent border-2 border-white text-white text-lg font-semibold rounded-xl hover:bg-white hover:text-indigo-600 transition-all duration-200 flex items-center">
-                <PlayIcon className="mr-2 h-5 w-5" />
-                Start Learning Today
-              </button>
+            <Link href="/dashboard" className="px-8 py-4 bg-transparent border-2 border-white text-white text-lg font-semibold rounded-xl hover:bg-white hover:text-indigo-600 transition-all duration-200 flex items-center">
+              <PlayIcon className="mr-2 h-5 w-5" />
+              Start Learning Today
             </Link>
           </div>
           

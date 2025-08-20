@@ -7,7 +7,7 @@
     "frontend",
     "backend",
     "packages/*",
-    "services/*"
+    "tools/services/*"
   ],
   "packageManager": "pnpm@8.15.5",
   "scripts": {
@@ -25,9 +25,9 @@
     "backend:dev": "pnpm --filter backend dev",
     "backend:build": "pnpm --filter backend build",
     "backend:start": "pnpm --filter backend start",
-    "services:market-data": "cd services/market-data-ingestion && python src/main.py",
-    "services:risk-engine": "cd services/risk-calculation-engine && python src/api.py",
-    "services:ai-nudge": "cd services/ai-behavioral-nudge-engine && python src/api.py",
+    "services:market-data": "cd tools/services/market-data-ingestion && python src/main.py",
+    "services:risk-engine": "cd tools/services/risk-calculation-engine && python src/api.py",
+    "services:ai-nudge": "cd tools/services/ai-behavioral-nudge-engine && python src/api.py",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
