@@ -12,13 +12,13 @@
 
 # Machine Learning & AI
 tensorflow==2.15.0                  # Deep learning framework
-torch==2.3.0                        # Upgraded to latest secure version
+torch==2.8.0                        # Upgraded to latest secure version
 torchvision==0.16.0                 # Computer vision for PyTorch
-transformers==4.41.2                # Upgraded to latest secure version
+transformers==4.53.0                # Upgraded to latest secure version
 sentence-transformers==2.2.2        # Sentence embeddings
 
 # Natural Language Processing
-nltk==3.8.1                         # Natural language toolkit
+nltk==3.9                         # Natural language toolkit
 spacy==3.7.2                        # Advanced NLP
 textblob==0.17.1                    # Text processing
 
@@ -29,12 +29,12 @@ behavioral-patterns==0.3.1          # Behavioral pattern analysis
 
 # Machine Learning Utilities
 xgboost==2.0.1                      # Gradient boosting
-lightgbm==4.1.0                     # Light gradient boosting
+lightgbm==4.6.0                     # Light gradient boosting
 catboost==1.2.2                     # Categorical boosting
 
 # Model Serving & MLOps
-mlflow==2.12.1                      # Upgraded to latest secure version
-bentoml==1.2.7                      # Upgraded to latest secure version
+mlflow==3.1.0                      # Upgraded to latest secure version
+bentoml==1.4.19                      # Upgraded to latest secure version
 optuna==3.4.0                       # Hyperparameter optimization
 
 # Data Visualization
