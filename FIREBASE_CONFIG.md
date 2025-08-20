@@ -20,9 +20,12 @@ NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-S2FYWXCWGB
 NEXT_PUBLIC_API_BASE_URL=https://your-backend-service.railway.app
 NEXT_PUBLIC_PYTHON_ENGINE_URL=https://your-python-engine.railway.app
 
+# Stripe Configuration
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51Rkh64E7ZMEmFQwbNpMk7CjVzc12NWItAlFw4tb5bqSWRAoN44WE2LgqamdIRTdNqZSYU9Dry3Evbts89oTLEYAp00eL2vODRY
+
 # App Configuration
 NEXT_PUBLIC_APP_NAME="Beginner Investor Hub"
-NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_APP_URL=https://www.beginnerinvestorhub.com
 ```
 
 ## Backend Environment Variables (Railway)
@@ -38,11 +41,15 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFA
 # Server Configuration
 NODE_ENV=production
 PORT=4000
-JWT_SECRET=your_super_secure_jwt_secret_at_least_32_characters_long
+JWT_SECRET=488932df8040a257976b9884e330e86d8507109cfe61d86da09bd6681e60e939
 
 # CORS Configuration (update with your Vercel URL)
-FRONTEND_URL=https://your-app.vercel.app
-ALLOWED_ORIGINS=https://your-app.vercel.app
+FRONTEND_URL=https://www.beginnerinvestorhub.com
+ALLOWED_ORIGINS=https://www.beginnerinvestorhub.com
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_51Rkh64E7ZMEmFQwbKNZo0nEwAOCysnIYbNy1zfBU7IkJgUeUXfNkMdNgJQJsfHZQTHaFm4WZOGx47ZRDiYVXOFbt00e7lfLn7s
+STRIPE_WEBHOOK_SECRET=whsec_mC2bV4go5tcVjV9ikoGMxIep4hXszJlS
 
 # Database (Railway will provide these)
 DATABASE_URL=${{Postgres.DATABASE_URL}}
