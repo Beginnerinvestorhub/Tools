@@ -5,22 +5,24 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
+  className?: string;
 }
 
-export default function FeatureCard({ icon, title, description }: FeatureCardProps) {
+export default function FeatureCard({ icon, title, description, className }: FeatureCardProps) {
   const sizedIcon = isValidElement(icon)
     ? cloneElement(icon, {
-        className: 'w-6 h-6 text-indigo-700',
+        className: 'w-8 h-8 text-indigo-500',
       })
     : icon;
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 w-full max-w-sm flex flex-col items-center text-center hover:shadow-lg transition duration-200">
-      <div className="mb-4 bg-indigo-100 p-4 rounded-full flex items-center justify-center">
+    <div className={`bg-white rounded-2xl shadow-sm p-8 w-full flex flex-col items-center text-center transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl ${className}`}>
+      <div className="mb-5 bg-indigo-50 p-5 rounded-full flex items-center justify-center">
         {sizedIcon}
       </div>
-      <h3 className="text-lg font-semibold text-indigo-800 mb-2">{title}</h3>
-      <p className="text-sm text-indigo-600">{description}</p>
+      <h3 className="text-xl font-bold text-gray-800 mb-3">{title}</h3>
+      <p className="text-base text-gray-600 leading-relaxed">{description}</p>
     </div>
   );
 }
+
