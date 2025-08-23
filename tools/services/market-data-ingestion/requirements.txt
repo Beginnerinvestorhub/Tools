@@ -22,7 +22,7 @@ pandas-ta>=0.3.14b                  # Alternative technical analysis library (pu
 numba==0.58.1                       # JIT compiler for numerical functions
 
 # Time Series Analysis
-statsmodels==0.14.0                 # Statistical modeling
+statsmodels==0.14.5                 # Statistical modeling
 sklearn==0.0.post9                  # Additional ML utilities
 
 # Data Storage & Compression
