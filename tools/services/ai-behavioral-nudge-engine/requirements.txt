@@ -43,7 +43,7 @@ seaborn==0.13.0                     # Statistical visualization
 plotly==5.17.0                      # Interactive plotting
 
 # External AI APIs
-openai==1.3.0                       # OpenAI API client
+openai==1.101.0                       # OpenAI API client
 anthropics==0.7.7                   # Anthropic API client
 cohere==4.37.0                      # Cohere API client
 

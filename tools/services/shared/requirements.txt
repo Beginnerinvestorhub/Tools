@@ -103,7 +103,7 @@ psutil==5.9.6                       # System monitoring
 # ==============================================================================
 # AI & MACHINE LEARNING (Optional)
 # ==============================================================================
-openai==1.16.2                      # OpenAI API client
+openai==1.101.0                      # OpenAI API client
 # tensorflow==2.15.0                # Deep learning framework
 # torch==2.1.0                      # PyTorch deep learning
 # transformers==4.35.0              # Hugging Face transformers
