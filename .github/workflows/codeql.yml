@@ -32,42 +32,19 @@ jobs:
         languages: ${{ matrix.language }}
         queries: +security-and-quality
 
-    # IMPORTANT: Keep this Autobuild step, but be prepared to add manual steps
-    # if it still struggles, especially for your specific monorepo paths.
-    # The 'Did not recognize language' errors were blocking autobuild, so let's try it first.
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
-
-    # If Autobuild continues to fail or report "no code found" for specific languages,
-    # then you would uncomment and add these manual build steps with `working-directory`
-    # as discussed in the previous response.
-    # For now, let's see if fixing the matrix resolves the core issues.
-
-    # Example of manual steps if needed later (don't add these unless `autobuild` fails):
-    # - name: Install Node.js and npm
-    #   if: ${{ matrix.language == 'typescript' }}
-    #   uses: actions/setup-node@v4
-    #   with:
-    #     node-version: '20' # Or your specific Node.js version
-    # - name: Build Node.js/TypeScript Backend
-    #   if: ${{ matrix.language == 'typescript' }}
-    #   working-directory: tools/services/backend-api
-    #   run: |
-    #     npm install
-    #     npm run build # if you have a build script
-    # - name: Set up Python
-    #   if: ${{ matrix.language == 'python' }}
-    #   uses: actions/setup-python@v5
-    #   with:
-    #     python-version: '3.x' # Or your specific Python version
-    # - name: Install Python Dependencies (AI Behavioral Nudge Engine)
-    #   if: ${{ matrix.language == 'python' }}
-    #   working-directory: tools/services/ai-behavioral-nudge-engine
-    #   run: pip install -r requirements.txt
-    # - name: Install Python Dependencies (Market Data Ingestion)
-    #   if: ${{ matrix.language == 'python' }}
-    #   working-directory: tools/services/market-data-ingestion
-    #   run: pip install -r requirements.txt
+    - name: Install dependencies and build backend
+      if: ${{ matrix.language == 'typescript' }}
+      run: |
+        npm --prefix backend ci
+        npm --prefix backend run build
+    - name: Install dependencies for python-engine
+      if: ${{ matrix.language == 'python' }}
+      run: |
+        pip install -r python-engine/requirements.txt
+    - name: Install dependencies for ai_microservice
+      if: ${{ matrix.language == 'python' }}
+      run: |
+        pip install -r ai_microservice/requirements.txt
 
 
     - name: Perform CodeQL Analysis
