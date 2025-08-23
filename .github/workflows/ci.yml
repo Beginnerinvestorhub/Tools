@@ -47,7 +47,7 @@ jobs:
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
       NUDGE_ENGINE_API_KEY: ${{ secrets.TEST_NUDGE_ENGINE_API_KEY || 'test_nudge_key_for_pr' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
