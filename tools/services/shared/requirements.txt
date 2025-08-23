@@ -88,7 +88,7 @@ mypy==1.6.1                         # Static type checker
 # ==============================================================================
 # SECURITY & VALIDATION
 # ==============================================================================
-cryptography==42.0.5                # Latest secure version
+cryptography==45.0.6                # Latest secure version
 passlib[bcrypt]==1.7.4              # Password hashing library
 python-jose[cryptography]==3.3.0    # JWT handling
 
