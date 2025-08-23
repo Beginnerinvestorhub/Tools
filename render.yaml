@@ -94,8 +94,9 @@ services:
       - key: PORT
         value: 8001
 
-  -- type: redis
-   name: redis_cache
-   plan: free
-   ipAllowList:
-    - source: 0.0.0.0/0
+
+  - type: redis
+    name: redis_cache
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
