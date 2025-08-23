@@ -367,41 +367,58 @@ const securityConfig \= {
 
 // Data Encryption Service  
 class DataEncryptionService {  
-    constructor() {  
-        this.algorithm \= 'aes-256-gcm';  
-        this.keyLength \= 32;  
+  constructor(secret) {
+    if (!secret || secret.length < 32) {
+      throw new Error('A secret of at least 32 characters is required.');
+    }
+    // Use a static salt for key derivation or manage it per-encryption.
+    // For simplicity here, we use a static one. In a real app, you might store the salt with the data.
+    this.salt = 'a-static-salt-for-this-example'; 
+    this.key = crypto.scryptSync(secret, this.salt, 32); // Use scrypt for key derivation.
+    this.algorithm = 'aes-256-gcm';
+    this.ivLength = 16;
+  }
+
+  encrypt(data) {
+    const iv = crypto.randomBytes(this.ivLength);
+    // Use createCipheriv, as createCipher is deprecated and insecure.
+    const cipher = crypto.createCipheriv(this.algorithm, this.key, iv);
+
+    let encrypted = cipher.update(JSON.stringify(data), 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+
+    const authTag = cipher.getAuthTag();
+
+    // Return IV and authTag alongside the encrypted data.
+    return {
+      encrypted,
+      iv: iv.toString('hex'),
+      authTag: authTag.toString('hex'),
+    };
+  }
+
+  decrypt(encryptedPayload) {
+    const { encrypted, iv, authTag } = encryptedPayload;
+    if (!encrypted || !iv || !authTag) {
+      throw new Error('Invalid encrypted payload structure.');
     }
 
-    encrypt(data, key) {  
-        const iv \= crypto.randomBytes(16);  
-        const cipher \= crypto.createCipher(this.algorithm, key, iv);  
-          
-        let encrypted \= cipher.update(JSON.stringify(data), 'utf8', 'hex');  
-        encrypted \+= cipher.final('hex');  
-          
-        const authTag \= cipher.getAuthTag();  
-          
-        return {  
-            encrypted,  
-            iv: iv.toString('hex'),  
-            authTag: authTag.toString('hex')  
-        };  
-    }
+    const ivBuffer = Buffer.from(iv, 'hex');
+    const authTagBuffer = Buffer.from(authTag, 'hex');
 
-    decrypt(encryptedData, key) {  
-        const decipher \= crypto.createDecipher(  
-            this.algorithm,   
-            key,   
-            Buffer.from(encryptedData.iv, 'hex')  
-        );  
-          
-        decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));  
-          
-        let decrypted \= decipher.update(encryptedData.encrypted, 'hex', 'utf8');  
-        decrypted \+= decipher.final('utf8');  
-          
-        return JSON.parse(decrypted);  
-    }  
+    // Use createDecipheriv, as createDecipher is deprecated.
+    const decipher = crypto.createDecipheriv(this.algorithm, this.key, ivBuffer);
+    decipher.setAuthTag(authTagBuffer);
+
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    try {
+      return JSON.parse(decrypted);
+    } catch (e) {
+      throw new Error('Failed to parse decrypted data.');
+    }
+  }
 }  
 \`\`\`
 
@@ -812,13 +829,22 @@ const freeDataSources \= {
   }  
 };
 
-// Example API integration  
-const fetchStockPrice \= async (symbol) \=\> {  
-  const response \= await fetch(  
-    \`https://www.alphavantage.co/query?function=GLOBAL\_QUOTE\&symbol=${symbol}\&apikey=${process.env.ALPHA\_VANTAGE\_KEY}\`  
-  );  
-  const data \= await response.json();  
-  return data\['Global Quote'\];  
+// Example API integration (Secure Pattern)
+// INSECURE: Never call an external API with a secret key from the client-side.
+// const fetchStockPriceInsecure = async (symbol) => {
+//   const response = await fetch(
+//     `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY}`
+//   );
+//   const data = await response.json();
+//   return data['Global Quote'];
+// };
+
+// SECURE: Use a backend proxy to protect the API key.
+const fetchStockPrice = async (symbol) => {
+  // The frontend calls its own backend, not the external service.
+  const response = await fetch(`/api/market-data/stock-price?symbol=${symbol}`);
+  const data = await response.json();
+  return data;
 };  
 \`\`\`
 
@@ -1345,13 +1371,22 @@ const freeDataSources \= {
   }  
 };
 
-// Example API integration  
-const fetchStockPrice \= async (symbol) \=\> {  
-  const response \= await fetch(  
-    \`https://www.alphavantage.co/query?function=GLOBAL\_QUOTE\&symbol=${symbol}\&apikey=${process.env.ALPHA\_VANTAGE\_KEY}\`  
-  );  
-  const data \= await response.json();  
-  return data\['Global Quote'\];  
+// Example API integration (Secure Pattern)
+// INSECURE: Never call an external API with a secret key from the client-side.
+// const fetchStockPriceInsecure = async (symbol) => {
+//   const response = await fetch(
+//     `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${process.env.NEXT_PUBLIC_ALPHA_VANTAGE_KEY}`
+//   );
+//   const data = await response.json();
+//   return data['Global Quote'];
+// };
+
+// SECURE: Use a backend proxy to protect the API key.
+const fetchStockPrice = async (symbol) => {
+  // The frontend calls its own backend, not the external service.
+  const response = await fetch(`/api/market-data/stock-price?symbol=${symbol}`);
+  const data = await response.json();
+  return data;
 };  
 \`\`\`
 
@@ -1685,4 +1720,3 @@ vercel
 | Alpha Vantage | $0 | 500 API calls/day |  
 | IEX Cloud | $0 | 50K messages/month |  
 | \*\*Total\*\* | \*\*$15\*\* | \*\*Full working platform\*\* |
-

@@ -30,9 +30,9 @@ jobs:
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
       FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-      JWT_SECRET: test_jwt_secret
+      JWT_SECRET: ${{ secrets.TEST_JWT_SECRET || 'test_jwt_secret_for_pr' }}
       ALLOWED_ORIGINS: http://localhost:3000
-      API_KEY_NUDGE_ENGINE: test_nudge_key
+      API_KEY_NUDGE_ENGINE: ${{ secrets.TEST_API_KEY_NUDGE_ENGINE || 'test_nudge_key_for_pr' }}
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       FRONTEND_URL: http://localhost:3000
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -43,9 +43,9 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
       NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
       NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
-      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: test-ga-id
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: ${{ secrets.TEST_GA_ID || 'test-ga-id-for-pr' }}
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-      NUDGE_ENGINE_API_KEY: test_nudge_key
+      NUDGE_ENGINE_API_KEY: ${{ secrets.TEST_NUDGE_ENGINE_API_KEY || 'test_nudge_key_for_pr' }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Node.js
@@ -75,7 +75,7 @@ jobs:
       - name: Lint backend
         run: |
           cd backend
-          npm run lint || true
+          npm run lint
       - name: Test frontend
         run: |
           cd frontend
