@@ -232,9 +232,13 @@ export const serveOpenApiSpec = (req: Request, res: Response) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
-    // Add request info to spec
     const protocol = req.get('X-Forwarded-Proto') || req.protocol;
     const host = req.get('Host');
+
+    if (!host) {
+        return res.status(500).json({ error: 'Host header is missing' });
+    }
+
     const baseUrl = `${protocol}://${host}`;
     
     const spec = {
@@ -254,6 +258,11 @@ export const serveOpenApiSpec = (req: Request, res: Response) => {
 export const serveSwaggerUI = (req: Request, res: Response) => {
     const protocol = req.get('X-Forwarded-Proto') || req.protocol;
     const host = req.get('Host');
+
+    if (!host) {
+        return res.status(500).send('Error: Host header is missing');
+    }
+
     const specUrl = `${protocol}://${host}/api/docs/openapi.json`;
     
     res.setHeader('Content-Type', 'text/html');
@@ -266,6 +275,11 @@ export const serveSwaggerUI = (req: Request, res: Response) => {
 export const serveReDoc = (req: Request, res: Response) => {
     const protocol = req.get('X-Forwarded-Proto') || req.protocol;
     const host = req.get('Host');
+
+    if (!host) {
+        return res.status(500).send('Error: Host header is missing');
+    }
+
     const specUrl = `${protocol}://${host}/api/docs/openapi.json`;
     
     res.setHeader('Content-Type', 'text/html');
@@ -278,6 +292,11 @@ export const serveReDoc = (req: Request, res: Response) => {
 export const serveDocsLanding = (req: Request, res: Response) => {
     const protocol = req.get('X-Forwarded-Proto') || req.protocol;
     const host = req.get('Host');
+
+    if (!host) {
+        return res.status(500).send('Error: Host header is missing');
+    }
+
     const baseUrl = `${protocol}://${host}`;
     
     const landingHTML = `
@@ -399,7 +418,7 @@ export const serveDocsLanding = (req: Request, res: Response) => {
                     <div class="endpoint">👤 User Management</div>
                     <div class="endpoint">📊 Portfolio</div>
                     <div class="endpoint">🎯 Risk Assessment</div>
-                    <div class="endpoint">🎮 Gamification</div>
+                    <div class.endpoint">🎮 Gamification</div>
                     <div class="endpoint">📚 Education</div>
                     <div class="endpoint">📧 Newsletter</div>
                     <div class="endpoint">💳 Payments</div>

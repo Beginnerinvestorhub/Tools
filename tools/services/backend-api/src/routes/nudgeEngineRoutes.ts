@@ -58,6 +58,12 @@ router.get('/behavioral-nudges/user/:userId', authenticateToken, async (req, res
     }
     
     const { userId } = req.params;
+
+    // Validate userId to prevent path traversal
+    const isValidUserId = /^[a-zA-Z0-9_-]+$/.test(userId);
+    if (!isValidUserId) {
+      throw new ApiError(400, 'Invalid user ID format');
+    }
     
     // Forward the request to the Nudge Engine API
     const response = await fetch(`${nudgeEngineUrl}/api/nudges/user/${userId}`, {

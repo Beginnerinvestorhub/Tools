@@ -30,7 +30,7 @@ class NudgeResponse(BaseModel):
 # Placeholder for nudge generation
 @app.post("/nudge", response_model=NudgeResponse)
 async def generate_nudge(request: NudgeRequest):
-    logger.info(f"Generating nudge for user {request.user_id}")
+    logger.info("Generating nudge for user %s", request.user_id)
     # In a real implementation, this would use ML models to generate personalized nudges
     return NudgeResponse(
         nudge_type="encouragement",

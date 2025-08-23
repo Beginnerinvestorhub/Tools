@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Handle cases where Alpha Vantage API returns an error or no data
     if (!apiRes.ok || data['Error Message'] || !data['Global Quote'] || Object.keys(data['Global Quote']).length === 0) {
       const errorMessage = data['Error Message'] || `No data returned for symbol: ${symbol}`;
-      console.error(`Alpha Vantage API Error for symbol '${symbol}': ${errorMessage}`, { responseStatus: apiRes.status, responseBody: data });
+      console.error('Alpha Vantage API Error', { symbol, errorMessage, responseStatus: apiRes.status, responseBody: data });
 
       // If the symbol is invalid, it often returns an empty "Global Quote". A 404 is appropriate.
       if (errorMessage.includes('Invalid API call') || Object.keys(data['Global Quote'] || {}).length === 0) {
@@ -38,13 +38,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const price = data['Global Quote']['05. price'];
     if (!price) {
-      console.error(`Price not found in Alpha Vantage response for symbol '${symbol}'`, { responseBody: data });
+      console.error('Price not found in Alpha Vantage response', { symbol, responseBody: data });
       return res.status(404).json({ error: 'Not Found', message: `Price data not found for symbol '${symbol}'.` });
     }
 
     return res.status(200).json({ price: parseFloat(price) });
   } catch (err: any) {
-    console.error(`Price proxy internal error for symbol '${symbol}':`, { error: err.message, stack: err.stack });
+    console.error('Price proxy internal error', { symbol, error: err.message, stack: err.stack });
     return res.status(500).json({ error: 'Internal Server Error', message: 'An unexpected error occurred while fetching the price.' });
   }
 }

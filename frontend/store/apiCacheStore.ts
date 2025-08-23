@@ -5,13 +5,13 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { produce } from 'immer';
 import { 
   ApiCacheState, 
   ApiCacheActions, 
   CacheEntry 
 } from './types';
 import { 
-  immerSet,
   createCacheKey,
   isCacheValid,
   createCacheEntry,
@@ -96,7 +96,7 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
         // Return null if expired
         if (isExpired(entry)) {
           // Clean up expired entry
-          set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+          set(produce((draft) => {
             delete draft.cache[key];
           }));
           return null;
@@ -104,7 +104,7 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
         
         // Mark as stale if needed (but still return data)
         if (!entry.stale && isStale(entry)) {
-          set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+          set(produce((draft) => {
             if (draft.cache[key]) {
               draft.cache[key] = markCacheStale(draft.cache[key]);
             }
@@ -115,7 +115,7 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
       },
 
       set: <T>(key: string, data: T, ttl: number = CACHE_CONFIG.DEFAULT_TTL): void => {
-        set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+        set(produce((draft) => {
           draft.cache[key] = createCacheEntry(data, ttl);
           
           // Evict old entries if cache is too large
@@ -126,13 +126,13 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
       },
 
       invalidate: (key: string): void => {
-        set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+        set(produce((draft) => {
           delete draft.cache[key];
         }));
       },
 
       invalidatePattern: (pattern: string): void => {
-        set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+        set(produce((draft) => {
           const regex = new RegExp(pattern);
           Object.keys(draft.cache).forEach(key => {
             if (regex.test(key)) {
@@ -143,7 +143,7 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
       },
 
       clear: (): void => {
-        set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+        set(produce((draft) => {
           draft.cache = {};
           draft.pendingRequests.clear();
           draft.retryQueue = [];
@@ -159,7 +159,7 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
       },
 
       setPending: (key: string, pending: boolean): void => {
-        set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+        set(produce((draft) => {
           if (pending) {
             draft.pendingRequests.add(key);
           } else {
@@ -177,7 +177,7 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
         request: () => Promise<any>, 
         maxRetries: number = CACHE_CONFIG.MAX_RETRIES
       ): void => {
-        set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+        set(produce((draft) => {
           // Remove existing retry for this key
           draft.retryQueue = draft.retryQueue.filter(item => item.key !== key);
           
@@ -207,13 +207,13 @@ export const useApiCacheStore = create<ApiCacheState & ApiCacheActions>()(
             await retryFn();
             
             // Remove successful retry from queue
-            set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+            set(produce((draft) => {
               draft.retryQueue = draft.retryQueue.filter(queueItem => queueItem.key !== item.key);
             }));
             
           } catch (error) {
             // Increment retry count
-            set(immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+            set(produce((draft) => {
               const queueItem = draft.retryQueue.find(queueItem => queueItem.key === item.key);
               if (queueItem) {
                 queueItem.retries++;
@@ -331,7 +331,7 @@ export const startCacheCleanup = () => {
     const now = Date.now();
     
     useApiCacheStore.setState(
-      immerSet<ApiCacheState & ApiCacheActions>((draft) => {
+      produce((draft) => {
         // Remove expired entries
         Object.keys(draft.cache).forEach(key => {
           const entry = draft.cache[key];

@@ -14,13 +14,13 @@ const req = http.request(options, (res) => {
     console.log('Health check passed');
     process.exit(0);
   } else {
-    console.log(`Health check failed with status code: ${res.statusCode}`);
+    console.log('Health check failed with status code:', res.statusCode);
     process.exit(1);
   }
 });
 
 req.on('error', (e) => {
-  console.log(`Health check failed: ${e.message}`);
+  console.log('Health check failed:', e.message);
   process.exit(1);
 });
 

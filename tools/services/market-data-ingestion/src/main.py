@@ -405,7 +405,7 @@ def load_config(config_path: str) -> ServiceConfig:
         
         return ServiceConfig(**config_data)
     except FileNotFoundError:
-        logger.warning(f"Config file {config_path} not found, using defaults")
+        logger.warning("Config file %s not found, using defaults", config_path)
         return ServiceConfig()
     except Exception as e:
         logger.error(f"Error loading config: {e}")

@@ -50,7 +50,7 @@ authRouter.post('/login',
         // });
         
         // Log successful login (in production, use proper logging service)
-        console.log(`Successful login: ${sanitizedEmail} at ${new Date().toISOString()}`);
+        console.log('Successful login for email:', sanitizedEmail, 'at', new Date().toISOString());
         
         res.json({ 
           token, 
@@ -124,7 +124,7 @@ authRouter.post('/register',
         //   }
         // });
         
-        console.log(`New user registered: ${sanitizedEmail} at ${new Date().toISOString()}`);
+        console.log('New user registered with email:', sanitizedEmail, 'at', new Date().toISOString());
         
         res.status(201).json({
           message: 'User registered successfully',
@@ -164,8 +164,8 @@ authRouter.post('/forgot-password',
         
         // In production: Send email with reset link
         // This would typically use a service like SendGrid or Nodemailer
-        console.log(`Password reset link generated for: ${sanitizedEmail}`);
-        console.log(`Reset link: ${resetLink}`);
+        console.log('Password reset link generated for email:', sanitizedEmail);
+        console.log('Reset link:', resetLink);
 
       } catch (firebaseError: any) {
         // If user is not found, we just swallow the error and do nothing.
@@ -197,7 +197,7 @@ authRouter.post('/reset-password',
       // await admin.auth().confirmPasswordReset(token, newPassword);
       
       const sanitizedToken = token.replace(/\n|\r/g, "").substring(0, 8);
-      console.log(`Password reset completed for token: ${sanitizedToken}...`);
+      console.log('Password reset completed for token:', sanitizedToken, '...');
       
       res.json({
         message: 'Password has been reset successfully.',

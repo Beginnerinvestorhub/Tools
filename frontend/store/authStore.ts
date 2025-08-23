@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+import { produce } from 'immer';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
@@ -23,7 +24,6 @@ import {
 import { 
   createAsyncAction, 
   createErrorHandler, 
-  immerSet,
   createPersistConfig,
   validateEmail,
   validatePassword,
@@ -165,7 +165,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             };
 
             // Update store state
-            set(immerSet<AuthState & AuthActions>((draft) => {
+            set(produce((draft) => {
               draft.user = authUser;
               draft.firebaseUser = firebaseUser;
               draft.isAuthenticated = true;
@@ -177,11 +177,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             return authUser;
           },
           {
-            onStart: () => set(immerSet<AuthState & AuthActions>((draft) => {
+            onStart: () => set(produce((draft) => {
               draft.isLoading = true;
               draft.error = null;
             })),
-            onError: (error) => set(immerSet<AuthState & AuthActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.isLoading = false;
               draft.error = createErrorHandler('Login')(error);
             })),
@@ -230,7 +230,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             await authApi.updateUserProfile(authUser);
 
             // Update store state
-            set(immerSet<AuthState & AuthActions>((draft) => {
+            set(produce((draft) => {
               draft.user = authUser;
               draft.firebaseUser = firebaseUser;
               draft.isAuthenticated = true;
@@ -242,11 +242,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             return authUser;
           },
           {
-            onStart: () => set(immerSet<AuthState & AuthActions>((draft) => {
+            onStart: () => set(produce((draft) => {
               draft.isLoading = true;
               draft.error = null;
             })),
-            onError: (error) => set(immerSet<AuthState & AuthActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.isLoading = false;
               draft.error = createErrorHandler('Registration')(error);
             })),
@@ -259,7 +259,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             await signOut(auth);
             
             // Clear store state
-            set(immerSet<AuthState & AuthActions>((draft) => {
+            set(produce((draft) => {
               draft.user = null;
               draft.firebaseUser = null;
               draft.isAuthenticated = false;
@@ -269,10 +269,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             }));
           },
           {
-            onStart: () => set(immerSet<AuthState & AuthActions>((draft) => {
+            onStart: () => set(produce((draft) => {
               draft.isLoading = true;
             })),
-            onError: (error) => set(immerSet<AuthState & AuthActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.isLoading = false;
               draft.error = createErrorHandler('Logout')(error);
             })),
@@ -303,14 +303,14 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             await authApi.updateUserProfile(updates);
 
             // Update store state
-            set(immerSet<AuthState & AuthActions>((draft) => {
+            set(produce((draft) => {
               if (draft.user) {
                 Object.assign(draft.user, updates);
               }
             }));
           },
           {
-            onError: (error) => set(immerSet<AuthState & AuthActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Profile Update')(error);
             })),
           }
@@ -328,7 +328,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             await authApi.updateUserPreferences(preferences);
 
             // Update store state
-            set(immerSet<AuthState & AuthActions>((draft) => {
+            set(produce((draft) => {
               if (draft.user) {
                 draft.user.preferences = {
                   ...draft.user.preferences,
@@ -338,7 +338,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             }));
           },
           {
-            onError: (error) => set(immerSet<AuthState & AuthActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Preferences Update')(error);
             })),
           }
@@ -360,12 +360,12 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             await currentUser.getIdToken(true);
 
             // Update session expiry
-            set(immerSet<AuthState & AuthActions>((draft) => {
+            set(produce((draft) => {
               draft.sessionExpiry = Date.now() + (60 * 60 * 1000);
             }));
           },
           {
-            onError: (error) => set(immerSet<AuthState & AuthActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Token Refresh')(error);
             })),
           }
@@ -375,11 +375,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         // UTILITY ACTIONS
         // ========================================================================
 
-        clearError: () => set(immerSet<AuthState & AuthActions>((draft) => {
+        clearError: () => set(produce((draft) => {
           draft.error = null;
         })),
 
-        setLoading: (loading: boolean) => set(immerSet<AuthState & AuthActions>((draft) => {
+        setLoading: (loading: boolean) => set(produce((draft) => {
           draft.isLoading = loading;
         })),
       }),
@@ -408,12 +408,12 @@ export const initializeAuthListener = () => {
   }
 
   unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-    const { user, setLoading } = useAuthStore.getState();
+    const { user } = useAuthStore.getState();
 
     if (firebaseUser) {
       // User is signed in
       if (!user || user.uid !== firebaseUser.uid) {
-        setLoading(true);
+        useAuthStore.getState().setLoading(true);
         
         try {
           // Get user claims and profile data
