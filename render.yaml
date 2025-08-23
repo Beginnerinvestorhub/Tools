@@ -97,3 +97,4 @@ services:
   - type: redis
     name: redis_cache
     plan: free
+    ipAllowList: ['0.0.0.0/0'] # Required for Redis to allow connections from other Render services
