@@ -27,7 +27,6 @@ import {
   createPersistConfig,
   validateEmail,
   validatePassword,
-  createNotification
 } from './utils';
 
 // ============================================================================

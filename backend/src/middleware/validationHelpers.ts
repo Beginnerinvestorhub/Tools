@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import Joi, { ValidationErrorItem, ObjectSchema } from 'joi';
+import { ValidationErrorItem, ObjectSchema } from 'joi';
 
 /**
  * Validate request body against a Joi schema.

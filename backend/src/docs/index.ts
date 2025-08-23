@@ -4,7 +4,7 @@
  */
 
 import { OpenAPIV3 } from 'openapi-types';
-import { openApiSpec } from '../config/openapi';
+
 import authPaths from './auth.docs';
 import profilePaths from './profile.docs';
 

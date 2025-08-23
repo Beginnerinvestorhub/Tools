@@ -190,7 +190,7 @@ authRouter.post('/reset-password',
   validate({ body: validationSchemas.auth.resetPassword }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { token, newPassword } = req.body;
+      const { token } = req.body;
       
       // In production: You would verify the token and update password using:
       // await admin.auth().verifyPasswordResetCode(token);

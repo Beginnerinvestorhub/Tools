@@ -13,7 +13,6 @@ import {
 } from './types';
 import { 
   createCacheKey,
-  isCacheValid,
   createCacheEntry,
   markCacheStale,
   createRetryFunction

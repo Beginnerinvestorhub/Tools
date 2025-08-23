@@ -35,4 +35,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <a href="#main-content" className="sr-only skip-link">Skip to main content</a>
       <Navbar />
       <main id="main-content" className="py-6">
-        {children
+        {children}
+      </main>
+    </>
+  );
+}

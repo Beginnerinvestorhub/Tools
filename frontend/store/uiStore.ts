@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+import { produce } from 'immer';
 import { 
   UIState, 
   UIActions, 
@@ -13,7 +14,6 @@ import {
   LoadingState 
 } from './types';
 import { 
-  immerSet,
   createPersistConfig,
   createNotification
 } from './utils';
@@ -97,7 +97,7 @@ export const useUIStore = create<UIState & UIActions>()(
             closable: modal.closable !== false,
           };
 
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.modals.push(newModal);
           }));
 
@@ -105,13 +105,13 @@ export const useUIStore = create<UIState & UIActions>()(
         },
 
         closeModal: (modalId: string) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.modals = draft.modals.filter(modal => modal.id !== modalId);
           }));
         },
 
         closeAllModals: () => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.modals = [];
           }));
         },
@@ -129,7 +129,7 @@ export const useUIStore = create<UIState & UIActions>()(
             duration: notification.duration ?? (notification.type === 'error' ? 0 : 5000),
           };
 
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.notifications.push(newNotification);
           }));
 
@@ -144,7 +144,7 @@ export const useUIStore = create<UIState & UIActions>()(
         },
 
         dismissNotification: (notificationId: string) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.notifications = draft.notifications.filter(
               notification => notification.id !== notificationId
             );
@@ -152,7 +152,7 @@ export const useUIStore = create<UIState & UIActions>()(
         },
 
         clearNotifications: () => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.notifications = [];
           }));
         },
@@ -162,7 +162,7 @@ export const useUIStore = create<UIState & UIActions>()(
         // ========================================================================
 
         setLoading: (key: keyof LoadingState | string, loading: boolean) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             if (key in draft.loading && key !== 'api') {
               (draft.loading as any)[key] = loading;
             } else {
@@ -173,7 +173,7 @@ export const useUIStore = create<UIState & UIActions>()(
         },
 
         setGlobalLoading: (loading: boolean) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.loading.global = loading;
           }));
         },
@@ -183,19 +183,19 @@ export const useUIStore = create<UIState & UIActions>()(
         // ========================================================================
 
         toggleSidebar: () => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.sidebar.isOpen = !draft.sidebar.isOpen;
           }));
         },
 
         setSidebarOpen: (open: boolean) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.sidebar.isOpen = open;
           }));
         },
 
         setActiveSection: (section: string | null) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.sidebar.activeSection = section;
           }));
         },
@@ -205,7 +205,7 @@ export const useUIStore = create<UIState & UIActions>()(
         // ========================================================================
 
         setTheme: (theme: 'light' | 'dark' | 'system') => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             draft.theme = theme;
           }));
 
@@ -218,7 +218,7 @@ export const useUIStore = create<UIState & UIActions>()(
         // ========================================================================
 
         updateLayout: (layout: Partial<UIState['layout']>) => {
-          set(immerSet<UIState & UIActions>((draft) => {
+          set(produce((draft) => {
             Object.assign(draft.layout, layout);
           }));
         },
@@ -242,7 +242,7 @@ export const useUIStore = create<UIState & UIActions>()(
 // ============================================================================
 
 // Initialize theme system listener for system theme changes
-let mediaQueryListener: ((e: MediaQueryListEvent) => void) | null = null;
+let mediaQueryListener: NodeJS.Timeout | null = null;
 
 export const initializeThemeListener = () => {
   if (typeof window !== 'undefined') {

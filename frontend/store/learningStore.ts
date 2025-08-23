@@ -5,7 +5,8 @@
 
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import { immerSet, createAsyncAction, createErrorHandler } from './utils';
+import { produce } from 'immer';
+import { createAsyncAction, createErrorHandler } from './utils';
 
 // ============================================================================
 // TYPES
@@ -194,14 +195,14 @@ export const useLearningStore = create<LearningState & LearningActions>()(
         // ========================================================================
 
         startOnboarding: () => {
-          set(immerSet((state) => {
+          set(produce((state) => {
             state.onboardingStep = 1;
             state.error = null;
           }));
         },
 
         completeOnboardingStep: (step: number) => {
-          set(immerSet((state) => {
+          set(produce((state) => {
             state.onboardingStep = step + 1;
           }));
         },
@@ -231,17 +232,17 @@ export const useLearningStore = create<LearningState & LearningActions>()(
             return { profile, currentLearningPathId: response.currentLearningPathId };
           },
           {
-            onStart: () => set(immerSet((state) => {
+            onStart: () => set(produce((state) => {
               state.isLoading = true;
               state.error = null;
             })),
-            onSuccess: (result) => set(immerSet((state) => {
+            onSuccess: (result) => set(produce((state) => {
               state.userProfile = result.profile;
               state.onboardingCompleted = true;
               state.onboardingStep = 0;
               state.isLoading = false;
             })),
-            onError: (error) => set(immerSet((state) => {
+            onError: (error) => set(produce((state) => {
               state.error = error.message;
               state.isLoading = false;
             }))
@@ -259,11 +260,11 @@ export const useLearningStore = create<LearningState & LearningActions>()(
             return response;
           },
           {
-            onStart: () => set(immerSet((state) => {
+            onStart: () => set(produce((state) => {
               state.isLoading = true;
               state.error = null;
             })),
-            onSuccess: (data) => set(immerSet((state) => {
+            onSuccess: (data) => set(produce((state) => {
               state.currentPath = data.currentPath;
               state.pathContent = data.content;
               state.nextRecommended = data.nextRecommended;
@@ -271,7 +272,7 @@ export const useLearningStore = create<LearningState & LearningActions>()(
               state.userProfile = data.profile;
               state.isLoading = false;
             })),
-            onError: (error) => set(immerSet((state) => {
+            onError: (error) => set(produce((state) => {
               state.error = error.message;
               state.isLoading = false;
             }))
@@ -288,11 +289,11 @@ export const useLearningStore = create<LearningState & LearningActions>()(
             return { contentId, pointsAwarded: response.pointsAwarded };
           },
           {
-            onStart: () => set(immerSet((state) => {
+            onStart: () => set(produce((state) => {
               state.isLoading = true;
               state.error = null;
             })),
-            onSuccess: (result) => set(immerSet((state) => {
+            onSuccess: (result) => set(produce((state) => {
               // Update content status
               const contentIndex = state.pathContent.findIndex(c => c.id === result.contentId);
               if (contentIndex !== -1) {
@@ -310,7 +311,7 @@ export const useLearningStore = create<LearningState & LearningActions>()(
               
               state.isLoading = false;
             })),
-            onError: (error) => set(immerSet((state) => {
+            onError: (error) => set(produce((state) => {
               state.error = error.message;
               state.isLoading = false;
             }))
@@ -327,11 +328,11 @@ export const useLearningStore = create<LearningState & LearningActions>()(
             return { contentId, pointsAwarded: response.pointsAwarded, bonusPoints: response.bonusPoints };
           },
           {
-            onStart: () => set(immerSet((state) => {
+            onStart: () => set(produce((state) => {
               state.isLoading = true;
               state.error = null;
             })),
-            onSuccess: (result) => set(immerSet((state) => {
+            onSuccess: (result) => set(produce((state) => {
               // Update content status
               const contentIndex = state.pathContent.findIndex(c => c.id === result.contentId);
               if (contentIndex !== -1) {
@@ -349,7 +350,7 @@ export const useLearningStore = create<LearningState & LearningActions>()(
               
               state.isLoading = false;
             })),
-            onError: (error) => set(immerSet((state) => {
+            onError: (error) => set(produce((state) => {
               state.error = error.message;
               state.isLoading = false;
             }))
@@ -369,14 +370,14 @@ export const useLearningStore = create<LearningState & LearningActions>()(
             return response;
           },
           {
-            onStart: () => set(immerSet((state) => {
+            onStart: () => set(produce((state) => {
               state.error = null;
             })),
-            onSuccess: (data) => set(immerSet((state) => {
+            onSuccess: (data) => set(produce((state) => {
               state.aiRecommendations = data;
               state.lastNudgeTime = new Date().toISOString();
             })),
-            onError: (error) => set(immerSet((state) => {
+            onError: (error) => set(produce((state) => {
               state.error = `AI recommendations unavailable: ${error.message}`;
             }))
           }
@@ -392,7 +393,7 @@ export const useLearningStore = create<LearningState & LearningActions>()(
             return { nudgeId, response };
           },
           {
-            onError: (error) => set(immerSet((state) => {
+            onError: (error) => set(produce((state) => {
               state.error = error.message;
             }))
           }
@@ -403,13 +404,13 @@ export const useLearningStore = create<LearningState & LearningActions>()(
         // ========================================================================
 
         clearError: () => {
-          set(immerSet((state) => {
+          set(produce((state) => {
             state.error = null;
           }));
         },
 
         setLoading: (loading: boolean) => {
-          set(immerSet((state) => {
+          set(produce((state) => {
             state.isLoading = loading;
           }));
         },

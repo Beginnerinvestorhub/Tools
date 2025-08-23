@@ -3,8 +3,6 @@
  * Provides ESG data and screening functionality
  */
 
-import { Router, Request, Response } from 'express';
-import { validateRequest } from '../middleware/validation';
 import { authenticateToken } from '../middleware/auth';
 import { rateLimit } from 'express-rate-limit';
 
@@ -58,7 +56,6 @@ router.get('/screen', authenticateToken, async (req: Request, res: Response) => 
       minSocialScore = 0,
       minGovernanceScore = 0,
       excludeIndustries = '',
-      portfolio = false
     } = req.query;
 
     // Mock screening results

@@ -42,20 +42,7 @@ const globalRateLimiter = rateLimit({
 // Apply rate limiting to all requests
 app.use(globalRateLimiter);
 
-// Auth rate limiting (more restrictive)
-const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs for auth endpoints
-  message: {
-    error: 'Too many authentication attempts, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true, // Only count failed requests
-});
 
-// Apply auth rate limiting to auth routes
-// This will be applied in the routes themselves
 
 // Middleware
 // Enable CORS for specific origins only in production

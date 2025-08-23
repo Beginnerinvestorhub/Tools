@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+import { produce } from 'immer';
 import { 
   PortfolioState, 
   PortfolioActions, 
@@ -13,8 +14,7 @@ import {
 } from './types';
 import { 
   createAsyncAction, 
-  createErrorHandler, 
-  immerSet,
+  createErrorHandler,
   createPersistConfig,
   createCacheKey,
   createOptimisticUpdate,
@@ -189,7 +189,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             const portfolios = await portfolioApi.fetchPortfolios();
             const calculatedPortfolios = portfolios.map(calculatePortfolioMetrics);
             
-            set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            set(produce((draft) => {
               draft.portfolios = calculatedPortfolios;
               draft.lastSync = Date.now();
               draft.error = null;
@@ -203,21 +203,21 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             return calculatedPortfolios;
           },
           {
-            onStart: () => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onStart: () => set(produce((draft) => {
               draft.isLoading = true;
               draft.error = null;
             })),
-            onFinally: () => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onFinally: () => set(produce((draft) => {
               draft.isLoading = false;
             })),
-            onError: (error) => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Fetch Portfolios')(error);
             })),
           }
         ),
 
         setActivePortfolio: (portfolioId: string) => {
-          set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+          set(produce((draft) => {
             const portfolio = draft.portfolios.find(p => p.id === portfolioId);
             if (portfolio) {
               draft.activePortfolio = portfolio;
@@ -247,7 +247,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
               { ...holding, ...holdingUpdates },
               () => {
                 // Rollback function
-                set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+                set(produce((draft) => {
                   const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
                   if (targetPortfolio) {
                     const holdingIndex = targetPortfolio.holdings.findIndex(h => h.id === holding.id);
@@ -260,7 +260,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             );
 
             // Apply optimistic update to UI
-            set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            set(produce((draft) => {
               const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
               if (targetPortfolio) {
                 const holdingIndex = targetPortfolio.holdings.findIndex(h => h.id === holding.id);
@@ -288,7 +288,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
               const updatedHolding = await portfolioApi.updateHolding(portfolioId, holding.id, holdingUpdates);
               
               // Update with server response
-              set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+              set(produce((draft) => {
                 const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
                 if (targetPortfolio) {
                   const holdingIndex = targetPortfolio.holdings.findIndex(h => h.id === holding.id);
@@ -315,7 +315,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             }
           },
           {
-            onError: (error) => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Update Holding')(error);
             })),
           }
@@ -341,7 +341,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             const updatedTempHolding = updateHoldingMetrics(tempHolding);
 
             // Apply optimistic update
-            set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            set(produce((draft) => {
               const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
               if (targetPortfolio) {
                 targetPortfolio.holdings.push(updatedTempHolding);
@@ -362,7 +362,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
               const newHolding = await portfolioApi.addHolding(portfolioId, holdingData);
               
               // Replace temporary holding with real one
-              set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+              set(produce((draft) => {
                 const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
                 if (targetPortfolio) {
                   const tempIndex = targetPortfolio.holdings.findIndex(h => h.id === tempHolding.id);
@@ -384,7 +384,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
               return newHolding;
             } catch (error) {
               // Remove temporary holding on error
-              set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+              set(produce((draft) => {
                 const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
                 if (targetPortfolio) {
                   targetPortfolio.holdings = targetPortfolio.holdings.filter(h => h.id !== tempHolding.id);
@@ -403,7 +403,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             }
           },
           {
-            onError: (error) => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Add Holding')(error);
             })),
           }
@@ -421,7 +421,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             }
 
             // Apply optimistic update (remove holding)
-            set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            set(produce((draft) => {
               const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
               if (targetPortfolio) {
                 targetPortfolio.holdings = targetPortfolio.holdings.filter(h => h.id !== holdingId);
@@ -442,7 +442,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
               await portfolioApi.removeHolding(portfolioId, holdingId);
             } catch (error) {
               // Rollback optimistic update (add holding back)
-              set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+              set(produce((draft) => {
                 const targetPortfolio = draft.portfolios.find(p => p.id === portfolioId);
                 if (targetPortfolio) {
                   targetPortfolio.holdings.push(holding);
@@ -461,7 +461,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             }
           },
           {
-            onError: (error) => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Remove Holding')(error);
             })),
           }
@@ -479,14 +479,14 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
             // Refresh portfolios after sync
             await get().fetchPortfolios();
             
-            set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            set(produce((draft) => {
               draft.lastSync = result.timestamp;
             }));
 
             return result;
           },
           {
-            onError: (error) => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+            onError: (error) => set(produce((draft) => {
               draft.error = createErrorHandler('Sync Prices')(error);
             })),
           }
@@ -496,7 +496,7 @@ export const usePortfolioStore = create<PortfolioState & PortfolioActions>()(
         // UTILITY ACTIONS
         // ========================================================================
 
-        clearError: () => set(immerSet<PortfolioState & PortfolioActions>((draft) => {
+        clearError: () => set(produce((draft) => {
           draft.error = null;
         })),
       }),
