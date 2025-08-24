@@ -27,9 +27,9 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://your-app.vercel.app # Replace with your frontend URL
+        value: https://your-app.vercel.app
       - key: ALLOWED_ORIGINS
-        value: https://your-app.vercel.app,http://localhost:3000 # Replace with your frontend URL
+        value: https://your-app.vercel.app,http://localhost:3000
       - key: FIREBASE_PROJECT_ID
         value: your-project-id
       - key: FIREBASE_CLIENT_EMAIL
@@ -63,7 +63,7 @@ services:
           name: redis_cache
           property: connectionString
       - key: CORS_ORIGINS
-        value: https://your-app.vercel.app,http://localhost:3000 # Replace with your frontend URL
+        value: https://your-app.vercel.app,http://localhost:3000
       - key: OPENAI_API_KEY
         value: your_openai_api_key
       - key: ANTHROPIC_API_KEY
@@ -94,9 +94,6 @@ services:
       - key: PORT
         value: 8001
 
-
   - type: redis
-    name: redis_cache
-    plan: free
-    ipAllowList:
-      - source: 0.0.0.0/0
+    name: redis_cache
+    plan: free
