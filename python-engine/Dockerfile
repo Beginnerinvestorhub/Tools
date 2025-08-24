@@ -4,9 +4,9 @@ WORKDIR /app
 # Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-COPY requirements.txt ./
+COPY python-engine/requirements.txt ././
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
+COPY python-engine/ .
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app

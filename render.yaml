@@ -8,7 +8,8 @@ services:
   - type: web
     name: backend
     env: docker
-    dockerfilePath: ./backend/Dockerfile
+    dockerContext: tools/backend
+    dockerfilePath: tools/backend/Dockerfile
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
@@ -46,7 +47,8 @@ services:
   - type: web
     name: python-engine
     env: docker
-    dockerfilePath: ./python-engine/Dockerfile
+    dockerContext: tools/python-engine
+    dockerfilePath: tools/python-engine/Dockerfile
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL

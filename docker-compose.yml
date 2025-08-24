@@ -19,7 +19,9 @@ services:
     volumes:
       - ./backend:/app
   python-engine:
-    build: ./python-engine
+    build:
+      context: .
+      dockerfile: ./python-engine/Dockerfile
     env_file:
       - ./python-engine/.env
     volumes:
