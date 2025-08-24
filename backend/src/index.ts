@@ -6,11 +6,14 @@ import { testConnection, initializeDatabase } from './config/database';
 import { validateEnv, env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
+import apiLimiter from './middlewares/rateLimit';
 
 // Validate environment variables
 validateEnv();
 
 const app = express();
+
+app.use(apiLimiter);
 
 // Middleware: Dev logger
 if (process.env.NODE_ENV !== 'production') {
