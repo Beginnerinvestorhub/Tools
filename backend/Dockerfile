@@ -5,6 +5,7 @@ WORKDIR /app
 # ---- Dependencies ----
 FROM base AS deps
 COPY package.json package-lock.json* ./
+RUN npm install -g pnpm
 RUN npm install --frozen-lockfile || :
 
 # ---- Build ----
