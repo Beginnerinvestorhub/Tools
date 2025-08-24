@@ -16,10 +16,7 @@ services:
           name: investment_hub_db
           property: connectionString
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: redis_cache
-          property: connectionString
+        value: "your_redis_connection_string" # Placeholder
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -46,7 +43,6 @@ services:
         value: your_openai_api_key
       - key: API_KEY_NUDGE_ENGINE
         generateValue: true
-
   - type: web
     name: python-engine
     env: docker
@@ -58,10 +54,7 @@ services:
           name: investment_hub_db
           property: connectionString
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: redis_cache
-          property: connectionString
+        value: "your_redis_connection_string" # Placeholder
       - key: CORS_ORIGINS
         value: https://your-app.vercel.app,http://localhost:3000
       - key: OPENAI_API_KEY
@@ -80,7 +73,6 @@ services:
         value: 8000
       - key: DEBUG
         value: false
-
   - type: web
     name: ai-microservice
     env: docker
@@ -93,7 +85,3 @@ services:
           property: connectionString
       - key: PORT
         value: 8001
-
-  - type: redis
-    name: redis_cache
-    plan: free
