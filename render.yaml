@@ -1,19 +1,17 @@
-# render.yaml
 #
 # This file is a Render Blueprint that defines the infrastructure for the
 # Beginner Investor Hub backend. It has been updated to follow the standardized
 # microservices architecture, ensuring each service is built from its own
 # Dockerfile within the 'tools/' directory.
+#
+# Note: External services like Redis are not defined here.
+#
 
 databases:
   - name: investment_hub_db
     databaseName: investment_hub
     user: investment_hub_user
     plan: free
-
-redis:
-  - name: bih-cache
-    plan: free # Or your desired plan
 
 services:
   # ----------------------------------------------------------------------
@@ -30,10 +28,6 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: investment_hub_db
-          property: connectionString
-      - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
           property: connectionString
       - key: NODE_ENV
         value: production
@@ -58,10 +52,6 @@ services:
         fromDatabase:
           name: investment_hub_db
           property: connectionString
-      - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
       - fromGroup: ai-secrets
 
   # ----------------------------------------------------------------------
@@ -80,10 +70,6 @@ services:
         fromDatabase:
           name: investment_hub_db
           property: connectionString
-      - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
 
   # ----------------------------------------------------------------------
   # Market Data Ingestion Service (Python)
@@ -100,10 +86,6 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: investment_hub_db
-          property: connectionString
-      - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
           property: connectionString
       - fromGroup: financial-api-keys
 
