@@ -1,6 +1,0 @@
-# services/ai-behavioral-nudge-engine/.env
-PORT=8000
-HOST=0.0.0.0
-LOG_LEVEL=debug
-DATABASE_URL=sqlite:///./dev_nudge_data.db
-NUDGE_MODEL_PATH=./models/mock_nudge_model.pkl

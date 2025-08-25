@@ -18,7 +18,7 @@ services:
     name: backend-api
     env: docker
     # The root directory for the build context
-    rootDir: ./tools/services/backend-api
+    rootDir: ./tools/tools/services/backend-api
     # The Dockerfile is in the root directory, so just specify the filename
     dockerfilePath: Dockerfile
     healthCheckPath: /healthcheck
@@ -34,24 +34,7 @@ services:
       # Secrets are now managed in a centralized environment group
       - fromGroup: backend-secrets
 
-  # ----------------------------------------------------------------------
-  # AI Behavioral Nudge Engine (Python)
-  # ----------------------------------------------------------------------
-  - type: web
-    name: ai-behavioral-nudge-engine
-    env: docker
-    # Corrected paths based on your file tree
-    rootDir: ./tools/services/ai-behavioral-nudge-engine
-    dockerfilePath: ./tools/services/ai-behavioral-nudge-engine/dockerfile
-    healthCheckPath: /health
-    envVars:
-      - key: SERVICE_NAME
-        value: ai-behavioral-nudge-engine
-      - key: DATABASE_URL
-        fromDatabase:
-          name: investment_hub_db
-          property: connectionString
-      - fromGroup: ai-secrets
+  
 
   # ----------------------------------------------------------------------
   # Risk Calculation Engine (Python)
@@ -60,8 +43,8 @@ services:
     name: risk-calculation-engine
     env: docker
     # Corrected paths based on your file tree
-    rootDir: ./tools/services/risk-calculation-engine
-    dockerfilePath: ./tools/services/risk-calculation-engine/Dockerfile
+    rootDir: ./tools/tools/services/risk-calculation-engine
+    dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
@@ -78,8 +61,8 @@ services:
     name: market-data-ingestion
     env: docker
     # Corrected paths based on your file tree
-    rootDir: ./tools/services/market-data-ingestion
-    dockerfilePath: ./tools/services/market-data-ingestion/Dockerfile
+    rootDir: ./tools/tools/services/market-data-ingestion
+    dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME

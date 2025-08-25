@@ -5,7 +5,10 @@ RUN npm install -g pnpm
 
 # Stage 2: Install dependencies
 FROM base AS deps
-COPY package.json pnpm-lock.yaml ./
+# Use a specific path if the file is outside the build context.
+# Otherwise, copy it from the project root.
+COPY package.json ./
+COPY ../../pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
 
 # Stage 3: Build the application
