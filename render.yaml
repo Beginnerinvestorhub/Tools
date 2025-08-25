@@ -18,7 +18,7 @@ services:
     name: backend-api
     env: docker
     # The root directory for the build context
-    rootDir: ./tools/tools/services/backend-api
+    rootDir: ./tools/services/backend-api
     # The Dockerfile is in the root directory, so just specify the filename
     dockerfilePath: Dockerfile
     healthCheckPath: /healthcheck
@@ -43,7 +43,7 @@ services:
     name: risk-calculation-engine
     env: docker
     # Corrected paths based on your file tree
-    rootDir: ./tools/tools/services/risk-calculation-engine
+    rootDir: ./tools/services/risk-calculation-engine
     dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
@@ -61,7 +61,7 @@ services:
     name: market-data-ingestion
     env: docker
     # Corrected paths based on your file tree
-    rootDir: ./tools/tools/services/market-data-ingestion
+    rootDir: ./tools/services/market-data-ingestion
     dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
