@@ -49,8 +49,8 @@ COPY --chown=appuser:nodejs healthcheck.js ./
 USER appuser
 
 # Use environment variable for port (Render will set this)
-ENV PORT=4000
-EXPOSE $PORT
+
+EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
