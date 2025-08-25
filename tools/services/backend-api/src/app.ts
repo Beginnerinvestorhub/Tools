@@ -13,6 +13,9 @@ import riskAssessmentRoutes from './routes/riskAssessmentRoutes';
 import simulationRoutes from './routes/simulationRoutes';
 import healthRoutes from './routes/healthRoutes';
 import nudgeEngineRoutes from './routes/nudgeEngineRoutes';
+import { gamificationRouter } from './routes/gamificationRoutes';
+import { learningRouter } from './routes/learningRoutes';
+import { profileRouter } from './routes/profileRoutes';
 
 // Import middleware
 import { validateEnvironment } from './middleware/envValidationMiddleware';
@@ -103,6 +106,9 @@ app.use('/api/risk-assessment', riskAssessmentRoutes);
 app.use('/api/simulation', simulationRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/nudge-engine', nudgeEngineRoutes);
+app.use('/api/gamification', gamificationRouter);
+app.use('/api/learning', learningRouter);
+app.use('/api/profile', profileRouter);
 
 // Root route for API health check
 app.get('/api', (req: Request, res: Response) => {

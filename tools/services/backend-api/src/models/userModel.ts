@@ -6,6 +6,8 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password?: string;
+  firstName?: string;
+  lastName?: string;
   riskProfile?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -41,6 +43,8 @@ const UserSchema: Schema = new Schema({
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false, // Don't return password by default in queries
   },
+  firstName: { type: String, trim: true },
+  lastName: { type: String, trim: true },
   riskProfile: {
     type: Schema.Types.ObjectId,
     ref: 'RiskProfile', // Reference to the RiskProfile model
