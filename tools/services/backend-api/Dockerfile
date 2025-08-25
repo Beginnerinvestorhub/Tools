@@ -1,47 +1,27 @@
-# ==============================================================================
-# STANDARDIZED DOCKERFILE FOR THE NODE.JS BACKEND API
-# ==============================================================================
-# This Dockerfile uses a multi-stage build to create a small and secure
-# production image for the backend-api service. It correctly uses pnpm,
-# which is the package manager for this monorepo.
+# Stage 1: Base image and pnpm installation
+FROM node:18-alpine AS base
+WORKDIR /usr/src/app
+RUN npm install -g pnpm
 
-# --- Stage 1: Build ---
-FROM node:18-alpine AS builder
+# Stage 2: Install dependencies
+FROM base AS deps
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
 
-# Install and enable pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
-WORKDIR /app
-
-# Copy all package manifests and the lockfile from the root
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# Copy the source code for all packages and apps to resolve workspace dependencies
+# Stage 3: Build the application
+FROM base AS build
 COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build
 
-# Install dependencies and build only the backend-api application.
-# The --filter flag targets the specific package by its name in package.json.
-# The --frozen-lockfile flag is the pnpm equivalent of 'npm ci'.
-RUN pnpm install --frozen-lockfile --filter @beginner-investor-hub/backend-api...
-RUN pnpm --filter @beginner-investor-hub/backend-api build
+# Stage 4: Production image
+FROM base AS production
+ENV NODE_ENV=production
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist ./dist
 
-# --- Stage 2: Production ---
-FROM node:18-alpine AS runner
-WORKDIR /app
-
-# Create a non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Copy only the built application and its production node_modules from the builder stage.
-COPY --from=builder /app/tools/services/backend-api/dist ./dist
-COPY --from=builder /app/tools/services/backend-api/node_modules ./node_modules
-COPY --from=builder /app/tools/services/backend-api/package.json .
-
-USER appuser
-
+# Expose the port defined in render.yaml
 EXPOSE 4000
 
-# The main entrypoint for the NestJS application
-CMD ["node", "dist/main"]
+# Command to run the application
+CMD [ "node", "dist/server.js" ]
