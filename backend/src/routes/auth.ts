@@ -1,75 +1,86 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import admin from 'firebase-admin';
-import jwt from 'jsonwebtoken';
+import admin from '../utils/firebaseAdmin';
 import { validate, sanitize } from '../middleware/validation';
 import { validationSchemas } from '../schemas/validationSchemas';
 import { ApiError, UnauthorizedError } from '../utils/errors';
+import { requireAuth } from '../utils/requireAuth';
+import { logger } from '../utils/logger';
 
 export const authRouter = Router();
 
-// Login endpoint with comprehensive validation
-authRouter.post('/login', 
-  validate({ body: validationSchemas.auth.login }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { email, password, rememberMe } = req.body;
-      
-      // Sanitize email input
-      const sanitizedEmail = sanitize.email(email);
-      
-      // Use Firebase Admin SDK to verify credentials
-      const firebaseUser = await admin.auth().getUserByEmail(sanitizedEmail);
-        
-        // In a production environment, you would also verify the password
-        // This requires using the Firebase Auth REST API or a client-side flow
-        // For this implementation, we'll assume the user exists and is valid
-        
-        const user = { 
-          uid: firebaseUser.uid, 
-          email: firebaseUser.email, 
-          role: 'user', // Default role, could be retrieved from database
-          lastLogin: new Date().toISOString()
-        };
-      
-      if (!process.env.JWT_SECRET) {
-        throw new Error('JWT_SECRET is not configured on the server.');
-      }
-      
-        const tokenExpiry = rememberMe ? '30d' : '1h';
-        const token = jwt.sign(
-          { uid: user.uid, role: user.role, email: user.email }, 
-          process.env.JWT_SECRET!, 
-          { expiresIn: tokenExpiry }
-        );
-        
-        // Update user's last login in database
-        // This would be implemented with Prisma
-        // await prisma.user.update({
-        //   where: { id: user.uid },
-        //   data: { lastLogin: new Date() }
-        // });
-        
-        // Log successful login (in production, use proper logging service)
-        console.log('Successful login for email:', sanitizedEmail, 'at', new Date().toISOString());
-        
-        res.json({ 
-          token, 
-          user: {
-            uid: user.uid,
-            email: user.email,
-            role: user.role,
-            lastLogin: user.lastLogin
-          },
-          expiresIn: tokenExpiry
-        });
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        return next(new UnauthorizedError('Invalid email or password'));
-      }
-      return next(error);
+/**
+ * @openapi
+ * /api/auth/session:
+ *   post:
+ *     summary: Establishes a user session after Firebase authentication.
+ *     description: This endpoint should be called by the frontend immediately after a user successfully signs in with the Firebase Client SDK. The request must include the Firebase ID Token in the Authorization header. This endpoint will then find or create a corresponding user profile in the local application database.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User session established. Returns the user profile from the local database.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: 'string' }
+ *                 user: { type: 'object' } # Define your user profile schema here
+ *       401:
+ *         description: Unauthorized. The provided Firebase ID Token is invalid or expired.
+ */
+authRouter.post('/session', requireAuth(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // The `requireAuth` middleware has already verified the Firebase token.
+    // The decoded user information is available in `req.user`.
+    const firebaseUser = req.user!;
+    logger.info(`User ${firebaseUser.uid} successfully authenticated via Firebase.`);
+
+    // --- Find or Create User in Local Database ---
+    // This is where you sync the Firebase user with your own application's user table.
+    // This example assumes you have a Prisma client set up at `prisma`.
+    /*
+    let userProfile = await prisma.user.findUnique({
+      where: { id: firebaseUser.uid },
+    });
+
+    if (!userProfile) {
+      logger.info(`No local profile found for user ${firebaseUser.uid}. Creating new profile.`);
+      userProfile = await prisma.user.create({
+        data: {
+          id: firebaseUser.uid,
+          email: firebaseUser.email!,
+          // Set other default fields
+          firstName: firebaseUser.name?.split(' ')[0] || '',
+          lastName: firebaseUser.name?.split(' ')[1] || '',
+          role: 'user', // Default role
+        },
+      });
+    } else {
+      // Optional: Update last login time
+      await prisma.user.update({
+        where: { id: firebaseUser.uid },
+        data: { lastLogin: new Date() },
+      });
     }
+    */
+    // For now, we'll just return the verified user profile from the token.
+    const userProfile = {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      name: firebaseUser.name,
+      role: firebaseUser.role || 'user', // Custom claim 'role'
+      // You would return your local DB profile here
+    };
+
+    res.status(200).json({
+      message: 'User session established successfully.',
+      user: userProfile,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // User registration endpoint
 authRouter.post('/register',
@@ -124,7 +135,7 @@ authRouter.post('/register',
         //   }
         // });
         
-        console.log('New user registered with email:', sanitizedEmail, 'at', new Date().toISOString());
+        logger.info('New user registered with email:', sanitizedEmail);
         
         res.status(201).json({
           message: 'User registered successfully',
@@ -142,7 +153,7 @@ authRouter.post('/register',
       if (error.code === 'auth/email-already-exists') {
         return next(new ApiError('An account with this email already exists', 409));
       }
-      return next(error);
+      next(error);
     }
   }
 );
@@ -164,14 +175,15 @@ authRouter.post('/forgot-password',
         
         // In production: Send email with reset link
         // This would typically use a service like SendGrid or Nodemailer
-        console.log('Password reset link generated for email:', sanitizedEmail);
-        console.log('Reset link:', resetLink);
+        logger.info('Password reset link generated for email:', sanitizedEmail);
+        // Do not log the link in production
+        // console.log('Reset link:', resetLink);
 
       } catch (firebaseError: any) {
         // If user is not found, we just swallow the error and do nothing.
         // If it's another error, we should log it but still not inform the user.
         if (firebaseError.code !== 'auth/user-not-found') {
-          console.error('Firebase password reset error (user may exist):', firebaseError);
+          logger.error('Firebase password reset error (user may exist):', firebaseError);
         }
       }
 
@@ -197,7 +209,7 @@ authRouter.post('/reset-password',
       // await admin.auth().confirmPasswordReset(token, newPassword);
       
       const sanitizedToken = token.replace(/\n|\r/g, "").substring(0, 8);
-      console.log('Password reset completed for token:', sanitizedToken, '...');
+      logger.info('Password reset completed for token:', sanitizedToken, '...');
       
       res.json({
         message: 'Password has been reset successfully.',

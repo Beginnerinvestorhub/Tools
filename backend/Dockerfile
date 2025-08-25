@@ -5,8 +5,8 @@ WORKDIR /app
 # ---- Dependencies ----
 FROM base AS deps
 COPY package.json package-lock.json* ./
-RUN npm install -g pnpm
-RUN npm install --frozen-lockfile || :
+# Use npm ci for faster, more reliable builds in CI environments
+RUN npm ci
 
 # ---- Build ----
 FROM deps AS build
@@ -23,8 +23,10 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
+
+# Install only production dependencies to create a smaller image
+RUN npm ci --omit=dev
 
 # Change ownership to non-root user
 RUN chown -R nextjs:nodejs /app

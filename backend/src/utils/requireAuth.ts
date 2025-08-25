@@ -1,27 +1,41 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import admin from './firebaseAdmin';
+import { logger } from '../utils/logger';
 
-export function requireAuth(roles: string[] = []) {
-  return (req: Request & { user?: any }, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization || '';
-    const token = authHeader.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ error: 'Missing token' });
+// Extend the Express Request interface to include the user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: admin.auth.DecodedIdToken;
+    }
+  }
+}
+
+export const requireAuth = (roles: string[] = []) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Not authorized, no token provided' });
+    }
+
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-      // @ts-ignore
-      req.user = decoded;
-      if (roles.length && !roles.includes((decoded as any).role)) {
-        return res.status(403).json({ error: 'Forbidden' });
+      const idToken = authHeader.split(' ')[1];
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      req.user = decodedToken;
+
+      // Role check
+      if (roles.length > 0) {
+        const userRole = req.user?.role as string; // Assumes 'role' is a custom claim
+        if (!userRole || !roles.includes(userRole)) {
+          return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+        }
       }
+
       next();
-    } catch (e: any) {
-      // Only handle JWT errors here. Log unexpected errors for debugging.
-      if (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError') {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-      // Log unexpected errors and rethrow for global error handler
-      console.error('Unexpected error in requireAuth:', e);
-      throw e;
+    } catch (error) {
+      logger.error('Firebase token verification failed', { error });
+      res.status(401).json({ error: 'Not authorized, token is invalid or expired' });
     }
   };
-}
+};

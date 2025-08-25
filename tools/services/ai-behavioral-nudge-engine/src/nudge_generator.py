@@ -1,6 +1,10 @@
 # services/ai-behavioral-nudge-engine/src/nudge_generator.py
 from typing import List, Dict, Any, Optional
 import random
+import logging
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class NudgeGenerator:
     """
@@ -31,7 +35,12 @@ class NudgeGenerator:
                 "Before making a decision, list three reasons why your chosen investment might fail.",
                 "Actively seek out information that contradicts your current beliefs."
             ],
-            # Add more biases and corresponding nudges
+            "Herd Mentality": [
+                "Just because an investment is popular doesn't mean it's right for you. Do your own research.",
+                "Avoid making investment decisions based on social media hype. Focus on fundamentals.",
+                "Consider if you're following the crowd or your own investment strategy. It's okay to be different."
+            ]
+            # TODO: Add more biases and corresponding nudges from a centralized knowledge base
         }
 
         # General nudges if no specific bias is detected, or as supplementary
@@ -52,18 +61,24 @@ class NudgeGenerator:
         Returns:
             Optional[str]: A generated nudge message, or None if no specific nudge can be found.
         """
+        selected_nudge = None
         if not detected_biases:
             # If no specific biases, provide a general financial health nudge
-            return random.choice(self.general_nudges)
+            selected_nudge = random.choice(self.general_nudges)
+            logging.info(f"No specific bias detected. Providing general nudge for user.")
+            return selected_nudge
 
         # Prioritize a nudge based on the first detected bias (can be refined)
         for bias in detected_biases:
             if bias in self.nudge_templates:
-                return random.choice(self.nudge_templates[bias])
+                selected_nudge = random.choice(self.nudge_templates[bias])
+                logging.info(f"Generated nudge for bias '{bias}' for user.")
+                return selected_nudge
 
         # Fallback to general nudge if no specific template found for detected biases
-        return random.choice(self.general_nudges)
+        selected_nudge = random.choice(self.general_nudges)
+        logging.info(f"Detected biases {detected_biases} have no matching templates. Providing general nudge.")
+        return selected_nudge
 
 # Export an instance
 nudge_generator = NudgeGenerator()
-

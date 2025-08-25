@@ -2,7 +2,7 @@ import os
 from typing import Optional, List
 from pydantic import BaseSettings, validator, Field
 from functools import lru_cache
-
+from typing import cast
 
 class Settings(BaseSettings):
     """Application settings and configuration."""
@@ -97,7 +97,7 @@ class Settings(BaseSettings):
     websocket_max_connections: int = Field(default=100, env="WEBSOCKET_MAX_CONNECTIONS")
     websocket_ping_interval: int = Field(default=20, env="WEBSOCKET_PING_INTERVAL")
     websocket_ping_timeout: int = Field(default=10, env="WEBSOCKET_PING_TIMEOUT")
-    
+
     # Cache Settings
     cache_ttl_quotes: int = Field(default=60, env="CACHE_TTL_QUOTES")  # 1 minute
     cache_ttl_daily: int = Field(default=3600, env="CACHE_TTL_DAILY")  # 1 hour
@@ -207,3 +207,19 @@ def get_settings() -> Settings:
 
 # Create settings instance
 settings = get_settings()
+# This file is refactored to use the project's standardized configuration system,
+# as defined in the PYTHON_SERVICES_CONSOLIDATION_GUIDE.md. This ensures
+# consistency, reduces code duplication, and centralizes config management.
+from shared.config.base_config import get_config, MarketDataConfig
+
+# Ensure the SERVICE_NAME environment variable is set for the config factory.
+# This is crucial for the factory to return the correct service-specific config class.
+os.environ.setdefault("SERVICE_NAME", "market-data-ingestion")
+
+# Get the specific, type-safe configuration object for this service.
+# We cast the result to the specific config class for better type hinting and autocompletion.
+settings = cast(MarketDataConfig, get_config())
+
+# The 'settings' object can now be imported and used throughout the service,
+# providing access to all configuration variables from the shared base and
+# service-specific overrides.

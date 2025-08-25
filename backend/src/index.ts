@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import { createClient } from 'redis';
 import rateLimit from 'express-rate-limit';
 import { testConnection, initializeDatabase } from './config/database';
 import { validateEnv, env } from './config/env';
@@ -12,6 +13,13 @@ import apiLimiter from './middlewares/rateLimit';
 validateEnv();
 
 const app = express();
+
+// Initialize Redis Client for health checks and other operations
+const redisClient = env.redisUrl ? createClient({ url: env.redisUrl }) : null;
+if (redisClient) {
+  redisClient.on('error', (err) => logger.error('Redis Client Error', err));
+  redisClient.connect().catch(err => logger.error('Failed to connect to Redis on startup', err));
+}
 
 app.use(apiLimiter);
 
@@ -96,18 +104,29 @@ app.use('/api/esg', esgRouter);
 
 // Enhanced Health Check with system status
 app.get('/api/health', async (_, res) => {
+  let redisStatus: 'healthy' | 'unhealthy' | 'unavailable' = 'unavailable';
+  if (redisClient) {
+    try {
+      await redisClient.ping();
+      redisStatus = 'healthy';
+    } catch (error) {
+      logger.error('Redis health check failed:', error);
+      redisStatus = 'unhealthy';
+    }
+  }
+
   const healthStatus = {
     status: 'ok',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
     environment: process.env.NODE_ENV || 'development',
     services: {
-      database: process.env.DATABASE_URL ? 'healthy' : 'unavailable',
+      database: process.env.DATABASE_URL ? 'healthy' : 'unavailable', // This could also be improved with a live check
       stripe: process.env.STRIPE_SECRET_KEY ? 'healthy' : 'unavailable',
-      redis: 'unavailable' // Add Redis check if implemented
+      redis: redisStatus
     }
   };
-  
+
   res.json(healthStatus);
 });
 

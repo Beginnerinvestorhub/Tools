@@ -1,24 +1,20 @@
 # services/ai-behavioral-nudge-engine/src/config.py
 import os
-from dotenv import load_dotenv
+from typing import cast
 
-# Load environment variables from .env file
-load_dotenv()
+# This file is refactored to use the project's standardized configuration system,
+# as defined in the PYTHON_SERVICES_CONSOLIDATION_GUIDE.md. This ensures
+# consistency, reduces code duplication, and centralizes config management.
+from shared.config.base_config import get_config, AIBehavioralConfig
 
-class Config:
-    """
-    Configuration class for the AI Behavioral Nudge Engine.
-    Loads settings from environment variables.
-    """
-    API_PORT: int = int(os.getenv("PORT", 8000))
-    API_HOST: str = os.getenv("HOST", "0.0.0.0")
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "info")
-    # Add other configuration variables like database connections,
-    # external service URLs, or model paths if needed
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./nudge_data.db")
-    # Example for a mock external model path
-    NUDGE_MODEL_PATH: str = os.getenv("NUDGE_MODEL_PATH", "./models/nudge_model.pkl")
+# Ensure the SERVICE_NAME environment variable is set for the config factory.
+# This is crucial for the factory to return the correct service-specific config class.
+os.environ.setdefault("SERVICE_NAME", "ai-behavioral-nudge-engine")
 
-config = Config()
+# Get the specific, type-safe configuration object for this service.
+# We cast the result to the specific config class for better type hinting and autocompletion.
+settings = cast(AIBehavioralConfig, get_config())
 
-
+# The 'settings' object can now be imported and used throughout the service,
+# providing access to all configuration variables from the shared base and
+# service-specific overrides.

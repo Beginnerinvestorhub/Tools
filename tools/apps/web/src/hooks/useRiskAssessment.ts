@@ -1,5 +1,5 @@
 // apps/web/src/hooks/useRiskAssessment.ts
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 // Define types for risk assessment questions and profile
 // These types should ideally come from your 'packages/api-types' or 'apps/web/src/types'
@@ -23,52 +23,36 @@ interface RiskProfile {
   description: string;
 }
 
-// Example risk assessment questions
-const EXAMPLE_QUESTIONS: RiskAssessmentQuestion[] = [
-  {
-    id: 'q1',
-    question: 'What is your primary investment goal?',
-    options: [
-      { value: 'preservation', label: 'Capital Preservation', score: 1 },
-      { value: 'income', label: 'Generating Income', score: 2 },
-      { value: 'growth', label: 'Long-term Growth', score: 3 },
-      { value: 'speculation', label: 'Aggressive Growth/Speculation', score: 4 },
-    ],
-  },
-  {
-    id: 'q2',
-    question: 'What is your investment time horizon?',
-    options: [
-      { value: 'short', label: 'Less than 1 year', score: 1 },
-      { value: 'medium', label: '1-5 years', score: 2 },
-      { value: 'long', label: '5-10 years', score: 3 },
-      { value: 'very_long', label: 'More than 10 years', score: 4 },
-    ],
-  },
-  {
-    id: 'q3',
-    question: 'How would you react to a 20% drop in your portfolio value?',
-    options: [
-      { value: 'panic', label: 'Panic and sell everything', score: 1 },
-      { value: 'worry', label: 'Feel worried, but hold', score: 2 },
-      { value: 'opportunity', label: 'See it as a buying opportunity', score: 3 },
-      { value: 'unconcerned', label: 'Largely unconcerned, focus on long-term', score: 4 },
-    ],
-  },
-  // Add more questions as needed
-];
-
 /**
  * Custom hook for managing risk assessment logic.
  * @returns An object containing risk assessment state, questions, and functions to interact with them.
  */
 const useRiskAssessment = () => {
+  const [questions, setQuestions] = useState<RiskAssessmentQuestion[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: number }>({}); // Stores selected option scores
   const [riskProfile, setRiskProfile] = useState<RiskProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Start loading to fetch questions
   const [error, setError] = useState<string | null>(null);
 
-  const questions = useMemo(() => EXAMPLE_QUESTIONS, []);
+  // Fetch questions from the backend on initial mount, as per architecture
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        // This endpoint will need to be created in the backend API
+        const response = await fetch('/api/risk/questions');
+        if (!response.ok) throw new Error('Failed to fetch questions.');
+        const data: RiskAssessmentQuestion[] = await response.json();
+        setQuestions(data);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+        console.error('Error fetching risk questions:', errorMessage);
+        setError('Could not load assessment questions. Please try refreshing.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchQuestions();
+  }, []);
 
   /**
    * Updates the answer for a specific question.
@@ -92,43 +76,31 @@ const useRiskAssessment = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // As per the architecture, the frontend calls the backend, which orchestrates the Python engine.
+      // This API endpoint will need to be created in the backend.
+      const response = await fetch('/api/risk/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers }),
+      });
 
-      const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
-
-      // Simple mapping logic for demonstration.
-      // In a real app, this logic would likely be on the backend (risk-calculation-engine/risk_assessment_engine.py)
-      let level: RiskProfile['level'];
-      let description: string;
-
-      if (totalScore <= 5) {
-        level = 'Conservative';
-        description = 'You prioritize capital preservation and are comfortable with lower returns for minimal risk.';
-      } else if (totalScore <= 9) {
-        level = 'Moderate';
-        description = 'You seek a balance between growth and capital preservation, comfortable with some market fluctuations.';
-      } else if (totalScore <= 13) {
-        level = 'Aggressive';
-        description = 'You are willing to take on significant risk for potentially higher returns, comfortable with market volatility.';
-      } else {
-        level = 'Very Aggressive';
-        description = 'You are highly comfortable with risk and seek maximum growth, even at the expense of significant volatility.';
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Calculation failed.' }));
+        throw new Error(errorData.message || 'Failed to calculate risk profile.');
       }
 
-      setRiskProfile({
-        score: totalScore,
-        level,
-        description,
-      });
+      const result: RiskProfile = await response.json();
+      setRiskProfile(result);
+
     } catch (err) {
-      console.error('Error calculating risk profile:', err);
-      setError('Failed to calculate risk profile. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      console.error('Error calculating risk profile:', errorMessage);
+      setError(`Calculation Error: ${errorMessage}`);
       setRiskProfile(null);
     } finally {
       setIsLoading(false);
     }
-  }, [answers]); // Recalculate only if answers change
+  }, [answers]);
 
   // Optional: Function to clear the assessment
   const resetAssessment = useCallback(() => {
@@ -158,4 +130,3 @@ const useRiskAssessment = () => {
 };
 
 export default useRiskAssessment;
-

@@ -11,7 +11,7 @@ NEXT_PUBLIC_PYTHON_ENGINE_URL=https://your-python-engine.railway.app
 # Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=beginnerinvestorhub-8ce1f
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
@@ -40,7 +40,7 @@ ALLOWED_ORIGINS=https://your-app.vercel.app
 JWT_SECRET=your_super_secure_jwt_secret_at_least_32_chars
 
 # Firebase Admin SDK
-FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PROJECT_ID=beginnerinvestorhub-8ce1f
 FIREBASE_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key\n-----END PRIVATE KEY-----\n"
 
