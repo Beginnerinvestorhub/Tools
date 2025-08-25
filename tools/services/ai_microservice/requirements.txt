@@ -1,8 +1,145 @@
-# Inherit shared dependencies from the consolidated standard.
-# The path is relative to the new location this service will be moved to.
--r ../shared/requirements.txt
+# render.yaml
+#
+# This file is a Render Blueprint that defines the infrastructure for the
+# Beginner Investor Hub backend. Updated to match the actual file structure.
 
-# Add any service-specific dependencies here if needed.
-# The AI microservice uses asyncpg directly for its database connection pool,
-# which is not included in the shared dependencies.
-asyncpg>=0.29.0
+databases:
+  - name: investment-hub-db
+    databaseName: investment_hub
+    user: investment_hub_user
+    plan: free
+
+# Redis is hosted externally via redis.com
+# No redis section needed
+
+services:
+  # ----------------------------------------------------------------------
+  # Main Backend API Gateway (Node.js)
+  # ----------------------------------------------------------------------
+  - type: web
+    name: backend-api
+    env: docker
+    rootDir: ./tools/services/backend-api
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    port: 4000
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: investment-hub-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - fromGroup: backend-secrets
+
+  # ----------------------------------------------------------------------
+  # AI Behavioral Nudge Engine (Python)
+  # ----------------------------------------------------------------------
+  - type: web
+    name: ai-behavioral-nudge-engine
+    env: docker
+    rootDir: ./tools/services/ai-behavioral-nudge-engine
+    dockerfilePath: dockerfile
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: SERVICE_NAME
+        value: ai-behavioral-nudge-engine
+      - key: DATABASE_URL
+        fromDatabase:
+          name: investment-hub-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - fromGroup: ai-secrets
+
+  # ----------------------------------------------------------------------
+  # Risk Calculation Engine (Python)
+  # ----------------------------------------------------------------------
+  - type: web
+    name: risk-calculation-engine
+    env: docker
+    rootDir: ./tools/services/risk-calculation-engine
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SERVICE_NAME
+        value: risk-calculation-engine
+      - key: DATABASE_URL
+        fromDatabase:
+          name: investment-hub-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - fromGroup: financial-api-keys
+
+  # ----------------------------------------------------------------------
+  # Market Data Ingestion Service (Python)
+  # ----------------------------------------------------------------------
+  - type: web
+    name: market-data-ingestion
+    env: docker
+    rootDir: ./tools/services/market-data-ingestion
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SERVICE_NAME
+        value: market-data-ingestion
+      - key: DATABASE_URL
+        fromDatabase:
+          name: investment-hub-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - fromGroup: financial-api-keys
+
+  # ----------------------------------------------------------------------
+  # AI Microservice (Python)
+  # ----------------------------------------------------------------------
+  - type: web
+    name: ai-microservice
+    env: docker
+    rootDir: ./tools/services/ai_microservice
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SERVICE_NAME
+        value: ai-microservice
+      - key: DATABASE_URL
+        fromDatabase:
+          name: investment-hub-db
+          property: connectionString
+      - key: REDIS_URL
+        fromRedis:
+          name: bih-cache
+          property: connectionString
+      - fromGroup: ai-secrets
+
+# Environment groups for managing secrets securely and centrally
+envVarGroups:
+  - name: backend-secrets
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+  - name: ai-secrets
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+  - name: financial-api-keys
+    envVars:
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: POLYGON_API_KEY
+        sync: false

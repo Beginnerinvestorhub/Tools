@@ -1,46 +1,39 @@
 # render.yaml
 #
 # This file is a Render Blueprint that defines the infrastructure for the
-# Beginner Investor Hub backend. It has been updated to follow the standardized
-# microservices architecture, ensuring each service is built from its own
-# Dockerfile within the 'tools/' directory.
+# Beginner Investor Hub backend. Updated to match the actual file structure.
 
 databases:
-  - name: investment_hub_db
+  - name: investment-hub-db
     databaseName: investment_hub
     user: investment_hub_user
     plan: free
 
-redis:
-  - name: bih-cache
-    plan: free # Or your desired plan
+# Redis is hosted externally via redis.com
+# No redis section needed
 
 services:
   # ----------------------------------------------------------------------
   # Main Backend API Gateway (Node.js)
   # ----------------------------------------------------------------------
   - type: web
-    name: backend-api # Renamed for clarity and consistency
+    name: backend-api
     env: docker
-    # The root directory for the build context
     rootDir: ./tools/services/backend-api
-    # The Dockerfile is in the root directory, so just specify the filename
     dockerfilePath: Dockerfile
-    healthCheckPath: /healthcheck
+    healthCheckPath: /health
+    port: 4000
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: investment_hub_db
+          name: investment-hub-db
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
+        sync: false
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 4000
-      # Secrets are now managed in a centralized environment group
       - fromGroup: backend-secrets
 
   # ----------------------------------------------------------------------
@@ -50,20 +43,18 @@ services:
     name: ai-behavioral-nudge-engine
     env: docker
     rootDir: ./tools/services/ai-behavioral-nudge-engine
-    dockerfilePath: ./tools/services/ai-behavioral-nudge-engine/Dockerfile
-    region: oregon # Or your preferred region
+    dockerfilePath: dockerfile
+    region: oregon
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
         value: ai-behavioral-nudge-engine
       - key: DATABASE_URL
         fromDatabase:
-          name: investment_hub_db
+          name: investment-hub-db
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
+        sync: false
       - fromGroup: ai-secrets
 
   # ----------------------------------------------------------------------
@@ -72,7 +63,6 @@ services:
   - type: web
     name: risk-calculation-engine
     env: docker
-    # Corrected paths based on your file tree
     rootDir: ./tools/services/risk-calculation-engine
     dockerfilePath: Dockerfile
     healthCheckPath: /health
@@ -81,12 +71,11 @@ services:
         value: risk-calculation-engine
       - key: DATABASE_URL
         fromDatabase:
-          name: investment_hub_db
+          name: investment-hub-db
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
+        sync: false
+      - fromGroup: financial-api-keys
 
   # ----------------------------------------------------------------------
   # Market Data Ingestion Service (Python)
@@ -94,7 +83,6 @@ services:
   - type: web
     name: market-data-ingestion
     env: docker
-    # Corrected paths based on your file tree
     rootDir: ./tools/services/market-data-ingestion
     dockerfilePath: Dockerfile
     healthCheckPath: /health
@@ -103,12 +91,10 @@ services:
         value: market-data-ingestion
       - key: DATABASE_URL
         fromDatabase:
-          name: investment_hub_db
+          name: investment-hub-db
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
+        sync: false
       - fromGroup: financial-api-keys
 
   # ----------------------------------------------------------------------
@@ -125,7 +111,11 @@ services:
         value: ai-microservice
       - key: DATABASE_URL
         fromDatabase:
-          name: investment_hub_db
+          name: investment-hub-db
+          property: connectionString
+      - key: REDIS_URL
+        fromRedis:
+          name: bih-cache
           property: connectionString
       - fromGroup: ai-secrets
 
@@ -135,9 +125,19 @@ envVarGroups:
     envVars:
       - key: JWT_SECRET
         generateValue: true
+      - key: REDIS_URL
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
   - name: ai-secrets
     envVars:
       - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
         sync: false
   - name: financial-api-keys
     envVars:
