@@ -22,11 +22,11 @@ services:
   - type: web
     name: backend-api # Renamed for clarity and consistency
     env: docker
-    # Corrected paths to point to the standardized location
+    # The root directory for the build context
     rootDir: ./tools/services/backend-api
-    dockerfilePath: ./tools/services/backend-api/Dockerfile
-    region: oregon # Or your preferred region
-    healthCheckPath: /api/health
+    # The Dockerfile is in the root directory, so just specify the filename
+    dockerfilePath: Dockerfile
+    healthCheckPath: /healthcheck
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -72,9 +72,9 @@ services:
   - type: web
     name: risk-calculation-engine
     env: docker
+    # Corrected paths based on your file tree
     rootDir: ./tools/services/risk-calculation-engine
-    dockerfilePath: ./tools/services/risk-calculation-engine/Dockerfile
-    region: oregon # Or your preferred region
+    dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
@@ -94,9 +94,9 @@ services:
   - type: web
     name: market-data-ingestion
     env: docker
+    # Corrected paths based on your file tree
     rootDir: ./tools/services/market-data-ingestion
-    dockerfilePath: ./tools/services/market-data-ingestion/Dockerfile
-    region: oregon # Or your preferred region
+    dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
