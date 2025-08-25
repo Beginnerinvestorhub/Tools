@@ -22,7 +22,7 @@ services:
     rootDir: ./tools/services/backend-api
     dockerfilePath: Dockerfile
     healthCheckPath: /health
-    port: 4000
+    
     envVars:
       - key: DATABASE_URL
         fromDatabase:
