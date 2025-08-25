@@ -1,57 +1,47 @@
-# Multi-stage build for security and smaller image size
-# Stage 1: Build stage
+# ==============================================================================
+# STANDARDIZED DOCKERFILE FOR THE NODE.JS BACKEND API
+# ==============================================================================
+# This Dockerfile uses a multi-stage build to create a small and secure
+# production image for the backend-api service. It correctly uses pnpm,
+# which is the package manager for this monorepo.
+
+# --- Stage 1: Build ---
 FROM node:18-alpine AS builder
 
-# Set working directory
+# Install and enable pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
+# Copy all package manifests and the lockfile from the root
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install pnpm if not available
-RUN npm install -g pnpm
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
+# Copy the source code for all packages and apps to resolve workspace dependencies
 COPY . .
 
-# Build the application
-RUN pnpm run build
+# Install dependencies and build only the backend-api application.
+# The --filter flag targets the specific package by its name in package.json.
+# The --frozen-lockfile flag is the pnpm equivalent of 'npm ci'.
+RUN pnpm install --frozen-lockfile --filter @beginner-investor-hub/backend-api...
+RUN pnpm --filter @beginner-investor-hub/backend-api build
 
-# Stage 2: Production stage
-FROM node:18-alpine AS production
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
-
-# Set working directory
+# --- Stage 2: Production ---
+FROM node:18-alpine AS runner
 WORKDIR /app
 
-# Copy package files for production
-COPY package.json pnpm-lock.yaml ./
+# Create a non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Install pnpm
-RUN npm install -g pnpm
+# Copy only the built application and its production node_modules from the builder stage.
+COPY --from=builder /app/tools/services/backend-api/dist ./dist
+COPY --from=builder /app/tools/services/backend-api/node_modules ./node_modules
+COPY --from=builder /app/tools/services/backend-api/package.json .
 
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
+USER appuser
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+EXPOSE 4000
 
-# Change ownership to non-root user
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
-# Expose port
-EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD node healthcheck.js
-
-# Start the application
-CMD ["node", "dist/server.js"]
+# The main entrypoint for the NestJS application
+CMD ["node", "dist/main"]
