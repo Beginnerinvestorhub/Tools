@@ -17,9 +17,10 @@ services:
   - type: web
     name: backend-api
     env: docker
-    # Corrected paths to point to the standardized location
+    # The root directory for the build context
     rootDir: ./tools/services/backend-api
-    dockerfilePath: ./tools/services/backend-api/Dockerfile
+    # The Dockerfile is in the root directory, so just specify the filename
+    dockerfilePath: Dockerfile
     healthCheckPath: /healthcheck
     envVars:
       - key: DATABASE_URL
