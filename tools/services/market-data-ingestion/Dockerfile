@@ -46,7 +46,7 @@ RUN mkdir -p /app/logs /app/data && \
 USER appuser
 
 # Expose the port (Render will use this)
-EXPOSE $PORT
+EXPOSE 8000
 
 # Health check - using environment variable for port
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
