@@ -13,15 +13,15 @@ WORKDIR /app
 # This layer is cached and only re-built when dependencies change.
 FROM base AS deps
 
-# Copy the root manifests first.
+# Copy manifests
 COPY pnpm-lock.yaml ./
 COPY package.json ./
 
 # Copy all package.json files from the monorepo workspaces to leverage caching.
 # This is more granular than copying the whole directories.
-COPY packages/api-types/package.json ./packages/api-types/
-COPY tools/apps/web/package.json ./tools/apps/web/
-COPY tools/services/backend-api/package.json ./tools/services/backend-api/
+COPY packages/api-types/package.json ./packages/api-types/package.json
+COPY tools/apps/web/package.json ./tools/apps/web/package.json
+COPY tools/services/backend-api/package.json ./tools/services/backend-api/package.json
 
 # Install ALL dependencies for the entire monorepo.
 # --frozen-lockfile is crucial for reproducible builds in CI/CD.
