@@ -13,24 +13,22 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^19",
-    "react-dom": "^19",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "next": "^14.2.3",
-    "firebase": "^11.10.0", 
+    "firebase": "^11.10.0",
     "@beginnerinvestorhub/api-types": "workspace:^"
-    
-    
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^24",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.17",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "eslint": "^8",
+    "eslint": "^8.56.0",
     "eslint-config-next": "14.2.3",
-    "prettier": "^3.2.5", 
-    "prettier-plugin-tailwindcss": "^0.6.13" 
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.6.13"
   }
 }

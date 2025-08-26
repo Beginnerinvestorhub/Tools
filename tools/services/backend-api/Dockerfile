@@ -1,54 +1,57 @@
-# Stage 1: Base image and pnpm installation
+# This Dockerfile is designed for a pnpm monorepo and MUST be built from the repository root.
+# Your render.yaml has been updated to do this automatically.
+
+# ---- Base ----
+# Use a consistent base image.
 FROM node:18-alpine AS base
-WORKDIR /usr/src/app
-RUN npm install -g pnpm
+# Use the pnpm version from your package.json for consistency.
+RUN npm install -g pnpm@8.15.5
+WORKDIR /app
 
-# Stage 2: Install dependencies
-FROM base AS deps
-# Copy package files from the service directory
-COPY package.json ./
+# ---- Builder ----
+# This stage installs all dependencies and builds the target service.
+FROM base AS builder
+
+# First, copy only the package manifests to leverage Docker cache.
 COPY pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
-
-# Stage 3: Build the application
-FROM base AS build
-# Copy source files
 COPY package.json ./
-COPY pnpm-lock.yaml ./
-COPY src/ ./src/
-COPY tsconfig.json ./
-COPY jest.config.js ./
-COPY nodemon.json ./
 
-# Install all dependencies (including dev dependencies for build)
+# Copy workspace folders containing package.json files.
+COPY packages/ ./packages/
+COPY tools/ ./tools/
+
+# Install ALL dependencies for the entire monorepo.
+# --frozen-lockfile is crucial for reproducible builds in CI/CD.
 RUN pnpm install --frozen-lockfile
 
-# Build the application
-RUN pnpm run build
+# Now copy the rest of the source code.
+COPY . .
 
-# Stage 4: Production image
-FROM node:18-alpine AS production
-WORKDIR /usr/src/app
+# Use pnpm's filter to build only the backend-api and its workspace dependencies.
+# The package name must match the "name" field in its package.json.
+RUN pnpm --filter @beginnerinvestorhub/backend-api... build
 
-# Set production environment
+# ---- Pruner ----
+# Create a pruned, production-only build of just our service.
+FROM builder AS pruner
+# Use pnpm deploy to copy only the necessary production files to a new directory.
+RUN pnpm deploy --filter @beginnerinvestorhub/backend-api --prod /prod
+
+# ---- Final Production Image ----
+FROM node:18-alpine AS final
 ENV NODE_ENV=production
+WORKDIR /usr/src/app
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S appuser -u 1001 -G nodejs
-
-# Copy dependencies and built application
-COPY --from=deps --chown=appuser:nodejs /usr/src/app/node_modules ./node_modules
-COPY --from=build --chown=appuser:nodejs /usr/src/app/dist ./dist
-COPY --from=build --chown=appuser:nodejs /usr/src/app/package.json ./package.json
-
-# Copy healthcheck file
-COPY --chown=appuser:nodejs healthcheck.js ./
-
-# Switch to non-root user
 USER appuser
 
-# Use environment variable for port (Render will set this)
+# Copy the pruned production files from the pruner stage.
+COPY --from=pruner --chown=appuser:nodejs /prod/ .
+
+# Copy the healthcheck file from its location in the monorepo.
+COPY --chown=appuser:nodejs ./tools/services/backend-api/healthcheck.js ./
 
 EXPOSE 8000
 
@@ -56,5 +59,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node healthcheck.js || exit 1
 
-# Command to run the application
+
+# The command to run the application. The path is relative to the pruned output.
 CMD ["node", "dist/server.js"]

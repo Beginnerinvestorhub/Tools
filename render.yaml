@@ -18,8 +18,10 @@ services:
   - type: web
     name: backend-api
     env: docker
-    rootDir: ./tools/services/backend-api
-    dockerfilePath: Dockerfile
+    # Build from the monorepo root to give Docker access to the entire workspace
+    rootDir: .
+    # Specify the path to the Dockerfile from the root
+    dockerfilePath: ./tools/services/backend-api/Dockerfile
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL

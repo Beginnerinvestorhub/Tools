@@ -2,14 +2,12 @@
   "name": "@beginnerinvestorhub/api-types",
   "version": "1.0.0",
   "description": "Shared TypeScript API types for Beginner Investor Hub.",
-  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
-    "build": "tsc --declaration --emitDeclarationOnly false --outDir dist",
+    "build": "tsc --emitDeclarationOnly",
     "clean": "rimraf dist"
   },
   "keywords": [
@@ -31,7 +29,6 @@
   "homepage": "https://github.com/Beginnerinvestorhub/Tools#readme",
   "devDependencies": {
     "typescript": "^5.3.3",
-    "@types/node": "^20.11.17",
     "rimraf": "^5.0.0"
   }
 }

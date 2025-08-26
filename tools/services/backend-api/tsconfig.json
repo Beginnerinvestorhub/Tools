@@ -1,21 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    // --- Project Settings ---
+    "target": "ES2022", // Aligns with Node.js 18 support
     "module": "CommonJS",
     "outDir": "./dist",
     "rootDir": "./src",
+
+    // --- Monorepo Project References ---
+    "composite": true, // Required for project references
+    "declaration": true, // Generates .d.ts files for other projects if needed
+
+    // --- Strictness & Interoperability ---
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "lib": ["ES2021"],
-    "baseUrl": ".",
-    "paths": {
-      "@beginnerinvestorhub/api-types": ["../../packages/api-types/src"]
-    }
+    "resolveJsonModule": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"],
+  "references": [{ "path": "../../../packages/api-types" }]
 }

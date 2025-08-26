@@ -1,0 +1,12 @@
+{
+  // This is a "solution-style" tsconfig.json, used to coordinate builds and
+  // provide a single entry point for IDEs and the TypeScript compiler.
+  // It does not compile any files itself.
+  // Learn more: https://www.typescriptlang.org/docs/handbook/project-references.html
+  "files": [],
+  "references": [
+    { "path": "./packages/api-types" },
+    { "path": "./tools/apps/web" },
+    { "path": "./tools/services/backend-api" }
+  ]
+}
