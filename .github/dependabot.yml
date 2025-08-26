@@ -76,9 +76,9 @@ updates:
     rebase-strategy: "auto"
     versioning-strategy: "increase"
 
-  # AI Behavioral Nudge Engine Python requirements
+  # AI Microservice Python requirements
   - package-ecosystem: "pip"
-    directory: "/tools/services/ai-behavioral-nudge-engine"
+    directory: "/tools/services/ai-microservice"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10

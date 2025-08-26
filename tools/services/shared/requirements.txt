@@ -2,7 +2,7 @@
 # CONSOLIDATED PYTHON REQUIREMENTS FOR ALL SERVICES
 # ==============================================================================
 # This file consolidates dependencies across all Python services:
-# - ai-behavioral-nudge-engine
+# - ai-microservice
 # - market-data-ingestion  
 # - risk-calculation-engine
 # ==============================================================================

@@ -40,8 +40,10 @@ services:
   - type: web
     name: risk-calculation-engine
     env: docker
-    rootDir: ./tools/services/risk-calculation-engine
-    dockerfilePath: Dockerfile
+    # Build from the monorepo root to access shared files
+    rootDir: .
+    # Provide the full path to the Dockerfile from the root
+    dockerfilePath: ./tools/services/risk-calculation-engine/Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
@@ -58,8 +60,9 @@ services:
   - type: web
     name: market-data-ingestion
     env: docker
-    rootDir: ./tools/services/market-data-ingestion
-    dockerfilePath: Dockerfile
+    # Build from the monorepo root to access shared files
+    rootDir: .
+    dockerfilePath: ./tools/services/market-data-ingestion/Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
@@ -73,15 +76,16 @@ services:
   # ----------------------------------------------------------------------
   # AI Microservice (Python)
   # ----------------------------------------------------------------------
-  - type: web
-    name: ai-microservice
+  - type: web # Standardizing name for consistency with other configs
+    name: ai-behavioral-nudge-engine
     env: docker
-    rootDir: ./tools/services/ai_microservice
-    dockerfilePath: Dockerfile
+    # Build from the monorepo root to access shared files
+    rootDir: .
+    dockerfilePath: ./tools/services/ai-behavioral-nudge-engine/Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
-        value: ai-microservice
+        value: ai-behavioral-nudge-engine
       - key: DATABASE_URL
         fromDatabase:
           name: investment-hub-db
