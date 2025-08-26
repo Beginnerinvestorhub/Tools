@@ -1,5 +1,5 @@
 {
-  "name": "@beginnerinvestorhub/web",
+  "name": "web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,8 +15,7 @@
     "next": "^14.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "swr": "^2.2.0",
-    "@beginnerinvestorhub/Tools/tools/apps/web": "workspace:*"
+    "swr": "^2.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
