@@ -1,18 +1,17 @@
-# Use an official Python runtime as a parent image
+# Use an official Python runtime
 FROM python:3.11-slim
 
-# Set environment variables for Python optimization
+# Environment optimizations
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONPATH=/app
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies first (for better layer caching)
-RUN apt-get update && apt-get install -y \
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     libpq-dev \
@@ -21,34 +20,27 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container first (for better caching)
+# Copy and install Python dependencies
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code into the container
+# Copy app code
 COPY src/ ./src/
 COPY start.py .
 
-# Create non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
-# Create necessary directories with proper permissions
-RUN mkdir -p /app/logs /app/data /app/temp && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app
-
-# Switch to non-root user
+# Non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+    && mkdir -p /app/logs /app/data /app/temp \
+    && chown -R appuser:appuser /app \
+    && chmod -R 755 /app
 USER appuser
 
-# Expose the port that the FastAPI application runs on
-EXPOSE 8000
+# Expose Render port
+EXPOSE $PORT
 
-# Health check with proper timing for AI microservice startup
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:$PORT/health || exit 1
 
-# Command to run the application
-# Using start.py as the entry point for the AI microservice
-CMD ["python", "start.py"]
+# Run uvicorn with dynamic port
+CMD ["sh", "-c", "uvicorn start:app --host 0.0.0.0 --port ${PORT:-8000}"]
