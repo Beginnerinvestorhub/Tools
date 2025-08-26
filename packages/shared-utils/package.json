@@ -1,14 +1,9 @@
 {
-  "name": "@beginnerinvestorhub/shared-utils",
+  "name": "@tools/api-types",
   "version": "1.0.0",
-  "private": true,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
-  },
+  "main": "index.ts",
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.0.0"
   }
 }
