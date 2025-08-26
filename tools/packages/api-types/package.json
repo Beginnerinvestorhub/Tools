@@ -1,34 +1,52 @@
 {
-  "name": "@beginnerinvestorhub/api-types",
+  "name": "@tools/api-types",
   "version": "1.0.0",
-  "description": "Shared TypeScript API types for Beginner Investor Hub.",
-  "types": "dist/index.d.ts",
+  "description": "Shared TypeScript API types for Tools workspace - includes user management, risk assessment, portfolio management, and market data types.",
+  "main": "index.ts",
+  "types": "index.ts",
   "files": [
-    "dist"
+    "index.ts",
+    "dist/**/*",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc --emitDeclarationOnly",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "dev": "tsc --emitDeclarationOnly --watch",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "typescript",
     "types",
     "api",
     "shared",
-    "beginnerinvestorhub"
+    "investment",
+    "portfolio",
+    "risk-assessment",
+    "market-data"
   ],
-  "author": "Kevin RIngler <beginnerinvestorhub@gmail.com>",
+  "author": "Kevin Ringler <beginnerinvestorhub@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Beginnerinvestorhub/Tools.git"
+    "url": "https://github.com/Beginnerinvestorhub/Tools.git",
+    "directory": "packages/api-types"
   },
   "bugs": {
     "url": "https://github.com/Beginnerinvestorhub/Tools/issues"
   },
-  "homepage": "https://github.com/Beginnerinvestorhub/Tools#readme",
+  "homepage": "https://github.com/Beginnerinvestorhub/Tools/tree/main/packages/api-types#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
   "devDependencies": {
     "typescript": "^5.3.3",
     "rimraf": "^5.0.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.5.0"
   }
 }
