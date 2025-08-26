@@ -19,16 +19,11 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements files
+# Copy merged requirements file
 COPY requirements.txt .
 
-# Copy shared requirements from the correct path
-# Note: This assumes the shared requirements exist at the service level
-COPY ./shared/requirements.txt ./shared_requirements.txt 2>/dev/null || echo "# No shared requirements" > ./shared_requirements.txt
-
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -r shared_requirements.txt 2>/dev/null || echo "No shared requirements to install"
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ ./src/
@@ -46,11 +41,11 @@ RUN mkdir -p /app/logs /app/data && \
 USER appuser
 
 # Expose the port (Render will use this)
-EXPOSE 8000
+EXPOSE $PORT
 
-# Health check - using environment variable for port
+# Health check using the environment variable PORT
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Start command - let Render handle the port via environment variable
+# Start command - use main.py inside src/ if it exists
 CMD python -c "import os; exec(open('src/main.py' if os.path.exists('src/main.py') else 'main.py').read())"
