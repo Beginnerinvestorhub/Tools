@@ -1,14 +1,26 @@
 {
-  "name": "@beginnerinvestorhub/api-types",
-  "version": "1.0.0",
+  "name": "beginnerinvestorhub-tools",
   "private": true,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "version": "1.0.0",
+  "description": "Beginner Investor Hub - Monorepo for all tools and services.",
+  "packageManager": "pnpm@8.15.5",
+  "workspaces": [
+    "packages/*",
+    "tools/apps/*",
+    "tools/services/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "pnpm --filter \"./**\" --parallel build",
+    "dev": "concurrently \"pnpm --filter @beginnerinvestorhub/web dev\" \"pnpm --filter @beginnerinvestorhub/backend-api dev\"",
+    "lint": "pnpm --filter \"./**\" lint",
+    "test": "pnpm --filter \"./**\" test",
+    "clean": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' + && rm -f pnpm-lock.yaml"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "husky": "^8.0.0",
+    "prettier": "^3.2.5",
     "typescript": "^5.3.3"
   }
 }

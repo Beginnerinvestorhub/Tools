@@ -95,6 +95,25 @@ updates:
     rebase-strategy: "auto"
     versioning-strategy: "increase"
 
+  # Risk Calculation Engine Python requirements
+  - package-ecosystem: "pip"
+    directory: "/tools/services/risk-calculation-engine"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    assignees:
+      - "Beginnerinvestorhub"
+    reviewers:
+      - "Beginnerinvestorhub"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    rebase-strategy: "auto"
+    versioning-strategy: "increase"
+
   # Market Data Ingestion Python requirements
   - package-ecosystem: "pip"
     directory: "/tools/services/market-data-ingestion"

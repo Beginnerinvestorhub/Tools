@@ -12,7 +12,7 @@
 # ==============================================================================
 fastapi==0.116.0                    # Latest stable FastAPI version
 uvicorn[standard]==0.35.0           # ASGI server with standard extras
-pydantic>=2.5.0                     # Data validation and settings management (compatible with Python 3.13+)
+pydantic==2.8.2                     # Data validation and settings management
 
 # ==============================================================================
 # HTTP CLIENT LIBRARIES
@@ -23,9 +23,9 @@ requests==2.31.0                    # Traditional HTTP client (legacy support)
 # ==============================================================================
 # DATA PROCESSING & ANALYSIS
 # ==============================================================================
-pandas==2.3.1                       # Data manipulation and analysis
-numpy>=2.0.2                        # Numerical computing (compatible with Python 3.13+)
-scikit-learn>=1.5.0                 # Machine learning library (compatible with Python 3.13+)
+pandas==2.2.2                       # Data manipulation and analysis
+numpy==2.0.0                        # Numerical computing
+scikit-learn==1.5.1                 # Machine learning library
 
 # ==============================================================================
 # DATABASE & PERSISTENCE
@@ -34,13 +34,13 @@ sqlalchemy==2.0.23                  # SQL toolkit and ORM
 alembic==1.16.3                     # Database migration tool
 # psycopg-binary is the modern replacement for psycopg2-binary, with better
 # support for pre-compiled wheels, avoiding build-from-source issues.
-psycopg-binary>=3.1.0               # PostgreSQL adapter
+psycopg-binary==3.1.19              # PostgreSQL adapter
 asyncpg==0.29.0                     # Async PostgreSQL adapter
 
 # ==============================================================================
 # CACHING & MESSAGE QUEUES
 # ==============================================================================
-redis==6.2.0                        # In-memory data structure store
+redis==5.0.7                        # In-memory data structure store (latest stable)
 celery==5.3.4                       # Distributed task queue
 rq==1.15.1                          # Simple job queue
 
@@ -68,13 +68,13 @@ polygon-api-client==1.12.5          # Polygon.io API client
 # ==============================================================================
 # DATE & TIME HANDLING
 # ==============================================================================
-pytz>=2023.3                        # Timezone definitions
+pytz==2024.1                        # Timezone definitions
 python-dateutil==2.8.2              # Date/time parsing utilities
 
 # ==============================================================================
 # DEVELOPMENT & TESTING
 # ==============================================================================
-pytest>=8.1.1                       # Testing framework
+pytest==8.3.2                       # Testing framework
 pytest-asyncio==0.21.1              # Async testing support
 pytest-cov==4.1.0                   # Coverage reporting
 black==24.3.0                       # Code formatter
@@ -116,5 +116,4 @@ supervisor==4.2.5                   # Process control system
 # - FastAPI 0.116.0 requires Pydantic v2
 # - SQLAlchemy 2.0.23 uses new syntax (breaking changes from 1.x)
 # - Python 3.9+ required for all dependencies
-# - All versions tested for compatibility with Python 3.13.5
-# - Using flexible version ranges (>=) for numpy and scikit-learn per memory
+# - All versions pinned for reproducible builds. Use Dependabot for updates.
