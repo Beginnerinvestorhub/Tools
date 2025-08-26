@@ -1,16 +1,12 @@
 # render.yaml
 #
-# This file is a Render Blueprint that defines the infrastructure for the
-# Beginner Investor Hub backend. Updated to match the actual file structure.
+# Beginner Investor Hub Render Blueprint - Fixed for proper sync
 
 databases:
   - name: investment-hub-db
     databaseName: investment_hub
     user: investment_hub_user
     plan: free
-
-# Redis is hosted externally via redis.com
-# No redis section needed
 
 services:
   # ----------------------------------------------------------------------
@@ -22,7 +18,6 @@ services:
     rootDir: ./tools/services/backend-api
     dockerfilePath: Dockerfile
     healthCheckPath: /health
-    
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -117,9 +112,12 @@ services:
         fromRedis:
           name: bih-cache
           property: connectionString
-      - fromGroup: ai-secrets
+      - key: OPENAI_API_KEY
+        value: ""  # placeholder for Render parser
+      - key: ANTHROPIC_API_KEY
+        value: ""  # placeholder for Render parser
 
-# Environment groups for managing secrets securely and centrally
+# Environment groups
 envVarGroups:
   - name: backend-secrets
     envVars:
@@ -133,12 +131,14 @@ envVarGroups:
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
+
   - name: ai-secrets
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+
   - name: financial-api-keys
     envVars:
       - key: ALPHA_VANTAGE_API_KEY
