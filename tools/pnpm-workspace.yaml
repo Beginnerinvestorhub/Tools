@@ -1,16 +1,3 @@
 packages:
-  # Frontend applications
-  - 'apps/*'
-  - 'services/*'
   - 'packages/*'
-
-# Exclude patterns
-exclude:
-  - '**/node_modules/**'
-  - '**/dist/**'
-  - '**/build/**'
-  - '**/.next/**'
-  - '**/coverage/**'
-  - '**/.env*'
-  - '**/Dockerfile*'
-  - '**/*.log'
+  - 'apps/*'
