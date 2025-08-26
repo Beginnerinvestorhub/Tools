@@ -33,6 +33,7 @@ services:
       - key: PORT
         value: 4000
       - fromGroup: backend-secrets
+      - fromGroup: shared-secrets
 
   # ----------------------------------------------------------------------
   # Risk Calculation Engine (Python)
@@ -52,6 +53,7 @@ services:
         fromDatabase:
           name: investment-hub-db
           property: connectionString
+      - fromGroup: shared-secrets
       - fromGroup: financial-api-keys
 
   # ----------------------------------------------------------------------
@@ -71,25 +73,27 @@ services:
         fromDatabase:
           name: investment-hub-db
           property: connectionString
+      - fromGroup: shared-secrets
       - fromGroup: financial-api-keys
 
   # ----------------------------------------------------------------------
   # AI Microservice (Python)
   # ----------------------------------------------------------------------
-  - type: web # Standardizing name for consistency with other configs
-    name: ai-behavioral-nudge-engine
+  - type: web
+    name: ai-microservice
     env: docker
     # Build from the monorepo root to access shared files
     rootDir: .
-    dockerfilePath: ./tools/services/ai-behavioral-nudge-engine/Dockerfile
+    dockerfilePath: ./tools/services/ai-microservice/Dockerfile
     healthCheckPath: /health
     envVars:
       - key: SERVICE_NAME
-        value: ai-behavioral-nudge-engine
+        value: ai-microservice
       - key: DATABASE_URL
         fromDatabase:
           name: investment-hub-db
           property: connectionString
+      - fromGroup: shared-secrets
       - fromGroup: ai-secrets
 
 # Environment groups for managing secrets securely and centrally
@@ -98,8 +102,6 @@ envVarGroups:
     envVars:
       - key: JWT_SECRET
         generateValue: true
-      - key: REDIS_URL
-        value: <your-external-redis-url>
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_PRIVATE_KEY
@@ -107,14 +109,17 @@ envVarGroups:
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
 
+  - name: shared-secrets
+    envVars:
+      - key: REDIS_URL
+        value: <your-external-redis-url>
+
   - name: ai-secrets
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: REDIS_URL
-        value: <your-external-redis-url>
 
   - name: financial-api-keys
     envVars:
