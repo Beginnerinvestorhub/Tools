@@ -1,6 +1,6 @@
-# Investment Tools Hub Web Portal
+# Beginner Investor Hub - Monorepo
 
-This is the monorepo for the Investment Tools Hub web portal, built with Next.js, Tailwind CSS, Node.js, and Python. It features Firebase Authentication, role-based access, Dockerization, and AWS-ready deployment. See below for setup and structure.
+This is the central monorepo for the Beginner Investor Hub platform. It contains all applications and shared packages, managed with pnpm workspaces and Turborepo.
 
 ## Project Structure
 

@@ -1,46 +1,55 @@
-# Use Python 3.11 slim image
 FROM python:3.11-slim
 
-# Environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PORT=8000
-
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for ML and data processing
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     libpq-dev \
     curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy merged requirements file
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the risk calculator engine files
+COPY advanced_ai.py ./
+COPY behavioral_analytics.py ./
+COPY collaborative_filtering.py ./
+COPY content_based.py ./
+COPY nudge_optimization.py ./
+COPY __init__.py ./
 
-# Copy source code
-COPY src/ ./src/
-COPY *.py ./
+# Copy service directories
+COPY ai_microservice/ ./ai_microservice/
+COPY tools/ ./tools/
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Copy any configuration files
+COPY *.json ./ 2>/dev/null || true
+COPY *.yaml ./ 2>/dev/null || true
+COPY *.yml ./ 2>/dev/null  || true
 
-# Create necessary directories
-RUN mkdir -p /app/logs /app/data && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV FLASK_APP=advanced_ai.py
+ENV FLASK_ENV=production
 
-USER appuser
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash app && \
+    chown -R app:app /app
+USER app
 
-EXPOSE $PORT
+# Expose port
+EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:${PORT}/health || exit 1
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-CMD python -c "import os; exec(open('src/main.py' if os.path.exists('src/main.py') else 'main.py').read())"
+# Run the risk calculator engine
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "advanced_ai:app"]
