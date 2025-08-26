@@ -1,7 +1,6 @@
 # render.yaml
 #
-# This file is a Render Blueprint that defines the infrastructure for the
-# Beginner Investor Hub backend. Updated to match the actual file structure.
+# Render Blueprint for Beginner Investor Hub backend
 
 databases:
   - name: investment-hub-db
@@ -22,14 +21,11 @@ services:
     rootDir: ./tools/services/backend-api
     dockerfilePath: Dockerfile
     healthCheckPath: /health
-    
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: investment-hub-db
           property: connectionString
-      - key: REDIS_URL
-        sync: false
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -52,8 +48,6 @@ services:
         fromDatabase:
           name: investment-hub-db
           property: connectionString
-      - key: REDIS_URL
-        sync: false
       - fromGroup: financial-api-keys
 
   # ----------------------------------------------------------------------
@@ -72,8 +66,6 @@ services:
         fromDatabase:
           name: investment-hub-db
           property: connectionString
-      - key: REDIS_URL
-        sync: false
       - fromGroup: financial-api-keys
 
   # ----------------------------------------------------------------------
@@ -92,10 +84,6 @@ services:
         fromDatabase:
           name: investment-hub-db
           property: connectionString
-      - key: REDIS_URL
-        fromRedis:
-          name: bih-cache
-          property: connectionString
       - fromGroup: ai-secrets
 
 # Environment groups for managing secrets securely and centrally
@@ -105,19 +93,23 @@ envVarGroups:
       - key: JWT_SECRET
         generateValue: true
       - key: REDIS_URL
-        sync: false
+        value: <your-external-redis-url>
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
+
   - name: ai-secrets
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: REDIS_URL
+        value: <your-external-redis-url>
+
   - name: financial-api-keys
     envVars:
       - key: ALPHA_VANTAGE_API_KEY
