@@ -8,23 +8,31 @@ FROM node:18-alpine AS base
 RUN npm install -g pnpm@8.15.5
 WORKDIR /app
 
-# ---- Builder ----
-# This stage installs all dependencies and builds the target service.
-FROM base AS builder
+# ---- Dependencies ----
+# This stage copies only package manifests and installs all dependencies.
+# This layer is cached and only re-built when dependencies change.
+FROM base AS deps
 
-# First, copy only the package manifests to leverage Docker cache.
+# Copy the root manifests first.
 COPY pnpm-lock.yaml ./
 COPY package.json ./
 
-# Copy workspace folders containing package.json files.
-COPY packages/ ./packages/
-COPY tools/ ./tools/
+# Copy all package.json files from the monorepo workspaces to leverage caching.
+# This is more granular than copying the whole directories.
+COPY packages/api-types/package.json ./packages/api-types/
+COPY tools/apps/web/package.json ./tools/apps/web/
+COPY tools/services/backend-api/package.json ./tools/services/backend-api/
 
 # Install ALL dependencies for the entire monorepo.
 # --frozen-lockfile is crucial for reproducible builds in CI/CD.
 RUN pnpm install --frozen-lockfile
 
-# Now copy the rest of the source code.
+# ---- Builder ----
+# This stage builds the target service using the pre-installed dependencies.
+# It copies the full source code, so it will be re-built on any code change.
+FROM base AS builder
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Use pnpm's filter to build only the backend-api and its workspace dependencies.
@@ -34,11 +42,13 @@ RUN pnpm --filter @beginnerinvestorhub/backend-api... build
 # ---- Pruner ----
 # Create a pruned, production-only build of just our service.
 FROM builder AS pruner
+
 # Use pnpm deploy to copy only the necessary production files to a new directory.
 RUN pnpm deploy --filter @beginnerinvestorhub/backend-api --prod /prod
 
 # ---- Final Production Image ----
 FROM node:18-alpine AS final
+
 ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
@@ -51,6 +61,7 @@ USER appuser
 COPY --from=pruner --chown=appuser:nodejs /prod/ .
 
 # Copy the healthcheck file from its location in the monorepo.
+# The path in the COPY command is relative to the build context root.
 COPY --chown=appuser:nodejs ./tools/services/backend-api/healthcheck.js ./
 
 EXPOSE 8000
@@ -58,7 +69,6 @@ EXPOSE 8000
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node healthcheck.js || exit 1
-
 
 # The command to run the application. The path is relative to the pruned output.
 CMD ["node", "dist/server.js"]
