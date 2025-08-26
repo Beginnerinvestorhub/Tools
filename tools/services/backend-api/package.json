@@ -49,7 +49,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.4",
     "morgan": "^1.10.0", // Moved from root package.json
-    "express-rate-limit": "^8.0.0",
+    "express-rate-limit": "^8.0.1",
     "firebase-admin": "^12.2.0",
     "@beginnerinvestorhub/api-types": "workspace:*",
     "@beginnerinvestorhub/shared-utils": "workspace:*"
