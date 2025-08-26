@@ -1,16 +1,17 @@
-# Use an official Python runtime
+# Use Python 3.11 slim as base
 FROM python:3.11-slim
 
-# Environment optimizations
+# Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONPATH=/app
 
+# Working directory
 WORKDIR /app
 
-# System dependencies
+# System dependencies (minimal for ML packages)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
@@ -18,29 +19,37 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev \
     libssl-dev \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install Python dependencies
+# Copy only requirements first for caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
 COPY src/ ./src/
 COPY start.py .
 
-# Non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser \
-    && mkdir -p /app/logs /app/data /app/temp \
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Directories & permissions
+RUN mkdir -p /app/logs /app/data /app/temp \
     && chown -R appuser:appuser /app \
     && chmod -R 755 /app
+
+# Switch to non-root
 USER appuser
 
-# Expose Render port
-EXPOSE $PORT
+# Expose FastAPI port
+EXPOSE 8000
 
-# Healthcheck
+# Health check
 HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:$PORT/health || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Run uvicorn with dynamic port
-CMD ["sh", "-c", "uvicorn start:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Run app
+CMD ["python", "start.py"]
