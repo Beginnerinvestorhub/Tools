@@ -1,26 +1,26 @@
 {
   "compilerOptions": {
-    // --- Project Settings ---
-    "target": "ES2022", // Aligns with Node.js 18 support
+    "target": "ES2022",
     "module": "CommonJS",
     "outDir": "./dist",
     "rootDir": "./src",
-
-    // --- Monorepo Project References ---
-    "composite": true, // Required for project references
-    "declaration": true, // Generates .d.ts files for other projects if needed
-
-    // --- Strictness & Interoperability ---
+    "composite": true,
+    "declaration": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@tools/api-types": ["../packages/api-types"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"],
   "references": [
-    { "path": "../../../packages/api-types" },
-    { "path": "../../../packages/shared-utils" }
+    { "path": "../packages/api-types" }
   ]
 }
