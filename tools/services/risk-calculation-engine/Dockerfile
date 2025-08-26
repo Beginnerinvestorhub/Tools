@@ -1,16 +1,16 @@
-# Use an official Python runtime as a parent image
+# Use Python 3.11 slim image
 FROM python:3.11-slim
 
-# Set environment variables
+# Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PORT=8000
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies first
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -18,34 +18,29 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container at /app
+# Copy merged requirements file
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container at /app
-COPY src/ .
+# Copy source code
+COPY src/ ./src/
+COPY *.py ./
 
-# Create non-root user for security
+# Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Create necessary directories with proper permissions
+# Create necessary directories
 RUN mkdir -p /app/logs /app/data && \
     chown -R appuser:appuser /app && \
     chmod -R 755 /app
 
-# Switch to non-root user
 USER appuser
 
-# Expose the port that the FastAPI application runs on
-EXPOSE 8000
+EXPOSE $PORT
 
-# Health check with proper timing for FastAPI startup
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Command to run the application
-# 'uvicorn' is typically used to run FastAPI applications
-# 'api:app' refers to the 'app' object inside 'api.py'
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD python -c "import os; exec(open('src/main.py' if os.path.exists('src/main.py') else 'main.py').read())"
