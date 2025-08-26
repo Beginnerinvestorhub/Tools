@@ -40,7 +40,7 @@ asyncpg==0.29.0                     # Async PostgreSQL adapter
 # ==============================================================================
 # CACHING & MESSAGE QUEUES
 # ==============================================================================
-redis==6.2.0                        # In-memory data structure store
+redis==6.4.0                        # In-memory data structure store
 celery==5.3.4                       # Distributed task queue
 rq==1.15.1                          # Simple job queue
 
