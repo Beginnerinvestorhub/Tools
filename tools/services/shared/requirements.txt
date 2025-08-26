@@ -59,10 +59,11 @@ prometheus-client==0.19.0           # Prometheus monitoring
 # ==============================================================================
 # FINANCIAL DATA APIs
 # ==============================================================================
-yfinance>=0.2.65                    # Yahoo Finance API
+# yfinance is pinned to 0.2.32 to maintain compatibility with polygon-api-client,
+# which requires an older version of the 'websockets' library.
+yfinance==0.2.32                    # Yahoo Finance API
 alpha-vantage==3.0.0                # Alpha Vantage API client
-# polygon-api-client==1.12.5 # Temporarily disabled. This package requires websockets < 12.0,
-                             # which conflicts with yfinance's requirement for websockets >= 13.0.
+polygon-api-client==1.12.5          # Polygon.io API client
 
 # ==============================================================================
 # DATE & TIME HANDLING

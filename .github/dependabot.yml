@@ -2,7 +2,7 @@ version: 2
 updates:
   # Main monorepo package.json (pnpm/npm/yarn)
   - package-ecosystem: "npm"
-    directory: "/tools/"
+    directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
@@ -21,7 +21,7 @@ updates:
 
   # Web app package.json (Next.js frontend)
   - package-ecosystem: "npm"
-    directory: "/tools/apps/web/"
+    directory: "/tools/apps/web"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
@@ -40,7 +40,7 @@ updates:
 
   # Shared API types package.json
   - package-ecosystem: "npm"
-    directory: "/tools/packages/api-types/"
+    directory: "/tools/packages/api-types"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
@@ -59,7 +59,7 @@ updates:
 
   # Backend API Node.js/TypeScript Express app
   - package-ecosystem: "npm"
-    directory: "/tools/services/backend-api/"
+    directory: "/tools/services/backend-api"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
@@ -78,7 +78,7 @@ updates:
 
   # AI Behavioral Nudge Engine Python requirements
   - package-ecosystem: "pip"
-    directory: "/tools/services/ai-behavioral-nudge-engine/"
+    directory: "/tools/services/ai-behavioral-nudge-engine"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -97,7 +97,7 @@ updates:
 
   # Market Data Ingestion Python requirements
   - package-ecosystem: "pip"
-    directory: "/tools/services/market-data-ingestion/"
+    directory: "/tools/services/market-data-ingestion"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
