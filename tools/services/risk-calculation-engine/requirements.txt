@@ -23,7 +23,7 @@ pymc==5.9.0
 
 # Time Series & Forecasting
 arch==6.2.0
-statsforecast==1.6.0
+statsforecast==2.0.2
 
 # Optimization
 cvxpy==1.4.1
