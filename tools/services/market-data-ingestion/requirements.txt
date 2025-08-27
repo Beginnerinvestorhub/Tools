@@ -19,7 +19,7 @@ empyrical==0.5.5
 
 # Monte Carlo & Simulation
 mc-python==1.0.0
-pymc==5.9.0
+pymc==5.12.0
 
 # Time Series & Forecasting
 arch==6.2.0
