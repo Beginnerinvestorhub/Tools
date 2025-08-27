@@ -18,7 +18,7 @@ pydantic==2.8.2                     # Data validation and settings management
 # HTTP CLIENT LIBRARIES
 # ==============================================================================
 httpx==0.25.2                       # Modern async HTTP client
-requests==2.31.0                    # Traditional HTTP client (legacy support)
+requests==2.32.4                    # Traditional HTTP client (legacy support)
 
 # ==============================================================================
 # DATA PROCESSING & ANALYSIS
@@ -84,14 +84,14 @@ mypy==1.6.1                         # Static type checker
 # ==============================================================================
 # SECURITY & VALIDATION
 # ==============================================================================
-cryptography==42.0.5                # Latest secure version
+cryptography==44.0.1                # Latest secure version
 passlib[bcrypt]==1.7.4              # Password hashing library
 python-jose[cryptography]==3.3.0    # JWT handling
 
 # ==============================================================================
 # PERFORMANCE & UTILITIES
 # ==============================================================================
-orjson==3.9.10                      # Fast JSON handling
+orjson==3.9.15                      # Fast JSON handling
 slowapi==0.1.9                      # Rate limiting
 healthcheck==1.3.3                  # Health checks
 psutil==5.9.6                       # System monitoring
@@ -107,7 +107,7 @@ openai==1.16.2                      # OpenAI API client
 # ==============================================================================
 # PRODUCTION DEPLOYMENT
 # ==============================================================================
-gunicorn==21.2.0                    # WSGI HTTP Server
+gunicorn==23.0.0                    # WSGI HTTP Server
 supervisor==4.2.5                   # Process control system
 
 # ==============================================================================
