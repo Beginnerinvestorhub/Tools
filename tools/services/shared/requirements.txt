@@ -17,7 +17,7 @@ pydantic==2.8.2                     # Data validation and settings management
 # ==============================================================================
 # HTTP CLIENT LIBRARIES
 # ==============================================================================
-httpx==0.25.2                       # Modern async HTTP client
+httpx==0.28.1                       # Modern async HTTP client
 requests==2.31.0                    # Traditional HTTP client (legacy support)
 
 # ==============================================================================
