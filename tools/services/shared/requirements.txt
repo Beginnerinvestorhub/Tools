@@ -30,7 +30,7 @@ scikit-learn>=1.5.0                 # Machine learning library (compatible with 
 # ==============================================================================
 # DATABASE & PERSISTENCE
 # ==============================================================================
-sqlalchemy==2.0.23                  # SQL toolkit and ORM
+sqlalchemy==2.0.43                  # SQL toolkit and ORM
 alembic==1.16.3                     # Database migration tool
 # psycopg-binary is the modern replacement for psycopg2-binary, with better
 # support for pre-compiled wheels, avoiding build-from-source issues.
