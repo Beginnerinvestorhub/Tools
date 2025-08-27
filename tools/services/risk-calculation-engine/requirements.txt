@@ -22,7 +22,7 @@ mc-python==1.0.0
 pymc==5.9.0
 
 # Time Series & Forecasting
-arch==6.2.0
+arch==7.2.0
 statsforecast==1.6.0
 
 # Optimization
