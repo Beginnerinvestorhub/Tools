@@ -57,7 +57,7 @@
     "express-rate-limit": "^8.0.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.4.4",
+    "mongoose": "^8.18.0",
     "morgan": "^1.10.0",
     "firebase-admin": "^12.2.0",
     "@tools/api-types": "workspace:*"
