@@ -1,201 +1,55 @@
-// API Response Types
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
+FROM python:3.11-slim
 
-// User Types
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
-}
+# Set working directory
+WORKDIR /app
 
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-  PREMIUM = 'premium'
-}
+# Install system dependencies for ML and data processing
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-// Risk Assessment Types
-export interface RiskProfile {
-  id: string;
-  userId: string;
-  riskTolerance: RiskTolerance;
-  investmentHorizon: number; // years
-  financialGoals: string[];
-  monthlyIncome: number;
-  currentSavings: number;
-  riskScore: number; // 1-10
-  createdAt: Date;
-  updatedAt: Date;
-}
+# Copy reWA.    quirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-export enum RiskTolerance {
-  CONSERVATIVE = 'conservative',
-  MODERATE = 'moderate',
-  AGGRESSIVE = 'aggressive'
-}
+# Copy the risk calculator engine files
+COPY advanced_ai.py ./
+COPY behavioral_analytics.py ./
+COPY collaborative_filtering.py ./
+COPY content_based.py ./
+COPY nudge_optimization.py ./
+COPY __init__.py ./
 
-// Market Data Types
-export interface MarketData {
-  symbol: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  volume: number;
-  marketCap?: number;
-  timestamp: Date;
-}
+# Copy service directories
+COPY ai_microservice/ ./ai_microservice/
+COPY tools/ ./tools/
 
-export interface Stock {
-  symbol: string;
-  name: string;
-  sector: string;
-  industry: string;
-  marketData: MarketData;
-  fundamentals?: StockFundamentals;
-}
+# Copy any configuration files
+COPY *.json ./ 2>/dev/null || true
+COPY *.yaml ./ 2>/dev/null || true
+COPY *.yml ./ 2>/dev/null || true
 
-export interface StockFundamentals {
-  pe: number;
-  pb: number;
-  roe: number;
-  dividendYield: number;
-  eps: number;
-}
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV FLASK_APP=advanced_ai.py
+ENV FLASK_ENV=production
 
-// Portfolio Types
-export interface Portfolio {
-  id: string;
-  userId: string;
-  name: string;
-  totalValue: number;
-  holdings: Holding[];
-  riskScore: number;
-  performance: PortfolioPerformance;
-  createdAt: Date;
-  updatedAt: Date;
-}
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash app && \
+    chown -R app:app /app
+USER app
 
-export interface Holding {
-  symbol: string;
-  quantity: number;
-  averagePrice: number;
-  currentPrice: number;
-  totalValue: number;
-  weight: number; // percentage of portfolio
-  gainLoss: number;
-  gainLossPercent: number;
-}
+# Expose port
+EXPOSE 8000
 
-export interface PortfolioPerformance {
-  totalReturn: number;
-  totalReturnPercent: number;
-  dayChange: number;
-  dayChangePercent: number;
-  volatility: number;
-  sharpeRatio: number;
-}
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-// Recommendation Types
-export interface Recommendation {
-  id: string;
-  userId: string;
-  type: RecommendationType;
-  symbol: string;
-  action: RecommendationAction;
-  confidence: number; // 0-1
-  reasoning: string;
-  targetPrice?: number;
-  riskLevel: RiskTolerance;
-  createdAt: Date;
-  expiresAt: Date;
-}
-
-export enum RecommendationType {
-  BUY = 'buy',
-  SELL = 'sell',
-  HOLD = 'hold',
-  REBALANCE = 'rebalance'
-}
-
-export enum RecommendationAction {
-  STRONG_BUY = 'strong_buy',
-  BUY = 'buy',
-  HOLD = 'hold',
-  SELL = 'sell',
-  STRONG_SELL = 'strong_sell'
-}
-
-// Authentication Types
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  name: string;
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
-  refreshToken: string;
-}
-
-// API Request/Response Types
-export interface GetPortfolioRequest {
-  userId: string;
-}
-
-export interface CreatePortfolioRequest {
-  name: string;
-  initialHoldings?: Holding[];
-}
-
-export interface UpdateRiskProfileRequest {
-  riskTolerance: RiskTolerance;
-  investmentHorizon: number;
-  financialGoals: string[];
-  monthlyIncome: number;
-  currentSavings: number;
-}
-
-export interface GetRecommendationsRequest {
-  userId: string;
-  riskTolerance?: RiskTolerance;
-  limit?: number;
-}
-
-export interface MarketDataRequest {
-  symbols: string[];
-  period?: '1d' | '5d' | '1m' | '3m' | '6m' | '1y' | '5y';
-}
-
-// Utility Types
-export type SortOrder = 'asc' | 'desc';
-
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sortBy?: string;
-  sortOrder?: SortOrder;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+# Run the risk calculator engine
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "advanced_ai:app"]
