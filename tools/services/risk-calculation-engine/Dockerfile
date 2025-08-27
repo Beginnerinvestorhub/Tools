@@ -1,3 +1,4 @@
+
 FROM python:3.11-slim
 
 # Set working directory
@@ -12,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy reWA.    quirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
@@ -32,7 +33,7 @@ COPY tools/ ./tools/
 # Copy any configuration files
 COPY *.json ./ 2>/dev/null || true
 COPY *.yaml ./ 2>/dev/null || true
-COPY *.yml ./ 2>/dev/null  || true
+COPY *.yml ./ 2>/dev/null || true
 
 # Set environment variables
 ENV PYTHONPATH=/app
